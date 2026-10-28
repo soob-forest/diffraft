@@ -1,0 +1,23 @@
+pub mod ai;
+pub mod annotations;
+pub mod conflict;
+pub mod conflict_api;
+pub mod connection;
+pub mod conversation;
+pub mod document;
+pub mod editor;
+pub mod error;
+pub mod export;
+pub mod generation;
+pub mod history;
+pub mod ipc;
+pub mod regeneration;
+pub mod review;
+pub mod review_api;
+pub mod review_view;
+pub mod rewrite;
+
+pub const SCHEMA_VERSION: u32 = 1;
+pub const MAX_DOCUMENT_BYTES: usize = 1024 * 1024;
+pub const MAX_RESPONSE_BYTES: usize = 2 * MAX_DOCUMENT_BYTES;
+pub const MAX_CONTEXT_BYTES: usize = 200 * 1024;

@@ -1,0 +1,30 @@
+.conflict-dialog {
+  width: min(1100px, 92vw);
+}
+.conflict-dialog pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  max-height: 250px;
+  overflow: auto;
+  background: #f5f7fa;
+  padding: 12px;
+}
+.conflict-dialog details {
+  margin: 20px 0;
+}
+.conflict-dialog summary {
+  cursor: pointer;
+}
+.conflict-merge label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 14px;
+}
+.conflict-merge textarea {
+  width: 100%;
+  resize: vertical;
+  font:
+    14px / 1.6 ui-monospace,
+    monospace;
+}

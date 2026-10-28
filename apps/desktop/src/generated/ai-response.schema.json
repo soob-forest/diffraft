@@ -1,0 +1,126 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "AiResponse",
+  "oneOf": [
+    {
+      "type": "object",
+      "properties": {
+        "changes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/AiChange"
+          },
+          "maxItems": 256
+        },
+        "mode": {
+          "type": "string",
+          "const": "PATCH"
+        },
+        "schema_version": {
+          "type": "integer",
+          "format": "uint32",
+          "maximum": 1,
+          "minimum": 1
+        },
+        "summary": {
+          "type": "string",
+          "maxLength": 4096
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "schema_version",
+        "summary",
+        "changes"
+      ]
+    },
+    {
+      "type": "object",
+      "properties": {
+        "candidate_markdown": {
+          "type": "string",
+          "maxLength": 1048576
+        },
+        "mode": {
+          "type": "string",
+          "const": "REWRITE"
+        },
+        "schema_version": {
+          "type": "integer",
+          "format": "uint32",
+          "maximum": 1,
+          "minimum": 1
+        },
+        "summary": {
+          "type": "string",
+          "maxLength": 4096
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "schema_version",
+        "summary",
+        "candidate_markdown"
+      ]
+    },
+    {
+      "type": "object",
+      "properties": {
+        "answer": {
+          "type": "string",
+          "maxLength": 65536
+        },
+        "mode": {
+          "type": "string",
+          "const": "EXPLAIN"
+        },
+        "schema_version": {
+          "type": "integer",
+          "format": "uint32",
+          "maximum": 1,
+          "minimum": 1
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "schema_version",
+        "answer"
+      ]
+    }
+  ],
+  "$defs": {
+    "AiChange": {
+      "type": "object",
+      "properties": {
+        "after": {
+          "type": "string",
+          "maxLength": 1048576
+        },
+        "before": {
+          "type": "string",
+          "maxLength": 1048576
+        },
+        "block_id": {
+          "type": "string",
+          "maxLength": 64,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_-]+$"
+        },
+        "reason": {
+          "type": "string",
+          "maxLength": 4096
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "block_id",
+        "before",
+        "after",
+        "reason"
+      ]
+    }
+  }
+}

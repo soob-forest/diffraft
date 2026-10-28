@@ -1,0 +1,79 @@
+[
+  {
+    "id": "S00_connection",
+    "title": "처음 실행 · 연결 확인",
+    "description": "본인 공식 CLI의 연결 상태를 확인하고 작업을 시작합니다.",
+    "svg": "screens/S00_connection.svg",
+    "png": "screens/S00_connection.png"
+  },
+  {
+    "id": "S01_editor",
+    "title": "문서 편집 · 범위 지정",
+    "description": "확정본을 직접 편집하고 요청할 구간과 고정 조건을 확인합니다.",
+    "svg": "screens/S01_editor.svg",
+    "png": "screens/S01_editor.png"
+  },
+  {
+    "id": "S02_inline_diff",
+    "title": "변경 검토 · 인라인 diff",
+    "description": "삭제·추가 줄, 바뀐 표현, 문맥과 변경별 승인 버튼을 한 화면에서 봅니다.",
+    "svg": "screens/S02_inline_diff.svg",
+    "png": "screens/S02_inline_diff.png"
+  },
+  {
+    "id": "S03_split_diff",
+    "title": "변경 검토 · 나란히 diff",
+    "description": "긴 문단은 대화 패널을 접고 변경 전후를 좌우로 비교합니다.",
+    "svg": "screens/S03_split_diff.svg",
+    "png": "screens/S03_split_diff.png"
+  },
+  {
+    "id": "S04_comment_revision",
+    "title": "코멘트 · 다시 제안받기",
+    "description": "코멘트의 방향을 반영한 새 제안을 실제 diff로 다시 확인합니다.",
+    "svg": "screens/S04_comment_revision.svg",
+    "png": "screens/S04_comment_revision.png"
+  },
+  {
+    "id": "S05_bulk_approve",
+    "title": "전체 승인 · 대상 확인",
+    "description": "거절한 변경을 제외하고 현재 묶음의 남은 두 변경을 한 번에 승인합니다.",
+    "svg": "screens/S05_bulk_approve.svg",
+    "png": "screens/S05_bulk_approve.png"
+  },
+  {
+    "id": "S06_full_rewrite",
+    "title": "전체 재작성 · 방향 비교",
+    "description": "문서 구조의 실제 diff를 보고 재작성안 전체를 적용하거나 취소합니다.",
+    "svg": "screens/S06_full_rewrite.svg",
+    "png": "screens/S06_full_rewrite.png"
+  },
+  {
+    "id": "S07_restore",
+    "title": "버전 복원 · 바뀔 내용 확인",
+    "description": "복원도 현재 문서와의 diff를 확인한 뒤 새 버전으로 저장합니다.",
+    "svg": "screens/S07_restore.svg",
+    "png": "screens/S07_restore.png"
+  },
+  {
+    "id": "S08_resume",
+    "title": "작업 재개 · 맥락 이어가기",
+    "description": "문서와 사용자 결정을 복원하고 세션이 없어도 저장된 맥락으로 이어갑니다.",
+    "svg": "screens/S08_resume.svg",
+    "png": "screens/S08_resume.png"
+  },
+  {
+    "id": "S09_conflict",
+    "title": "외부 변경 · 충돌 해결",
+    "description": "앱 버전과 실제 파일의 diff를 비교하고 안전하게 이어갈 방법을 선택합니다.",
+    "svg": "screens/S09_conflict.svg",
+    "png": "screens/S09_conflict.png"
+  },
+  {
+    "id": "S10_export",
+    "title": "확정본 확인 · 복사와 저장",
+    "description": "미승인 제안과 검토 메타데이터를 제외한 확정본만 내보냅니다.",
+    "svg": "screens/S10_export.svg",
+    "png": "screens/S10_export.png"
+  }
+]

@@ -1,0 +1,82 @@
+# DocReview 데스크톱 앱
+
+Tauri·React UI와 Rust 코어로 구성된 macOS Markdown 편집·검토 앱이다. 제품 동작은 [기능 명세](../../docs/product/specification.md), 계층과 저장 계약은 [개발 설계](../../docs/development/architecture.md)를 따른다.
+
+## 준비
+
+macOS arm64, Xcode Command Line Tools, Node **24.22.1** / npm **11.19.1**, Rust **1.99.1**을 사용한다. 프로젝트 도구는 저장소 루트의 `.tools/`에 둔다. 전역 셸 설정은 바꾸지 않아도 된다.
+
+Node는 [공식 배포](https://nodejs.org/dist/v24.22.1/)에서 `node-v24.22.1-darwin-arm64.tar.gz`와 `SHASUMS256.txt`를 내려받아 SHA-256을 확인한 뒤 `.tools/`에 해제한다.
+
+Rust를 처음 준비하는 경우 아래 명령을 저장소 루트에서 실행한다. 이미 설치돼 있으면 생략한다.
+
+```sh
+repo_root="$PWD"
+mkdir -p "$repo_root/.tools"
+curl --fail --location https://static.rust-lang.org/rustup/dist/aarch64-apple-darwin/rustup-init -o "$repo_root/.tools/rustup-init"
+curl --fail --location https://static.rust-lang.org/rustup/dist/aarch64-apple-darwin/rustup-init.sha256 -o "$repo_root/.tools/rustup-init.sha256"
+(cd "$repo_root/.tools" && shasum -a 256 -c rustup-init.sha256)
+```
+
+위 체크섬 검증이 성공한 경우에만 설치한다.
+
+```sh
+chmod +x "$repo_root/.tools/rustup-init"
+CARGO_HOME="$repo_root/.tools/cargo" RUSTUP_HOME="$repo_root/.tools/rustup" "$repo_root/.tools/rustup-init" -y --no-modify-path --profile minimal --default-toolchain 1.99.1
+CARGO_HOME="$repo_root/.tools/cargo" RUSTUP_HOME="$repo_root/.tools/rustup" "$repo_root/.tools/cargo/bin/rustup" component add clippy rustfmt --toolchain 1.99.1
+```
+
+## 실행
+
+저장소 루트에서 실행한다.
+
+```sh
+export PATH="$PWD/.tools/node-v24.22.1-darwin-arm64/bin:$PATH"
+cd apps/desktop
+npm ci
+npm run contracts:check
+npm run native:build
+./src-tauri/target/debug/docreview
+```
+
+`npm ci`는 lockfile을 사용한다. 설치 스크립트는 고정된 esbuild 버전만 허용하며 사용하지 않는 Edge/Firefox 드라이버 다운로드와 선택적 fsevents 설치 스크립트는 차단한다. 일반 앱에는 Node 런타임이 포함되지 않는다.
+
+## 검사
+
+실행 명령과 실제 OS·계정 검증의 경계는 [테스트 안내](../../docs/development/testing.md)를 따른다. 기본 자동 검사는 Claude 계정에 접근하지 않으며 네이티브 검사는 실제 WKWebView와 Rust IPC를 사용한다.
+
+```sh
+npm run typecheck
+npm run lint
+npm run test:unit
+npm run native:fmt
+npm run native:check
+npm run native:test
+npm run contracts:check
+npm run build
+```
+
+네이티브 화면 검사는 E2E 빌드 완료 후 `npm run test:e2e`로 실행한다. 빌드와 E2E를 동시에 실행하지 않는다. E2E와 일반 앱은 같은 debug 실행 파일을 사용하므로 검사 후 `npm run native:build`로 일반 앱을 복원한다.
+
+## 설치 파일
+
+```sh
+npm run native:bundle:internal
+```
+
+최적화된 arm64 앱과 DMG를 `src-tauri/target/release/bundle/`에 만든다. ad-hoc 서명이며 Apple 공증을 수행하지 않는다. E2E·장애 주입·개발용 계약 생성 feature는 제외하고 실행 파일 목록·메타데이터·서명·아키텍처·테스트 코드 제외를 검사한다. [설치·백업·앱 교체](../../docs/installation.md)를 참고한다.
+
+## 코드 경계
+
+| 경로 | 책임 |
+| --- | --- |
+| `src/` | React 화면·편집기·타입 IPC |
+| `src/generated/` | Rust에서 생성된 TypeScript 타입·AI JSON Schema |
+| `src-tauri/src/domain/` | 직렬화 계약과 순수 검증 |
+| `src-tauri/src/document/` | 원문·범위·diff 처리 |
+| `src-tauri/src/storage/` | 파일·SQLite·저장 저널 |
+| `src-tauri/src/claude_adapter/` | 인증·제한된 CLI 프로세스·세션 경계 |
+| `src-tauri/src/commands/` | 검증된 IPC 명령 |
+| `tests/`, `src-tauri/tests/` | 단위·계약·네이티브 검사와 fixture |
+
+공식 CLI 설치·로그인·업데이트는 앱과 별개다. 앱의 AI 연결은 공식 native CLI 2.1.295 이상 정식 버전·서명·필수 옵션·공식 구독 firstParty 인증을 진단한다. 실패한 요청은 사용자가 직접 재시도하며 사용 한도를 다시 소비할 수 있다.

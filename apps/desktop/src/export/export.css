@@ -1,0 +1,69 @@
+.export-dialog {
+  width: min(820px, calc(100vw - 36px));
+  max-height: calc(100vh - 36px);
+  overflow: auto;
+  border: 1px solid #cbd6e5;
+  border-radius: 12px;
+  padding: 24px;
+  color: #182537;
+}
+.export-dialog::backdrop {
+  background: #18253780;
+}
+.export-dialog h2 {
+  margin: 0 0 16px;
+  font-size: 22px;
+}
+.export-dialog p {
+  line-height: 1.6;
+}
+.export-preview {
+  max-height: 38vh;
+  overflow: auto;
+  border: 1px solid #dce4ee;
+  border-radius: 6px;
+  background: #f9fbfe;
+}
+.export-preview textarea {
+  display: block;
+  width: 100%;
+  height: 32vh;
+  resize: vertical;
+  border: 0;
+  margin: 0;
+  padding: 16px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font:
+    13px / 1.8 ui-monospace,
+    monospace;
+}
+.export-preview .markdown-preview {
+  padding: 16px;
+}
+.export-preview-toggle {
+  display: block;
+  margin: 12px 0;
+}
+.export-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 16px;
+}
+.export-help {
+  color: #607083;
+  font-size: 13px;
+}
+.export-feedback {
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+.export-working {
+  margin: 18px 0;
+  border-top: 1px solid #dce4ee;
+  padding-top: 16px;
+}
+.export-working summary {
+  cursor: pointer;
+}

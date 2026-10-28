@@ -1,0 +1,9 @@
+.restore-dialog {
+  width: min(1080px, 95vw);
+}
+.restore-dialog .diff-panes {
+  height: min(400px, 45vh);
+}
+.version-history [role="status"] {
+  line-height: 1.7;
+}

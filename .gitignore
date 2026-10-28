@@ -1,0 +1,32 @@
+.DS_Store
+.tools/
+node_modules/
+target/
+dist/
+apps/desktop/src-tauri/gen/
+.test-artifacts/
+.artifacts/
+
+# Local logs and runtime data
+logs/
+*.log
+*.sqlite
+*.sqlite3
+*.sqlite-*
+*.sqlite3-*
+*.db
+*.db-*
+
+# Local credentials and signing material
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.mobileprovision
+
+# Packaged applications belong in release assets
+*.dmg
+*.app/

@@ -1,0 +1,12 @@
+{
+  "app": {
+    "withGlobalTauri": true,
+    "security": {
+      "capabilities": [{
+        "identifier": "e2e",
+        "windows": ["main"],
+        "permissions": ["core:default", "core:window:allow-close", "core:window:allow-destroy", "core:window:allow-set-focus", "wdio:default", "wdio-webdriver:default"]
+      }]
+    }
+  }
+}

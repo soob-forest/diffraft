@@ -1,0 +1,25 @@
+.text-diff {
+  padding: 10px 16px;
+  border-bottom: 1px solid #dce4ee;
+  font-size: 13px;
+}
+.text-diff summary {
+  cursor: pointer;
+}
+.text-diff ol {
+  padding-left: 28px;
+}
+.text-diff li {
+  padding: 8px 0;
+}
+.text-diff pre {
+  margin: 6px 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 13px;
+}
+.text-diff nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}

@@ -1,0 +1,21 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "DocReview",
+  "version": "0.1.0",
+  "identifier": "local.diffraft.docreview",
+  "build": {
+    "beforeBuildCommand": "npm run build",
+    "beforeDevCommand": "npm run dev",
+    "devUrl": "http://localhost:1420",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "withGlobalTauri": false,
+    "windows": [{ "label": "main", "title": "DocReview", "width": 1440, "height": 900, "minWidth": 800, "minHeight": 600 }],
+    "security": {
+      "csp": "default-src 'self'; connect-src ipc: http://ipc.localhost; style-src 'self' 'unsafe-inline'; img-src 'self' data:; object-src 'none'; frame-src 'none'; base-uri 'none'",
+      "capabilities": [{ "identifier": "main", "windows": ["main"], "permissions": ["core:event:default", "core:window:allow-close", "core:window:allow-destroy"] }]
+    }
+  },
+  "bundle": { "active": true, "targets": ["app", "dmg"], "icon": ["icons/128x128.png"], "macOS": { "minimumSystemVersion": "14.0" } }
+}

@@ -1,0 +1,115 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000" role="img">
+<title>여행 준비 가이드</title>
+<desc>DocReview 제품 설계 시안. 화면의 데이터와 문서는 설명용 예시입니다.</desc>
+<rect x="0" y="0" width="1600" height="1000" rx="0" fill="#F5F7FA" />
+<rect x="0" y="0" width="1600" height="50" rx="0" fill="#182537" />
+<rect x="18" y="11" width="28" height="28" rx="7" fill="#8FB0FF" />
+<text x="32" y="31" fill="#132344" font-family="NanumGothic, sans-serif" font-size="18" font-weight="700" text-anchor="middle">D</text>
+<text x="58" y="32" fill="white" font-family="NanumGothic, sans-serif" font-size="18" font-weight="700" text-anchor="start">DocReview</text>
+<text x="246" y="31" fill="#C6D2E4" font-family="NanumGothic, sans-serif" font-size="14" font-weight="400" text-anchor="start">내 작업 공간  /  개인 문서</text>
+<text x="1468" y="31" fill="#C6D2E4" font-family="NanumGothic, sans-serif" font-size="13" font-weight="400" text-anchor="start">설계 시안 0.2</text>
+<rect x="0" y="50" width="220" height="918" rx="0" fill="#EDF2F6" />
+<path d="M219 50L219 968" stroke="#DCE3EA" stroke-width="1" />
+<text x="20" y="84" fill="#607083" font-family="NanumGothic, sans-serif" font-size="13" font-weight="700" text-anchor="start">문서</text>
+<rect x="171" y="65" width="28" height="34" rx="6" fill="white" stroke="#DCE3EA" />
+<text x="185.0" y="87.0" fill="#182537" font-family="NanumGothic, sans-serif" font-size="14" font-weight="700" text-anchor="middle">+</text>
+<rect x="12" y="100" width="196" height="42" rx="6" fill="white" />
+<text x="26" y="127" fill="#2957C8" font-family="NanumGothic, sans-serif" font-size="15" font-weight="700" text-anchor="start">▤  여행 준비 가이드</text>
+<text x="27" y="167" fill="#607083" font-family="NanumGothic, sans-serif" font-size="14" font-weight="400" text-anchor="start">▤  여행 기록 모음</text>
+<text x="20" y="223" fill="#607083" font-family="NanumGothic, sans-serif" font-size="13" font-weight="700" text-anchor="start">이 문서의 작업</text>
+<rect x="12" y="239" width="196" height="66" rx="7" fill="#EAF0FF" />
+<rect x="12" y="249" width="3" height="46" rx="1" fill="#2957C8" />
+<text x="27" y="264" fill="#2957C8" font-family="NanumGothic, sans-serif" font-size="14" font-weight="700" text-anchor="start">여행 준비 명확화</text>
+<text x="27" y="289" fill="#607083" font-family="NanumGothic, sans-serif" font-size="12" font-weight="400" text-anchor="start">문서별 대화 · 계속 이어짐</text>
+<rect x="20" y="320" width="178" height="34" rx="6" fill="#F5F7FA" stroke="#DCE3EA" />
+<text x="109.0" y="342.0" fill="#607083" font-family="NanumGothic, sans-serif" font-size="14" font-weight="700" text-anchor="middle">+ 새 작업</text>
+<text x="20" y="402" fill="#607083" font-family="NanumGothic, sans-serif" font-size="13" font-weight="700" text-anchor="start">문서 목차</text>
+<rect x="12" y="411" width="196" height="38" rx="6" fill="white" />
+<text x="24" y="433" fill="#607083" font-family="NanumGothic, sans-serif" font-size="12" font-weight="700" text-anchor="start">01</text>
+<text x="66" y="433" fill="#182537" font-family="NanumGothic, sans-serif" font-size="14" font-weight="400" text-anchor="start">출발 준비</text>
+<text x="24" y="479" fill="#607083" font-family="NanumGothic, sans-serif" font-size="12" font-weight="700" text-anchor="start">02</text>
+<text x="66" y="479" fill="#182537" font-family="NanumGothic, sans-serif" font-size="14" font-weight="400" text-anchor="start">확인 시간</text>
+<text x="24" y="525" fill="#607083" font-family="NanumGothic, sans-serif" font-size="12" font-weight="700" text-anchor="start">03</text>
+<text x="66" y="525" fill="#182537" font-family="NanumGothic, sans-serif" font-size="14" font-weight="400" text-anchor="start">여행 기록</text>
+<text x="20" y="885" fill="#14633B" font-family="NanumGothic, sans-serif" font-size="12" font-weight="400" text-anchor="start">●  Claude Code 연결 가능</text>
+<rect x="20" y="907" width="178" height="34" rx="6" fill="#F5F7FA" stroke="#DCE3EA" />
+<text x="109.0" y="929.0" fill="#607083" font-family="NanumGothic, sans-serif" font-size="14" font-weight="700" text-anchor="middle">연결 설정</text>
+<rect x="220" y="50" width="1380" height="74" rx="0" fill="white" />
+<text x="250" y="83" fill="#182537" font-family="NanumGothic, sans-serif" font-size="22" font-weight="700" text-anchor="start">여행 준비 가이드</text>
+<rect x="250" y="92" width="82.34375" height="26" rx="13" fill="#EDF2F6" />
+<text x="260" y="110" fill="#607083" font-family="NanumGothic, sans-serif" font-size="13" font-weight="700" text-anchor="start">확정본 v12</text>
+<text x="374" y="111" fill="#14633B" font-family="NanumGothic, sans-serif" font-size="12" font-weight="400" text-anchor="start">✓ 저장됨</text>
+<rect x="1330" y="70" width="108" height="34" rx="6" fill="white" stroke="#DCE3EA" />
+<text x="1384.0" y="92.0" fill="#182537" font-family="NanumGothic, sans-serif" font-size="14" font-weight="700" text-anchor="middle">버전 기록</text>
+<rect x="1452" y="70" width="120" height="34" rx="6" fill="white" stroke="#DCE3EA" />
+<text x="1512.0" y="92.0" fill="#182537" font-family="NanumGothic, sans-serif" font-size="14" font-weight="700" text-anchor="middle">내보내기</text>
+<rect x="220" y="124" width="1380" height="52" rx="0" fill="white" />
+<path d="M220 175L1600 175" stroke="#DCE3EA" stroke-width="1" />
+<text x="250" y="155" fill="#2957C8" font-family="NanumGothic, sans-serif" font-size="15" font-weight="700" text-anchor="start">편집</text>
+<rect x="250" y="172" width="28.1875" height="3" rx="0" fill="#2957C8" />
+<text x="336" y="155" fill="#607083" font-family="NanumGothic, sans-serif" font-size="15" font-weight="400" text-anchor="start">변경 검토</text>
+<text x="470" y="155" fill="#607083" font-family="NanumGothic, sans-serif" font-size="15" font-weight="400" text-anchor="start">미리보기</text>
+<text x="1274" y="155" fill="#607083" font-family="NanumGothic, sans-serif" font-size="14" font-weight="400" text-anchor="start">작업 맥락</text>
+<text x="1428" y="155" fill="#2957C8" font-family="NanumGothic, sans-serif" font-size="14" font-weight="400" text-anchor="start">대화 접기</text>
+<rect x="1240" y="176" width="360" height="792" rx="0" fill="white" />
+<path d="M1240 176L1240 968" stroke="#DCE3EA" stroke-width="1" />
+<rect x="0" y="968" width="1600" height="32" rx="0" fill="#E7EDF4" />
+<text x="20" y="989" fill="#607083" font-family="NanumGothic, sans-serif" font-size="12" font-weight="400" text-anchor="start">로컬 작업  ·  Markdown</text>
+<text x="250" y="989" fill="#607083" font-family="NanumGothic, sans-serif" font-size="12" font-weight="400" text-anchor="start">AI 제안은 승인 후 반영됩니다.</text>
+<text x="1400" y="989" fill="#607083" font-family="NanumGothic, sans-serif" font-size="12" font-weight="400" text-anchor="start">UTF-8   ·   LF</text>
+<text x="250" y="210" fill="#607083" font-family="NanumGothic, sans-serif" font-size="14" font-weight="400" text-anchor="start">Markdown 원문</text>
+<rect x="1070" y="188" width="96.25" height="26" rx="13" fill="#EAF0FF" />
+<text x="1080" y="206" fill="#2957C8" font-family="NanumGothic, sans-serif" font-size="13" font-weight="700" text-anchor="start">선택 영역 2행</text>
+<rect x="248" y="240" width="964" height="676" rx="8" fill="white" stroke="#DCE3EA" />
+<text x="268" y="282" fill="#607083" font-family="NanumGothic, sans-serif" font-size="13" font-weight="400" text-anchor="start">1</text>
+<text x="318" y="282" fill="#2957C8" font-family="NanumGothic, sans-serif" font-size="21" font-weight="700" text-anchor="start"># 여행 준비 가이드</text>
+<text x="268" y="322" fill="#607083" font-family="NanumGothic, sans-serif" font-size="13" font-weight="400" text-anchor="start">2</text>
+<text x="318" y="322" fill="#182537" font-family="NanumGothic, sans-serif" font-size="17" font-weight="400" text-anchor="start" />
+<text x="268" y="362" fill="#607083" font-family="NanumGothic, sans-serif" font-size="13" font-weight="400" text-anchor="start">3</text>
+<text x="318" y="362" fill="#2957C8" font-family="NanumGothic, sans-serif" font-size="17" font-weight="700" text-anchor="start">## 1. 출발 준비</text>
+<rect x="302" y="375" width="886" height="40" rx="0" fill="#EAF0FF" />
+<text x="268" y="402" fill="#607083" font-family="NanumGothic, sans-serif" font-size="13" font-weight="400" text-anchor="start">4</text>
+<text x="318" y="402" fill="#182537" font-family="NanumGothic, sans-serif" font-size="17" font-weight="400" text-anchor="start">준비를 마치면 동행인에게 알립니다.</text>
+<rect x="302" y="415" width="886" height="40" rx="0" fill="#EAF0FF" />
+<text x="268" y="442" fill="#607083" font-family="NanumGothic, sans-serif" font-size="13" font-weight="400" text-anchor="start">5</text>
+<text x="318" y="442" fill="#182537" font-family="NanumGothic, sans-serif" font-size="17" font-weight="400" text-anchor="start">출발 시간과 이동 경로를 함께 기록합니다.</text>
+<text x="268" y="482" fill="#607083" font-family="NanumGothic, sans-serif" font-size="13" font-weight="400" text-anchor="start">6</text>
+<text x="318" y="482" fill="#182537" font-family="NanumGothic, sans-serif" font-size="17" font-weight="400" text-anchor="start" />
+<text x="268" y="522" fill="#607083" font-family="NanumGothic, sans-serif" font-size="13" font-weight="400" text-anchor="start">7</text>
+<text x="318" y="522" fill="#2957C8" font-family="NanumGothic, sans-serif" font-size="17" font-weight="700" text-anchor="start">## 2. 확인 시간</text>
+<text x="268" y="562" fill="#607083" font-family="NanumGothic, sans-serif" font-size="13" font-weight="400" text-anchor="start">8</text>
+<text x="318" y="562" fill="#182537" font-family="NanumGothic, sans-serif" font-size="17" font-weight="400" text-anchor="start">출발 전 10분 동안 준비물을 확인합니다.</text>
+<text x="268" y="602" fill="#607083" font-family="NanumGothic, sans-serif" font-size="13" font-weight="400" text-anchor="start">9</text>
+<text x="318" y="602" fill="#182537" font-family="NanumGothic, sans-serif" font-size="17" font-weight="400" text-anchor="start">준비가 늦어지면 진행 상황을 공유합니다.</text>
+<text x="268" y="642" fill="#607083" font-family="NanumGothic, sans-serif" font-size="13" font-weight="400" text-anchor="start">10</text>
+<text x="318" y="642" fill="#182537" font-family="NanumGothic, sans-serif" font-size="17" font-weight="400" text-anchor="start" />
+<text x="268" y="682" fill="#607083" font-family="NanumGothic, sans-serif" font-size="13" font-weight="400" text-anchor="start">11</text>
+<text x="318" y="682" fill="#2957C8" font-family="NanumGothic, sans-serif" font-size="17" font-weight="700" text-anchor="start">## 3. 여행 기록</text>
+<text x="268" y="722" fill="#607083" font-family="NanumGothic, sans-serif" font-size="13" font-weight="400" text-anchor="start">12</text>
+<text x="318" y="722" fill="#182537" font-family="NanumGothic, sans-serif" font-size="17" font-weight="400" text-anchor="start">필요하면 다음 준비 사항을 정리합니다.</text>
+<text x="268" y="762" fill="#607083" font-family="NanumGothic, sans-serif" font-size="13" font-weight="400" text-anchor="start">13</text>
+<text x="318" y="762" fill="#182537" font-family="NanumGothic, sans-serif" font-size="17" font-weight="400" text-anchor="start">완료한 준비는 출발 전에 확인합니다.</text>
+<rect x="636" y="474" width="192" height="34" rx="6" fill="#2957C8" stroke="#2957C8" />
+<text x="732.0" y="496.0" fill="white" font-family="NanumGothic, sans-serif" font-size="14" font-weight="700" text-anchor="middle">선택 영역 수정 요청</text>
+<rect x="840" y="474" width="142" height="34" rx="6" fill="white" stroke="#DCE3EA" />
+<text x="911.0" y="496.0" fill="#182537" font-family="NanumGothic, sans-serif" font-size="14" font-weight="700" text-anchor="middle">설명만 요청</text>
+<text x="270" y="893" fill="#607083" font-family="NanumGothic, sans-serif" font-size="13" font-weight="400" text-anchor="start">선택한 원문과 주변 문맥을 요청에 포함합니다.</text>
+<text x="1264" y="214" fill="#182537" font-family="NanumGothic, sans-serif" font-size="18" font-weight="700" text-anchor="start">여행 준비 명확화</text>
+<rect x="1264" y="240" width="312" height="132" rx="8" fill="#F5F7FA" stroke="#DCE3EA" />
+<text x="1280" y="269" fill="#607083" font-family="NanumGothic, sans-serif" font-size="13" font-weight="700" text-anchor="start">고정 조건</text>
+<text x="1280" y="299" fill="#182537" font-family="NanumGothic, sans-serif" font-size="15" font-weight="400" text-anchor="start">확인 시간 10분 유지</text>
+<text x="1280" y="328" fill="#182537" font-family="NanumGothic, sans-serif" font-size="15" font-weight="400" text-anchor="start">근거 없는 기한 추가 금지</text>
+<text x="1280" y="354" fill="#607083" font-family="NanumGothic, sans-serif" font-size="13" font-weight="400" text-anchor="start">독자: 여행자</text>
+<text x="1264" y="417" fill="#182537" font-family="NanumGothic, sans-serif" font-size="14" font-weight="700" text-anchor="start">이번 작업의 목표</text>
+<text x="1264" y="448" fill="#182537" font-family="NanumGothic, sans-serif" font-size="16" font-weight="400" text-anchor="start">처음 여행하는 사람도 이해할 수 있는 안내</text>
+<text x="1264" y="474" fill="#182537" font-family="NanumGothic, sans-serif" font-size="16" font-weight="400" text-anchor="start">문서로 다듬기</text>
+<rect x="1264" y="628" width="312" height="235" rx="8" fill="white" stroke="#2957C8" />
+<rect x="1280" y="645" width="141.46875" height="26" rx="13" fill="#EAF0FF" />
+<text x="1290" y="663" fill="#2957C8" font-family="NanumGothic, sans-serif" font-size="13" font-weight="700" text-anchor="start">범위: 선택 영역 4–5행</text>
+<text x="1280" y="700" fill="#182537" font-family="NanumGothic, sans-serif" font-size="17" font-weight="400" text-anchor="start">모호한 표현을 더 명확하게 고쳐줘.</text>
+<text x="1280" y="786" fill="#607083" font-family="NanumGothic, sans-serif" font-size="13" font-weight="400" text-anchor="start">수정 요청  ·  설명만 요청</text>
+<rect x="1280" y="810" width="280" height="34" rx="6" fill="#2957C8" stroke="#2957C8" />
+<text x="1420.0" y="832.0" fill="white" font-family="NanumGothic, sans-serif" font-size="14" font-weight="700" text-anchor="middle">수정 요청</text>
+<text x="1264" y="903" fill="#607083" font-family="NanumGothic, sans-serif" font-size="13" font-weight="400" text-anchor="start">요청 범위를 전체 문서로 바꾸려면</text>
+<text x="1264" y="926" fill="#607083" font-family="NanumGothic, sans-serif" font-size="13" font-weight="400" text-anchor="start">범위 메뉴에서 직접 선택하세요.</text>
+</svg>

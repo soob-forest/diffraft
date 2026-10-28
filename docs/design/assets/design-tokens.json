@@ -1,0 +1,56 @@
+{
+  "version": "0.2",
+  "canvas": {
+    "width": 1600,
+    "height": 1000
+  },
+  "colors": {
+    "ink": "#182537",
+    "muted": "#607083",
+    "line": "#DCE3EA",
+    "canvas": "#F5F7FA",
+    "panel": "#FFFFFF",
+    "nav": "#EDF2F6",
+    "blue": "#2957C8",
+    "blueLight": "#EAF0FF",
+    "add": "#E8F5EC",
+    "addStrong": "#B6E1C2",
+    "addText": "#14633B",
+    "del": "#FDEDEC",
+    "delStrong": "#F6C1BB",
+    "delText": "#A0332D",
+    "amber": "#FFF3D9",
+    "amberText": "#815A13"
+  },
+  "typography": {
+    "family": "NanumGothic, sans-serif",
+    "sizes": [
+      12,
+      13,
+      14,
+      16,
+      18,
+      22,
+      30
+    ]
+  },
+  "spacing": [
+    4,
+    8,
+    12,
+    16,
+    24,
+    32
+  ],
+  "radii": [
+    6,
+    8,
+    12
+  ],
+  "layout": {
+    "left_sidebar": 220,
+    "right_panel": 360,
+    "minimum_diff_column": 540
+  },
+  "note": "제품 설계값. 실제 앱은 OS 배율·접근성을 별도 검증한다."
+}

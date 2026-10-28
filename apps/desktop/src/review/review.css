@@ -1,0 +1,254 @@
+.review-panel {
+  flex: 1;
+  min-height: 250px;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+}
+.review-panel > * {
+  flex-shrink: 0;
+}
+.review-header,
+.group-bar,
+.diff-toolbar,
+.proposal-actions,
+.dialog-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.review-header,
+.group-bar {
+  padding: 12px 18px;
+  border-bottom: 1px solid #dce4ee;
+}
+.review-header h2 {
+  font-size: 17px;
+  margin: 0 12px 0 0;
+}
+.review-header label {
+  min-width: 0;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.review-header select {
+  max-width: 360px;
+}
+.review-empty,
+.review-message {
+  padding: 18px;
+  line-height: 1.7;
+}
+.review-message {
+  background: #f1f5ff;
+  margin: 0;
+}
+.group-bar nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.group-bar strong {
+  color: #28523c;
+  font:
+    600 13px ui-monospace,
+    monospace;
+}
+.diff-viewer {
+  min-height: 230px;
+}
+.diff-toolbar {
+  padding: 10px 16px;
+  background: #f7f9fc;
+  font-size: 12px;
+}
+.diff-toolbar label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.diff-panes {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  height: 330px;
+  border-block: 1px solid #dce4ee;
+}
+.diff-panes.split {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+.diff-pane {
+  min-width: 0;
+  overflow: hidden;
+}
+.diff-pane + .diff-pane {
+  border-left: 1px solid #bbcbe0;
+}
+.diff-pane .cm-content {
+  padding: 0;
+}
+.diff-pane .cm-line {
+  padding: 0 10px;
+}
+.diff-pane .cm-gutterElement {
+  padding: 0 6px;
+  white-space: pre;
+}
+.diff-pane .cm-scroller {
+  font-size: 13px;
+  line-height: 26px;
+}
+.diff-numbers {
+  min-width: 50px;
+}
+.diff-numbers.inline {
+  min-width: 94px;
+}
+.diff-delete {
+  background: #fff0ed;
+}
+.diff-insert {
+  background: #eaf8ef;
+}
+.diff-filler {
+  background: repeating-linear-gradient(
+    135deg,
+    #f5f7fa,
+    #f5f7fa 4px,
+    #edf0f4 4px,
+    #edf0f4 5px
+  );
+}
+.diff-delete .diff-expression {
+  background: #facbc3;
+  text-decoration: underline;
+  text-decoration-color: #b74637;
+}
+.diff-insert .diff-expression {
+  background: #bce8c8;
+  text-decoration: underline;
+  text-decoration-color: #276a3b;
+}
+.diff-eol {
+  font-size: 10px;
+  color: #68798e;
+  padding-left: 8px;
+}
+.diff-fold {
+  background: #eff3f9;
+  color: #486791;
+  cursor: pointer;
+}
+.diff-folds {
+  display: flex;
+  gap: 8px;
+  padding: 8px 16px;
+  flex-wrap: wrap;
+}
+.diff-folds button {
+  font-size: 12px;
+}
+.proposal-details,
+.processed,
+.comment-list {
+  padding: 14px 18px;
+  border-bottom: 1px solid #dce4ee;
+}
+.proposal-details h3,
+.comment-list h3,
+.processed h3 {
+  font-size: 14px;
+}
+.proposal-details p,
+.processed p {
+  line-height: 1.7;
+  font-size: 13px;
+}
+.proposal-details summary,
+.processed summary {
+  cursor: pointer;
+  padding: 8px 0;
+}
+.candidate-form label,
+.rewrite-form label,
+.regenerate-form label,
+.comment-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 13px;
+  margin: 12px 0;
+}
+.candidate-form textarea,
+.rewrite-form textarea,
+.regenerate-form textarea,
+.comment-form textarea {
+  width: 100%;
+  resize: vertical;
+}
+.review-comment {
+  padding: 12px 0;
+  border-top: 1px solid #dce4ee;
+  font-size: 13px;
+}
+.review-comment small {
+  display: block;
+  color: #607083;
+  padding-top: 6px;
+}
+.review-panel blockquote {
+  margin: 10px 0;
+  border-left: 3px solid #abc0df;
+  padding: 8px 12px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  background: #f5f7fa;
+}
+.review-comment p,
+.processed pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.approval-dialog {
+  width: min(620px, 90vw);
+  max-height: 85vh;
+  overflow: auto;
+  padding: 26px;
+  border: 1px solid #c3cfe0;
+  border-radius: 12px;
+  color: #182537;
+}
+.approval-dialog::backdrop {
+  background: #17263b88;
+}
+.approval-dialog h2 {
+  font-size: 21px;
+}
+.approval-dialog p,
+.approval-dialog li {
+  line-height: 1.7;
+  font-size: 14px;
+}
+.dialog-actions {
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+.primary {
+  color: white;
+  background: #2957c8;
+  border-color: #2957c8;
+}
+.primary:hover {
+  background: #214da8;
+}
+.editor-region {
+  display: flex;
+  flex: 1;
+  min-height: 200px;
+  flex-direction: column;
+}
+.editor-region[hidden],
+.source-pane[hidden] {
+  display: none;
+}

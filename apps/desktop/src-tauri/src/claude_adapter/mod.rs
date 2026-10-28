@@ -1,0 +1,21 @@
+//! Official CLI authentication, bounded process transport, and session management.
+pub mod connection;
+pub mod coordinator;
+pub mod diagnostics;
+pub mod discovery;
+pub mod environment;
+pub mod execution;
+mod failure;
+pub mod generation;
+pub mod guarded_process;
+mod output_schema;
+mod pipes;
+pub mod process;
+mod process_group;
+mod process_identity;
+pub mod process_lease;
+pub mod profile;
+pub mod regeneration;
+pub mod result;
+pub mod rewrite;
+pub mod settings;
