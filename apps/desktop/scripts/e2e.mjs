@@ -1,5 +1,6 @@
 import { execFileSync, spawn } from "node:child_process";
 import {
+  appendFile,
   chmod,
   mkdir,
   mkdtemp,
@@ -13,6 +14,8 @@ import { fileURLToPath } from "node:url";
 import { layoutSource } from "../tests/fixtures/layout.mjs";
 
 const app = fileURLToPath(new URL("../", import.meta.url));
+const QUIT_STRESS_RUNS = 24;
+const nativeQuitHelper = join(app, ".artifacts/native-quit");
 if (
   process.argv[2] &&
   ![
@@ -33,6 +36,7 @@ if (
     "navigation",
     "export",
     "shutdown",
+    "quit",
     "performance",
     "startup-failure",
   ].includes(process.argv[2])
@@ -48,21 +52,23 @@ const navigation = ["navigation", "navigation-restart"];
 const recovery = ["recovery", "recovery-restart"];
 const scenarios = process.argv[2]
   ? [
-      process.argv[2] === "design-resume"
-        ? ["design-resume", "design-resume-restart"]
-        : process.argv[2] === "regeneration"
-          ? regeneration
-          : process.argv[2] === "generation"
-            ? generation
-            : process.argv[2] === "export"
-              ? exportPhases
-              : process.argv[2] === "shutdown"
-                ? shutdown
-                : process.argv[2] === "navigation"
-                  ? navigation
-                  : process.argv[2] === "recovery"
-                    ? recovery
-                    : [process.argv[2]],
+      process.argv[2] === "quit"
+        ? Array.from({ length: QUIT_STRESS_RUNS }, () => "quit")
+        : process.argv[2] === "design-resume"
+          ? ["design-resume", "design-resume-restart"]
+          : process.argv[2] === "regeneration"
+            ? regeneration
+            : process.argv[2] === "generation"
+              ? generation
+              : process.argv[2] === "export"
+                ? exportPhases
+                : process.argv[2] === "shutdown"
+                  ? shutdown
+                  : process.argv[2] === "navigation"
+                    ? navigation
+                    : process.argv[2] === "recovery"
+                      ? recovery
+                      : [process.argv[2]],
     ]
   : [
       ["editor", "restart"],
@@ -86,13 +92,15 @@ const scenarios = process.argv[2]
       ["performance"],
       ["startup-failure"],
     ];
+if (process.argv[2] === "quit") await prepareNativeQuit();
 for (const phases of scenarios) {
   const root = await mkdtemp(join(tmpdir(), "docreview-e2e-"));
   try {
     await prepare(root);
     await prepareStartupFailure(root, phases[0]);
-    for (const phase of phases) {
-      const code = await run(phase, root);
+    for (const [iteration, phase] of phases.entries()) {
+      const code = await run(phase, root, iteration);
+      if (phase === "quit" && code === 0) await recordQuit(root, iteration);
       if (code !== 0) {
         process.exitCode = code;
         break;
@@ -156,7 +164,7 @@ async function prepare(root) {
   );
 }
 
-function run(phase, root) {
+function run(phase, root, iteration) {
   return new Promise((resolve) => {
     const child = spawn(
       process.execPath,
@@ -169,6 +177,8 @@ function run(phase, root) {
           ...process.env,
           DOCREVIEW_E2E_DATA: root,
           DOCREVIEW_E2E_PHASE: phase,
+          DOCREVIEW_QUIT_CASE: String(iteration),
+          DOCREVIEW_NATIVE_QUIT_HELPER: nativeQuitHelper,
         },
       },
     );
@@ -178,4 +188,27 @@ function run(phase, root) {
     });
     child.on("exit", (code) => resolve(code ?? 1));
   });
+}
+
+async function prepareNativeQuit() {
+  await mkdir(join(app, ".artifacts"), { recursive: true });
+  execFileSync(
+    "/usr/bin/swiftc",
+    [join(app, "scripts/native-quit.swift"), "-o", nativeQuitHelper],
+    { stdio: "inherit" },
+  );
+  await writeFile(join(app, ".artifacts/quit-stress.jsonl"), "");
+}
+
+async function recordQuit(root, iteration) {
+  const state = JSON.parse(
+    await readFile(join(root, "shutdown-lifecycle.json"), "utf8"),
+  );
+  const result = JSON.parse(
+    await readFile(join(root, `exit-${state.pid}.json`), "utf8"),
+  );
+  await appendFile(
+    join(app, ".artifacts/quit-stress.jsonl"),
+    `${JSON.stringify({ iteration, ...state, ...result })}\n`,
+  );
 }

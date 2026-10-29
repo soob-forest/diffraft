@@ -14,7 +14,7 @@
     "typecheck": "tsc --noEmit",
     "lint": "biome check src tests scripts vite.config.ts wdio.conf.mjs",
     "format": "biome check --write src tests scripts vite.config.ts wdio.conf.mjs",
-    "test:unit": "vitest run",
+    "test:unit": "vitest run && node --test scripts/process-exit.test.mjs",
     "test:e2e": "node scripts/e2e.mjs",
     "contracts": "node scripts/native.mjs contracts",
     "contracts:check": "node scripts/native.mjs contracts-check",
