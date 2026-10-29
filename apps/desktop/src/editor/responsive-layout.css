@@ -1,0 +1,220 @@
+.app-shell[data-documents-open="false"] .sidebar {
+  display: none;
+}
+.app-shell[data-documents-open="false"] .document-list-toggle {
+  display: inline-block;
+}
+.menu-compare-action,
+.task-picker-toggle {
+  display: none;
+}
+.task-panel {
+  position: relative;
+}
+.task-picker-region[hidden] {
+  display: none;
+}
+.document-menu > summary {
+  list-style: none;
+}
+.document-menu > summary::-webkit-details-marker {
+  display: none;
+}
+.document-menu svg {
+  display: block;
+}
+@media (max-width: 1000px) {
+  :root {
+    --panel-width: 290px;
+  }
+  .app-shell {
+    grid-template-columns: 0 minmax(0, 1fr);
+  }
+  .sidebar {
+    position: absolute;
+    z-index: 6;
+    top: 50px;
+    bottom: 32px;
+    width: 196px;
+    border-right: 1px solid var(--line);
+  }
+  .document-workspace {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 290px;
+    grid-template-rows: auto auto minmax(0, 1fr) auto;
+    overflow: hidden;
+  }
+  .document-workspace[data-tasks-open="false"] {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .document-toolbar {
+    padding: 14px 20px 16px;
+    gap: 10px;
+  }
+  .document-toolbar .file-compare-action {
+    display: none;
+  }
+  .menu-compare-action,
+  .document-list-toggle {
+    display: inline-block;
+  }
+  .document-modebar {
+    display: block;
+    padding: 0;
+    gap: 0;
+    border: 0;
+  }
+  .view-toggle {
+    padding: 0 20px 14px;
+    gap: 24px;
+    margin: 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .workspace-controls {
+    margin: 0;
+    padding: 12px 24px;
+    gap: 8px;
+    background: #f5f7fa;
+    min-height: 65px;
+  }
+  .workspace-controls span {
+    display: block;
+    min-width: 0;
+    flex: 1;
+    font-size: 14px;
+    color: var(--muted);
+    overflow-wrap: anywhere;
+  }
+  .workspace-controls button {
+    padding: 8px 12px;
+    border: 1px solid #c2cfe1;
+    background: white;
+    font-size: 14px;
+  }
+  .document-main {
+    grid-column: 1;
+    grid-row: 3;
+    display: flex;
+    min-height: 0;
+    overflow: hidden;
+  }
+  .workspace-panel {
+    grid-column: 2;
+    grid-row: 1 / 5;
+    border-left: 1px solid var(--line);
+  }
+  .document-history {
+    grid-column: 1;
+    grid-row: 4;
+  }
+  .task-panel,
+  .review-detail {
+    padding: 16px;
+  }
+  .task-panel {
+    padding-bottom: 0;
+  }
+  .task-context-heading {
+    display: none;
+  }
+  .task-picker-toggle {
+    display: block;
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    z-index: 1;
+    font-size: 12px;
+    border: 0;
+    background: transparent;
+    padding: 0;
+    min-height: 0;
+    color: var(--muted);
+  }
+  .task-panel .generation-panel {
+    display: flex;
+    flex-direction: column;
+  }
+  .task-panel .task-condition-details {
+    margin: 8px 0 18px;
+  }
+  .task-panel .task-condition-details strong {
+    font-size: 14px;
+  }
+  .task-panel .condition-inline {
+    display: block;
+    margin-top: 4px;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 21.45px;
+  }
+  .task-panel .condition-summary,
+  .task-panel .condition-edit {
+    display: inline;
+    margin: 0;
+  }
+  .task-panel .condition-edit::before {
+    content: " · ";
+  }
+  .task-panel .scope-bar {
+    margin: 12px 0;
+    padding: 12px 8px;
+  }
+  .task-panel .request-form label {
+    margin-top: 8px;
+  }
+  .task-panel textarea {
+    padding: 8px;
+  }
+  .task-panel .request-form textarea {
+    min-height: 96px;
+    height: 96px;
+  }
+  .task-panel .request-draft-note {
+    gap: 4px;
+  }
+  .task-panel .request-extras > .muted,
+  .task-panel .rewrite-entry,
+  .task-panel .conversation {
+    margin-top: 12px;
+  }
+  .editor-region {
+    padding: 20px;
+  }
+  .editing-area {
+    min-height: 0;
+  }
+  .panel-tabs {
+    padding: 16px 16px 0;
+  }
+  .review-primary-tools {
+    padding-inline: 16px;
+  }
+  .review-tools .group-bar {
+    padding-inline: 16px;
+  }
+  .review-tools .diff-toolbar {
+    padding-inline: 16px;
+  }
+  .selected-group {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .selected-group > h3 {
+    flex: none;
+  }
+  .selection-navigation,
+  .selected-group .proposal-actions {
+    margin-top: 0;
+  }
+  .selected-group .proposal-actions {
+    justify-content: flex-start;
+  }
+  .task-panel .generation-panel > h3 {
+    order: -1;
+    margin-top: 0;
+    margin-bottom: 8px;
+  }
+  footer {
+    font-size: 12px;
+  }
+}

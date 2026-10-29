@@ -9,6 +9,7 @@ import type { ReviewModel } from "./useReview";
 type DecisionAction = { kind: "accept" | "reject"; decision: DecisionRequest };
 export function useReviewActions(document: DocumentModel, review: ReviewModel) {
   const [busy, setBusy] = useState(false);
+  const [appliedVersion, setAppliedVersion] = useState("");
   const [message, setMessage] = useState("");
   const lock = useRef(false);
   const pending = useRef<DecisionAction | null>(null);
@@ -34,6 +35,7 @@ export function useReviewActions(document: DocumentModel, review: ReviewModel) {
           document.adoptSaved(await reviewCommand(action, "document"));
         else await reviewCommand(action, "batch");
       });
+      if (kind === "accept") setAppliedVersion(action.decision.expectedHeadId);
       pending.current = null;
       setMessage(
         `${proposals.length}개 제안을 ${kind === "accept" ? "승인" : "거절"}했습니다.`,
@@ -47,7 +49,7 @@ export function useReviewActions(document: DocumentModel, review: ReviewModel) {
       setBusy(false);
     }
   };
-  return { busy, message, setMessage, execute };
+  return { busy, message, setMessage, execute, appliedVersion };
 }
 function makeDecision(
   review: ReviewModel,

@@ -1,0 +1,49 @@
+{
+  "artifacts": [
+    {
+      "path": "apps/desktop/src-tauri/target/release/bundle/macos/DocReview.app/Contents/MacOS/docreview",
+      "sha256": "40dba189b04a3e08abebae823c9d1025e8fc3b8f3ba9f5ef48a701b5c72e5dd3",
+      "bytes": 18672464,
+      "modifiedAt": "2026-10-29T01:40:52.314783+00:00"
+    },
+    {
+      "path": "apps/desktop/src-tauri/target/release/bundle/dmg/DocReview_0.1.0_aarch64.dmg",
+      "sha256": "7d5bf0b0cf028445960789459565203bce4d6994c88c0ebeaa7d4e5c373f971f",
+      "bytes": 5918767,
+      "modifiedAt": "2026-10-29T01:41:14.013085+00:00"
+    }
+  ],
+  "verification": {
+    "architecture": "arm64",
+    "signatureValid": true,
+    "testMarkers": 0,
+    "generalDebugRestored": true
+  },
+  "checks": {
+    "typecheck": "passed",
+    "lint": "passed; 0 warnings",
+    "unitTests": 75,
+    "nativeTests": 87,
+    "nativePhases": 28,
+    "comparisonTests": 12,
+    "comparisonBrowser": "6 scenes/select/single/enlarge/Esc/focus/narrow passed",
+    "geometryMetrics": 33,
+    "maximumGeometryErrorCssPx": 1
+  },
+  "installation": {
+    "installedAt": "2026-10-29T01:41:41.796903+00:00",
+    "paths": [
+      "/Applications/DocReview.app",
+      "/Users/dltntnqo/Applications/DocReview.app"
+    ],
+    "bundleFilesMatch": true,
+    "dataUnchangedDuringInstall": true,
+    "processId": 61668,
+    "launchPath": "/Applications/DocReview.app",
+    "nativeScreenChecks": "request/review/comment/narrow + IME/Tab/F7/Shift+F7/Esc/OS open/save/cancel passed",
+    "receipt": "apps/desktop/.artifacts/tobe-install.json",
+    "inputProof": "apps/desktop/.artifacts/tobe-installed-checks.json",
+    "originalDataPreserved": true
+  },
+  "userResearch": "5-person formative usability study and effectiveness measures unverified; VoiceOver excluded"
+}

@@ -11,17 +11,11 @@ describe("재시작한 앱의 마지막 위치", () => {
     assert.notEqual(await invoke("e2e_process_id", {}), expected.processId);
     await $(".document-toolbar h1").waitForExist();
     assert.equal(await $(".document-toolbar h1").getText(), "rewrite");
-    assert.equal(
-      await $(".task-panel > label select").getValue(),
-      expected.bLast,
-    );
+    assert.equal(await $(".task-picker select").getValue(), expected.bLast);
     await $(".sidebar").$("button=document").click();
     await browser.waitUntil(
       async () => (await $(".document-toolbar h1").getText()) === "document",
     );
-    assert.equal(
-      await $(".task-panel > label select").getValue(),
-      expected.aLast,
-    );
+    assert.equal(await $(".task-picker select").getValue(), expected.aLast);
   });
 });

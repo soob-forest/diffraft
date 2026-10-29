@@ -77,6 +77,26 @@ function setup() {
 }
 beforeEach(() => vi.resetAllMocks());
 
+it("rejects invalid instructions before writing source or conditions", async () => {
+  const { props, save, flush } = setup();
+  props.model.autosave.change("최신 원문");
+  for (const instruction of [" ", "잘못된\0입력", "한".repeat(6000)]) {
+    await expect(prepareRequest(props, "PATCH", instruction)).rejects.toThrow();
+  }
+  expect(save).not.toHaveBeenCalled();
+  expect(flush).not.toHaveBeenCalled();
+  expect(invoke).not.toHaveBeenCalled();
+  props.model.autosave.dispose();
+});
+
+it("does not confirm a request during IME composition", async () => {
+  const { props, flush } = setup();
+  props.model.autosave.composition(true);
+  await expect(prepareRequest(props, "PATCH", "수정")).rejects.toThrow();
+  expect(flush).not.toHaveBeenCalled();
+  expect(invoke).not.toHaveBeenCalled();
+});
+
 it("saves source and conditions before scope confirmation, and sends only after confirmation", async () => {
   const { props, order } = setup();
   props.model.autosave.change("최신 원문");

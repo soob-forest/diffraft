@@ -1,14 +1,14 @@
 .connection-dialog {
-  width: min(680px, calc(100vw - 32px));
+  width: min(650px, calc(100vw - 32px));
   max-height: calc(100vh - 48px);
   overflow: auto;
-  padding: 24px;
+  padding: 32px;
   color: #182537;
-  border: 1px solid #cbd6e5;
+  border: 0;
   border-radius: 12px;
 }
 .connection-dialog::backdrop {
-  background: #18253780;
+  background: #18253755;
 }
 .connection-dialog p {
   line-height: 1.6;
@@ -44,4 +44,75 @@
 }
 .generation-status [role="alert"] {
   max-width: 520px;
+}
+
+.connection-dialog > h2 {
+  margin: 0 0 8px;
+  font-size: 22px;
+  line-height: 30.8px;
+}
+.connection-dialog > p {
+  margin: 0 0 14px;
+  font-size: 13px;
+  line-height: 21.45px;
+  color: var(--muted);
+}
+.connection-dialog > [role="status"] {
+  margin: 24px 0;
+  padding: 12px 24px;
+  border-radius: 0;
+}
+.connection-dialog > .connection-success {
+  background: #e8f5ec;
+  color: #14633b;
+}
+.connection-success strong,
+.connection-success span {
+  display: block;
+}
+.connection-success strong {
+  font-weight: 700;
+}
+.connection-dialog .connection-primary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 24px 0;
+}
+.connection-dialog .connection-diagnostics {
+  margin: 24px 0;
+  padding-top: 0;
+  border: 0;
+  font-size: 16px;
+  line-height: 26.4px;
+  color: #182537;
+}
+.connection-dialog > .muted {
+  font-size: 13px;
+  line-height: 21.45px;
+  margin-bottom: 14px;
+}
+
+.connection-dialog {
+  translate: 0 9px;
+}
+.connection-success span {
+  margin-top: 8px;
+}
+.connection-dialog .connection-diagnostics > summary {
+  line-height: 26.4px;
+}
+@media (max-height: 600px) {
+  .connection-dialog {
+    translate: none;
+  }
+}
+
+.connection-dialog > [role="status"] {
+  font-size: 14px;
+  line-height: 23.1px;
+}
+.connection-dialog:has(.connection-success) {
+  min-height: min(436.8px, calc(100vh - 48px));
 }

@@ -1,0 +1,160 @@
+{
+  "schemaVersion": 1,
+  "kind": "native WKWebView; synthetic fixture; isolated temporary DB and fake CLI",
+  "sourceFingerprint": "49f0cbf3ac576f7a31461a371ae29d0d0bed3edde872b1fdac3e119d9971cb20",
+  "capturedAt": "2026-10-29T01:39:54.376663+00:00",
+  "captures": [
+    {
+      "file": "after/comment.json",
+      "sha256": "3bed1a7ab882b6dc6dc0f9c05f02b6f69eac064eff1494865c3054c4459f47ff"
+    },
+    {
+      "file": "after/comment.png",
+      "sha256": "1fd6f08e3dfa96016da8f50059d1bf6f5dcc6836877995935c053a7ce9221173"
+    },
+    {
+      "file": "after/connection.json",
+      "sha256": "70b3bf8c29a2e560edbe0354ef6e111995e7d68de6357a9fce2bc0c94a31ecae"
+    },
+    {
+      "file": "after/connection.png",
+      "sha256": "2a6092670ea34ee783e6e6e18f85e629bd166e481a8a76acaa769752c38db3a3"
+    },
+    {
+      "file": "after/narrow.json",
+      "sha256": "ae6a66d44e037bcb8c705d1632f98161b08f0e83edf00c0a6c80bd3f7482d6d9"
+    },
+    {
+      "file": "after/narrow.png",
+      "sha256": "b56712e4593c68e4a5c39d1b872724ca6ef3a8545e68d1d8a92fc36e0a54a2b9"
+    },
+    {
+      "file": "after/request.json",
+      "sha256": "d3640e4adfdd6fa4cf323ec4a991fef0b648ee952a377f2c848bd47e0830ef97"
+    },
+    {
+      "file": "after/request.png",
+      "sha256": "c5f8bbdec3a49f6a16d98b35a23c721d15b24381657c06227a8da97591c69bf4"
+    },
+    {
+      "file": "after/resume.json",
+      "sha256": "d8b8e8b8848de5795d5c204249c3e5c27c76cb05843aa18effd37ff9baa61ddb"
+    },
+    {
+      "file": "after/resume.png",
+      "sha256": "369933a6a52f5ccdb603887be49cfef4bdf09ce4b9009ec86ea3e9a3fe15f34b"
+    },
+    {
+      "file": "after/review.json",
+      "sha256": "7dc147b06fd1bdc3e516dab5ef8d484f9d9ae6b7586c6219a2899d79bc1bf71d"
+    },
+    {
+      "file": "after/review.png",
+      "sha256": "34ee28b03f239b4a4802f363058f02119f4330bc8ea791ef306240956a703672"
+    },
+    {
+      "file": "states/applied-version.png",
+      "sha256": "374c9cdb4669d9f163c9cdda9ddce32e9c24bf84531f6f5f4376e2368267caa6"
+    },
+    {
+      "file": "states/comment-long-table.json",
+      "sha256": "aaeb2f66aa9afa7729683fc42ceff451233745133fd898f4c77178ae385875b1"
+    },
+    {
+      "file": "states/comment-long-table.png",
+      "sha256": "1d31d5493bfb6a89004db4d8105a1e71557b2919fa0a327d01d05a0cbed2f831"
+    },
+    {
+      "file": "states/request-1280-1.5.png",
+      "sha256": "f39541e2467f8a7cceb0e94f36458bb24df2299deaaaf5495e96ce1779d14fa2"
+    },
+    {
+      "file": "states/request-1280-1.png",
+      "sha256": "a26375c3a597df33138c2dd707881c619d2616fb8c8e32abd7f512a9904ad280"
+    },
+    {
+      "file": "states/request-1280-2.png",
+      "sha256": "d71d16558f1ca34696be37019de97419f56b8fccb70696018c1954abb30543ec"
+    },
+    {
+      "file": "states/request-1440-1.5.png",
+      "sha256": "7d171474fa6a91f36f1f9710ea2342313aa4c69a810ea67734564d843263f795"
+    },
+    {
+      "file": "states/request-1440-1.png",
+      "sha256": "c4f097e9ff2a766db678d72444b3a6d92bc3f4cc64b98509dad8937c8bdcfa31"
+    },
+    {
+      "file": "states/request-1440-2.png",
+      "sha256": "1a8da7dc7babdada6ba4d03a837df3eaf67f05e476a96c537c4697c0892d7cbc"
+    },
+    {
+      "file": "states/request-800-1.5.png",
+      "sha256": "535938db384c4b8bcb951ac017744dc54f8a3e76fca3a027d72bbd3fde3d01fc"
+    },
+    {
+      "file": "states/request-800-1.png",
+      "sha256": "f5c0b013264ff54959b2d4d3e26a821ee6366c0c27eff33823d4aef72dae719d"
+    },
+    {
+      "file": "states/request-800-2.png",
+      "sha256": "30b071621ba5e4a11d7bc16fab5329b77c0957a77a27fee9957c2f324d5ac567"
+    },
+    {
+      "file": "states/request-failed.png",
+      "sha256": "33b5d96667ac71c733b5327d515c1e81aaa6bfbbe8b54669718b402707b41294"
+    },
+    {
+      "file": "states/resume-v13.png",
+      "sha256": "cbe55146de9a8972dbbae2d43b14b14090333c62099cbea2d64eaa2fc7a32c1e"
+    },
+    {
+      "file": "states/review-1280-1.5.png",
+      "sha256": "55d3c72997e4f691ab65c99c8b1822a1de1d7776426799ddda98cddcf7361126"
+    },
+    {
+      "file": "states/review-1280-1.png",
+      "sha256": "4ad1d2732916b64eeac4e6d0b03bd228987d8a04bbdf94dd59ff46199a2d48fe"
+    },
+    {
+      "file": "states/review-1280-2.png",
+      "sha256": "be2e069b82c807ff7bc47ec806723ed4db836182fe892a0b63552d429bb397de"
+    },
+    {
+      "file": "states/review-1440-1.5.png",
+      "sha256": "496739c82a4ae3c97c80f5b13c3245b743390de229d9c4cc1007bee612c0a5ac"
+    },
+    {
+      "file": "states/review-1440-1.png",
+      "sha256": "f9a1db9649009622cb506279bba78e9a54c3d94855c19c153a4ecad94a69828e"
+    },
+    {
+      "file": "states/review-1440-2.png",
+      "sha256": "4ce3763d2f3a3d9fb1616817ee2781b243a5add9ea00b74904a52f64ad078ef7"
+    },
+    {
+      "file": "states/review-800-1.5.png",
+      "sha256": "d9f2bb912180c985c1043121c2ec05e0d481b7c34926322f719d926fa2725858"
+    },
+    {
+      "file": "states/review-800-1.png",
+      "sha256": "6d67c51e44b3df3c9eb5fc8bbc872718a55cadadb3ab4d85cd8fc76f80a2a044"
+    },
+    {
+      "file": "states/review-800-2.png",
+      "sha256": "4772469f8a4bfc798aa56f0911d4e5187c23f054104d72fcd0df55cc928175fa"
+    },
+    {
+      "file": "states/review-long-table.json",
+      "sha256": "9d3b9b5801325357006933142f87a15132e3d4aa09a1f5436d3c02008da6655e"
+    },
+    {
+      "file": "states/review-long-table.png",
+      "sha256": "42ba9584d9ce2e44497f1310d43cbb19a127e5fb81602a32154b9535fa85e24f"
+    },
+    {
+      "file": "states/zoom-measurements.json",
+      "sha256": "9ac31c92218934df46f2ec5d3a94fc4b06891289f7f3fad1c4bd47404b9b0e85"
+    }
+  ]
+}

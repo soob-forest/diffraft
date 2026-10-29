@@ -1,16 +1,42 @@
+import { useEffect, useState } from "react";
 import { ConnectionSettings } from "./connection/ConnectionSettings";
 import { GenerationStatus } from "./connection/GenerationStatus";
+import { SessionDrafts } from "./drafts/SessionDrafts";
 import { DocumentWorkspace } from "./editor/DocumentWorkspace";
+import { NavigationHosts, NavigationProvider } from "./editor/NavigationSlots";
 import { useWorkspace } from "./workspace";
 
 export function App() {
-  const workspace = useWorkspace();
   return (
-    <div className="app-shell">
+    <SessionDrafts>
+      <NavigationProvider>
+        <WorkspaceApp />
+      </NavigationProvider>
+    </SessionDrafts>
+  );
+}
+
+function WorkspaceApp() {
+  const workspace = useWorkspace();
+  const [documentsOpen, setDocumentsOpen] = useDocumentList(
+    workspace.editor?.document.id,
+  );
+  return (
+    <div className="app-shell" data-documents-open={documentsOpen}>
       <header className="app-header" inert={workspace.closing}>
         <span className="brand-icon">D</span>
         <strong>DocReview</strong>
         <span>내 작업 공간</span>
+        {!workspace.editor && (
+          <button
+            type="button"
+            aria-expanded={documentsOpen}
+            aria-controls="document-list"
+            onClick={() => setDocumentsOpen((value) => !value)}
+          >
+            문서 목록
+          </button>
+        )}
         <GenerationStatus />
       </header>
       <Sidebar workspace={workspace} />
@@ -25,23 +51,16 @@ export function App() {
             key={workspace.editor.document.id}
             initial={workspace.editor}
             flushRef={workspace.flushRef}
+            documents={{
+              open: documentsOpen,
+              toggle: () => setDocumentsOpen((value) => !value),
+            }}
           />
         ) : (
           <EmptyWorkspace ready={Boolean(workspace.snapshot)} />
         )}
       </div>
-      <footer>
-        <span role="status" data-testid="workspace-status">
-          {workspace.closing
-            ? "입력을 저장하고 종료하는 중…"
-            : workspace.busy
-              ? "문서를 여는 중…"
-              : workspace.snapshot
-                ? "작업 공간 준비됨"
-                : "작업 공간을 여는 중…"}
-        </span>
-        <span>승인한 변경만 확정본에 반영됩니다.</span>
-      </footer>
+      <WorkspaceFooter workspace={workspace} />
     </div>
   );
 }
@@ -69,10 +88,17 @@ function Sidebar({
   workspace: ReturnType<typeof useWorkspace>;
 }) {
   return (
-    <aside className="sidebar" aria-label="문서 목록" inert={workspace.closing}>
+    <aside
+      id="document-list"
+      className="sidebar"
+      aria-label="문서 목록"
+      inert={workspace.closing}
+    >
       <h2>문서</h2>
       <DocumentActions workspace={workspace} />
-      <ConnectionSettings />
+      <div className="sidebar-connection">
+        <ConnectionSettings />
+      </div>
       <ul>
         {workspace.snapshot?.documents.map((document) => (
           <li key={document.id}>
@@ -93,7 +119,10 @@ function Sidebar({
           </li>
         ))}
       </ul>
-      <div className="local-badge">로컬 작업 공간</div>
+      <details className="navigation-more">
+        <summary>문서 탐색</summary>
+        <NavigationHosts />
+      </details>
     </aside>
   );
 }
@@ -125,4 +154,42 @@ function DocumentActions({
       </button>
     </div>
   );
+}
+
+function WorkspaceFooter({
+  workspace,
+}: {
+  workspace: ReturnType<typeof useWorkspace>;
+}) {
+  return (
+    <footer>
+      <span role="status" data-testid="workspace-status">
+        {workspace.closing
+          ? "입력을 저장하고 종료하는 중…"
+          : workspace.busy
+            ? "문서를 여는 중…"
+            : workspace.snapshot
+              ? "로컬 작업 공간"
+              : "작업 공간을 여는 중…"}
+      </span>
+      <span>승인한 변경만 확정본에 반영됩니다.</span>
+    </footer>
+  );
+}
+
+function useDocumentList(documentId: string | undefined) {
+  const [open, setOpen] = useState(() => window.innerWidth > 1000);
+  useEffect(() => {
+    const query = window.matchMedia("(max-width: 1000px)");
+    const collapse = () => {
+      if (query.matches) setOpen(false);
+    };
+    collapse();
+    query.addEventListener("change", collapse);
+    return () => query.removeEventListener("change", collapse);
+  }, []);
+  useEffect(() => {
+    if (documentId && window.innerWidth <= 1000) setOpen(false);
+  }, [documentId]);
+  return [open, setOpen] as const;
 }

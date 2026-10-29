@@ -4,7 +4,7 @@ describe("제품 앱과 실제 Rust IPC", () => {
   it("계정 없이 빈 작업 공간을 연다", async () => {
     const status = await $('[data-testid="workspace-status"]');
     await browser.waitUntil(
-      async () => (await status.getText()) === "작업 공간 준비됨",
+      async () => (await status.getText()) === "로컬 작업 공간",
     );
     const snapshot = await browser.execute(() =>
       window.__TAURI__.core.invoke("get_workspace_snapshot", {

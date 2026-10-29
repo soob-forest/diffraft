@@ -2,7 +2,14 @@ import assert from "node:assert/strict";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { Key } from "webdriverio";
+import { checkFoldedNavigation } from "./support/folded-navigation.mjs";
 import { editor, examples, prepare, root } from "./support/review-fixture.mjs";
+import {
+  chooseGroup,
+  openCandidate,
+  openComment,
+  showSummary,
+} from "./support/review-ui.mjs";
 
 const revised = "여행자는 준비물과 다음 여행 계획을 여행 기록에 남깁니다.";
 let reviewDocument;
@@ -17,6 +24,10 @@ async function readyVersion(version) {
   );
 }
 describe("네이티브 변경 검토", () => {
+  it(
+    "접힌 긴 표의 추가 행으로 F7/Shift+F7 이동하며 원문을 보존한다",
+    checkFoldedNavigation,
+  );
   it("B01의 정확한 통계·읽기 전용 비교와 보기 전환을 제공한다", async () => {
     reviewDocument = await prepare("review");
     assert.equal(await $('[data-testid="diff-stats"]').getText(), "+3 / −3");
@@ -57,17 +68,8 @@ describe("네이티브 변경 검토", () => {
         }),
       { timeoutMsg: "원문 행과 gutter 행 번호가 정렬되어야 합니다." },
     );
-    const layout = await browser.execute(() => ({
-      diffBottom: document.querySelector(".diff-panes").getBoundingClientRect()
-        .bottom,
-      actionsTop: document
-        .querySelector('section[aria-label="선택한 변경"] .proposal-actions')
-        .getBoundingClientRect().top,
-    }));
-    assert.ok(
-      layout.actionsTop >= layout.diffBottom,
-      "비교 영역이 승인 버튼과 겹치면 안 됩니다.",
-    );
+    await assertInitialApprovalLayout();
+    assert.match(await $("button=다음 변경").getAttribute("title"), /F7/);
     assert.equal(
       await readFile(join(root, "review.md"), "utf8"),
       reviewDocument.base,
@@ -76,7 +78,7 @@ describe("네이티브 변경 검토", () => {
     await browser.saveScreenshot(".artifacts/review-inline.png");
   });
   it("D02 거절·D01 승인 후 새 head에서 나머지 변경을 유지한다", async () => {
-    await $("button=2번 변경").click();
+    await chooseGroup(2);
     await $("button=선택한 변경 거절").click();
     await browser.waitUntil(
       async () =>
@@ -86,7 +88,7 @@ describe("네이티브 변경 검토", () => {
       await readFile(join(root, "review.md"), "utf8"),
       reviewDocument.base,
     );
-    await $("button=1번 변경").click();
+    await chooseGroup(1);
     await $("button=선택한 변경 승인").click();
     await readyVersion(13);
     const disk = await readFile(join(root, "review.md"), "utf8");
@@ -95,12 +97,8 @@ describe("네이티브 변경 검토", () => {
     assert.equal(await $('[data-testid="diff-stats"]').getText(), "+1 / −1");
   });
   it("코멘트 대상과 후보 r2를 저장하고 v14를 정확히 승인한다", async () => {
-    await $(".comment-form summary").click();
-    await browser.execute(() => {
-      const select = document.querySelector(".comment-form select");
-      select.value = "after";
-      select.dispatchEvent(new Event("change", { bubbles: true }));
-    });
+    await openComment();
+    await $(".comment-side").$("button=제안 내용").click();
     await browser.waitUntil(async () =>
       (await $(".comment-form blockquote").getText()).includes(
         "준비 확인이 필요한 여행",
@@ -111,13 +109,16 @@ describe("네이티브 변경 검토", () => {
     await browser.waitUntil(async () =>
       (await $(".comment-list").getText()).includes("책임 주체"),
     );
-    await $(".candidate-form summary").click();
+    await openCandidate();
     await $(".candidate-form textarea").setValue(revised);
     await $("button=후보 저장").click();
     await browser.waitUntil(async () =>
-      (await $(".candidate-form summary").getText()).includes("r2"),
+      (await $(".candidate-form summary").getProperty("textContent")).includes(
+        "r2",
+      ),
     );
     assert.match(await $(".comment-list").getText(), /연결 위치 확인 필요/);
+    await showSummary();
     await browser.waitUntil(
       async () => await $("button=선택한 변경 승인").isEnabled(),
     );
@@ -135,6 +136,10 @@ describe("네이티브 변경 검토", () => {
       ),
     );
     await browser.saveScreenshot(".artifacts/review-completed.png");
+    assert.match(
+      await $(".group-bar [role=status]").getText(),
+      /변경 상세의 처리·이전 기록/,
+    );
     await $("button=원문").click();
     await $('[data-testid="source-editor"]').click();
     await browser.keys([Key.Command, "z"]);
@@ -170,7 +175,7 @@ describe("네이티브 변경 검토", () => {
   });
   it("거절한 D02를 제외한 두 제안을 확인하고 한 버전으로 전체 승인한다", async () => {
     const fixture = await prepare("bulk-review");
-    await $("button=2번 변경").click();
+    await chooseGroup(2);
     await $("button=선택한 변경 거절").click();
     await browser.waitUntil(
       async () =>
@@ -186,6 +191,7 @@ describe("네이티브 변경 검토", () => {
     assert.match(included, /여행 기록 기준/);
     assert.doesNotMatch(included, /확인 시간/);
     assert.match(await $("dialog").getText(), /제안 1개는 제외/);
+    await browser.saveScreenshot(".artifacts/bulk-two.png");
     await $("button=확인 후 전체 승인").click();
     await browser.waitUntil(
       async () => (await $(".version-badge").getText()) === "v13",
@@ -204,3 +210,20 @@ describe("네이티브 변경 검토", () => {
     assert.equal(state.versions.length, 13);
   });
 });
+
+async function assertInitialApprovalLayout() {
+  const layout = await browser.execute(() => {
+    document.querySelector(".review-panel").scrollTop = 0;
+    return {
+      actionsBottom: document
+        .querySelector(".selected-group .proposal-actions")
+        .getBoundingClientRect().bottom,
+      diffTop: document.querySelector(".diff-panes").getBoundingClientRect()
+        .top,
+    };
+  });
+  assert.ok(
+    layout.actionsBottom <= layout.diffTop,
+    "비교 영역이 승인 버튼과 겹치면 안 됩니다.",
+  );
+}

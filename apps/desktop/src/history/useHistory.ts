@@ -13,6 +13,7 @@ export function useHistory(model: DocumentModel) {
     operation.setMessage,
   );
   return {
+    versions: model.state.versions,
     selected: selection.selected,
     busy: operation.busy,
     message: operation.message,

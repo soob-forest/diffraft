@@ -1,6 +1,7 @@
 import { readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { editor, examples, invoke, root } from "./review-fixture.mjs";
+import { openReviewOptions } from "./review-ui.mjs";
 
 export { editor, examples, invoke, root };
 export const confirmed = await readFile(
@@ -61,6 +62,7 @@ export async function prepareRewrite() {
   return { document, task };
 }
 export async function requestRewrite(reference = false) {
+  await openReviewOptions();
   if ((await $(".rewrite-form").getAttribute("open")) === null)
     await $(".rewrite-form summary").click();
   await browser.waitUntil(

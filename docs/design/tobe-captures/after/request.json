@@ -1,0 +1,255 @@
+{
+  "capturedAt": "2026-10-29T01:37:31.770Z",
+  "elements": [
+    {
+      "background": "rgb(24, 37, 55)",
+      "font": "16px",
+      "lineHeight": "26.4px",
+      "rect": {
+        "height": 50,
+        "width": 1440,
+        "x": 0,
+        "y": 0
+      },
+      "selector": ".app-header"
+    },
+    {
+      "background": "rgb(237, 242, 246)",
+      "font": "16px",
+      "lineHeight": "26.4px",
+      "rect": {
+        "height": 818,
+        "width": 196,
+        "x": 0,
+        "y": 50
+      },
+      "selector": ".sidebar"
+    },
+    {
+      "background": "rgb(255, 255, 255)",
+      "font": "16px",
+      "lineHeight": "26.4px",
+      "rect": {
+        "height": 77,
+        "width": 884,
+        "x": 196,
+        "y": 50
+      },
+      "selector": ".document-toolbar"
+    },
+    {
+      "background": "rgb(255, 255, 255)",
+      "font": "16px",
+      "lineHeight": "26.4px",
+      "rect": {
+        "height": 48,
+        "width": 884,
+        "x": 196,
+        "y": 127
+      },
+      "selector": ".document-modebar"
+    },
+    {
+      "background": "rgb(248, 250, 252)",
+      "font": "16px",
+      "lineHeight": "26.4px",
+      "rect": {
+        "height": 818,
+        "width": 360,
+        "x": 1080,
+        "y": 50
+      },
+      "selector": ".workspace-panel"
+    },
+    {
+      "missing": true,
+      "selector": ".review-tools"
+    },
+    {
+      "missing": true,
+      "selector": ".connection-dialog"
+    },
+    {
+      "background": "rgb(236, 242, 246)",
+      "font": "13px",
+      "lineHeight": "21.450001px",
+      "rect": {
+        "height": 76,
+        "width": 311,
+        "x": 1105,
+        "y": 380.390625
+      },
+      "selector": ".scope-bar"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "font": "16px",
+      "lineHeight": "26.4px",
+      "rect": {
+        "height": 73,
+        "width": 311,
+        "x": 1105,
+        "y": 184.390625
+      },
+      "selector": ".task-condition-details"
+    },
+    {
+      "background": "rgb(255, 255, 255)",
+      "font": "16px",
+      "lineHeight": "28.799999px",
+      "rect": {
+        "height": 591,
+        "width": 40,
+        "x": 220,
+        "y": 203
+      },
+      "selector": ".source-editor .cm-gutters"
+    },
+    {
+      "missing": true,
+      "selector": ".diff-pane .cm-gutters"
+    },
+    {
+      "missing": true,
+      "selector": ".diff-panes"
+    },
+    {
+      "missing": true,
+      "selector": ".diff-pane .cm-line"
+    },
+    {
+      "missing": true,
+      "selector": ".comment-form textarea"
+    },
+    {
+      "background": "rgb(255, 255, 255)",
+      "font": "16px",
+      "lineHeight": "26.4px",
+      "rect": {
+        "height": 112,
+        "width": 311,
+        "x": 1105,
+        "y": 505.390625
+      },
+      "selector": ".request-form textarea"
+    },
+    {
+      "background": "rgb(231, 237, 244)",
+      "font": "12px",
+      "lineHeight": "19.799999px",
+      "rect": {
+        "height": 32,
+        "width": 1440,
+        "x": 0,
+        "y": 868
+      },
+      "selector": "footer"
+    }
+  ],
+  "panelScroll": {
+    "children": [
+      {
+        "bottom": 100,
+        "class": "task-context-heading",
+        "tag": "H2",
+        "text": "현재 작업",
+        "top": 74
+      },
+      {
+        "bottom": 0,
+        "class": "task-picker-toggle",
+        "tag": "BUTTON",
+        "text": "작업 선택",
+        "top": 0
+      },
+      {
+        "bottom": 168.390625,
+        "class": "task-picker-region",
+        "tag": "DIV",
+        "text": "이 문서의 작업새 작업사실과 수치 유지",
+        "top": 116
+      },
+      {
+        "bottom": 851.390625,
+        "class": "generation-panel",
+        "tag": "SECTION",
+        "text": "작업 목표·조건수치 유지 · 한국어로 간결하게조건 편집목표는 계속 유지할 방향입니다. 이번에 바꿀 내용은 AI 요청에 적어 주세요. 고정 조건은 선택 사항입니다.작업 목표사실과 수",
+        "top": 184.390625
+      },
+      {
+        "bottom": 257.390625,
+        "class": "task-condition-details",
+        "tag": "DETAILS",
+        "text": "작업 목표·조건수치 유지 · 한국어로 간결하게조건 편집목표는 계속 유지할 방향입니다. 이번에 바꿀 내용은 AI 요청에 적어 주세요. 고정 조건은 선택 사항입니다.작업 목표사실과 수",
+        "top": 184.390625
+      },
+      {
+        "bottom": 307.390625,
+        "class": "",
+        "tag": "H3",
+        "text": "AI 요청",
+        "top": 281.390625
+      },
+      {
+        "bottom": 695.390625,
+        "class": "request-form",
+        "tag": "FORM",
+        "text": "수정 제안설명만요청 범위변경전체 문서 · v2범위전체 문서현재 섹션선택 영역범위 확인v2 · 요청 확인 시 최신 원문으로 검증이번 요청수치는 유지하고 표현을 간결하게 해 주세요.요",
+        "top": 323.390625
+      },
+      {
+        "bottom": 0,
+        "class": "",
+        "tag": "P",
+        "text": "",
+        "top": 0
+      },
+      {
+        "bottom": 851.390625,
+        "class": "request-extras",
+        "tag": "DETAILS",
+        "text": "작업 대화·추가 요청확인 후 요청합니다. 승인 전에는 원문을 바꾸지 않습니다.전체 재작성으로 이동작업 대화대화 저장 안내대화와 결정은 이 Mac의 앱 작업 공간에 저장합니다. 공식",
+        "top": 707.390625
+      },
+      {
+        "bottom": 830.390625,
+        "class": "conversation-heading",
+        "tag": "DIV",
+        "text": "작업 대화대화 저장 안내대화와 결정은 이 Mac의 앱 작업 공간에 저장합니다. 공식 CLI의 세션 기록은 별도로 보관되며, 앱 기록이 CLI 기록을 삭제하지는 않습니다.",
+        "top": 799.390625
+      },
+      {
+        "bottom": 851.390625,
+        "class": "session-state",
+        "tag": "P",
+        "text": "이 작업의 요청과 응답을 이어서 확인합니다.",
+        "top": 830.390625
+      },
+      {
+        "bottom": 0,
+        "class": "conversation-messages",
+        "tag": "OL",
+        "text": "",
+        "top": 0
+      }
+    ],
+    "clientHeight": 818,
+    "clientWidth": 359,
+    "scrollHeight": 818,
+    "scrollWidth": 359
+  },
+  "reading": {
+    ".change-group-start": null,
+    ".diff-delete": null,
+    ".diff-equal": null,
+    ".source-editor .cm-line": {
+      "headerX": 260,
+      "x": 260,
+      "y": 207
+    }
+  },
+  "viewport": [
+    1440,
+    900
+  ]
+}

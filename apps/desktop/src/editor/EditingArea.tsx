@@ -2,6 +2,7 @@ import { lazy, Suspense, useDeferredValue, useState } from "react";
 import type { Heading } from "../generated/Heading";
 import { errorMessage } from "../ipc";
 import { openPreviewLink } from "./api";
+import { NavigationSlot } from "./NavigationSlots";
 import { type EditorSelection, SourceEditor } from "./SourceEditor";
 import type { DocumentModel } from "./useDocument";
 
@@ -10,9 +11,15 @@ type Jump = { offset: number; serial: number };
 type Props = {
   model: DocumentModel;
   preview: boolean;
+  navigationVisible: boolean;
   onSelection: (value: EditorSelection) => void;
 };
-export function EditingArea({ model, preview, onSelection }: Props) {
+export function EditingArea({
+  model,
+  preview,
+  onSelection,
+  navigationVisible,
+}: Props) {
   const [jump, setJump] = useState<Jump | null>(null);
   const deferred = useDeferredValue(model.content);
   const open = (url: string) => {
@@ -22,7 +29,11 @@ export function EditingArea({ model, preview, onSelection }: Props) {
   };
   return (
     <div className="editing-area">
-      <Outline headings={model.state.headings} onJump={setJump} />
+      {navigationVisible && (
+        <NavigationSlot name="outline">
+          <Outline headings={model.state.headings} onJump={setJump} />
+        </NavigationSlot>
+      )}
       <div className="editor-panes">
         <div className="source-pane" hidden={preview}>
           <SourceEditor

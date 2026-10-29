@@ -1,5 +1,6 @@
 import { ExportControls } from "../export/ExportControls";
 import { errorMessage } from "../ipc";
+import { DocumentMenu } from "./DocumentMenu";
 import type { DocumentModel } from "./useDocument";
 
 type Props = {
@@ -7,33 +8,47 @@ type Props = {
   mode: DocumentMode;
   setMode: (value: DocumentMode) => void;
   onConflict: () => void;
+  documents: DocumentListControl;
 };
+export type DocumentListControl = { open: boolean; toggle: () => void };
 export type DocumentMode = "source" | "review" | "preview";
-export function DocumentToolbar({ model, mode, setMode, onConflict }: Props) {
-  const save = () => {
-    void model.autosave
-      .flush()
-      .catch((error: unknown) => model.setError(errorMessage(error)));
-  };
+export function DocumentToolbar({
+  model,
+  onConflict,
+  documents,
+}: Pick<Props, "model" | "onConflict" | "documents">) {
   return (
-    <header className="document-toolbar">
-      <h1>{model.state.document.title}</h1>
+    <header className="document-toolbar" inert={model.mutating}>
+      <h1 title={model.state.document.path}>{model.state.document.title}</h1>
       <span className="version-badge">v{model.status.version}</span>
       <span
         role="status"
         data-testid="save-status"
         className={model.status.error ? "danger" : "save-status"}
       >
-        {model.status.label}
+        원문 {model.status.label}
       </span>
-      <ViewToggle mode={mode} setMode={setMode} />
-      <button type="button" disabled={model.status.saving} onClick={save}>
-        저장
-      </button>
-      <button type="button" disabled={model.status.saving} onClick={onConflict}>
-        파일 비교·복구
-      </button>
-      <ExportControls model={model} />
+      <div className="document-header-actions">
+        <button
+          type="button"
+          className="document-list-toggle"
+          aria-expanded={documents.open}
+          aria-controls="document-list"
+          onClick={documents.toggle}
+        >
+          문서 목록
+        </button>
+        <button
+          type="button"
+          className="file-compare-action"
+          disabled={model.status.saving}
+          onClick={onConflict}
+        >
+          파일 비교·복구
+        </button>
+        <DocumentMenu model={model} onConflict={onConflict} />
+        <ExportControls model={model} />
+      </div>
     </header>
   );
 }
@@ -57,7 +72,7 @@ export function SaveError({ model }: { model: DocumentModel }) {
   );
 }
 
-function ViewToggle({ mode, setMode }: Pick<Props, "mode" | "setMode">) {
+export function ViewToggle({ mode, setMode }: Pick<Props, "mode" | "setMode">) {
   return (
     <div className="view-toggle">
       <button

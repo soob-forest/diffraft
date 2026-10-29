@@ -1,27 +1,51 @@
 import type { EditorView } from "@codemirror/view";
-import { useMemo, useRef, useState } from "react";
+import { type ReactNode, useMemo, useRef, useState } from "react";
+import type { Heading } from "../generated/Heading";
+import type { ReviewProjection } from "../generated/ReviewProjection";
 import { PaneAlignment } from "./alignment";
 import type { LogicalSelection, PaneSide } from "./coordinates";
 import { type DiffBookmark, DiffPane } from "./DiffPane";
-import { type DiffComparison, reviewRows, splitRows } from "./rows";
+import { groupRowMarks } from "./group-selection";
+import {
+  compactReviewRows,
+  type DiffComparison,
+  reviewRows,
+  splitRows,
+} from "./rows";
 import { rememberScroll, synchronizeScroll } from "./scroll";
 import { TextDiff } from "./TextDiff";
+import { useComparisonWidth } from "./useComparisonWidth";
 
 type Props = {
+  selectedGroup?: string;
+  textDetails?: boolean;
+  headings?: Heading[];
+  labels?: [string, string];
+  tools?: { header: ReactNode; selection: ReactNode; compact?: ReactNode };
   projection: DiffComparison;
   onSelection: (value: LogicalSelection | null) => void;
+  onGroupSelect?: (id: string) => void;
   onMove: (direction: number) => void;
   jump: { selection: LogicalSelection; serial: number } | null;
 };
-function useDisplay(projection: DiffComparison, beforeChange: () => void) {
+function useDisplay(
+  projection: DiffComparison,
+  beforeChange: () => void,
+  headings?: Heading[],
+) {
   const [split, setSplit] = useState(false);
   const [full, setFull] = useState(false);
   const [whitespace, setWhitespace] = useState(false);
   const [expanded, setExpanded] = useState<ReadonlySet<string>>(new Set());
-  const rows = useMemo(
-    () => reviewRows(projection, expanded, full),
-    [projection, expanded, full],
-  );
+  const rows = useMemo(() => {
+    const source = reviewRows(projection, expanded, full);
+    return full || expanded.size || !headings
+      ? source
+      : compactReviewRows(
+          source,
+          headings.map((heading) => heading.fromUtf16),
+        );
+  }, [projection, expanded, full, headings]);
   const pairs = useMemo(() => splitRows(rows), [rows]);
   const before = useMemo(() => pairs.map((pair) => pair.before), [pairs]);
   const after = useMemo(() => pairs.map((pair) => pair.after), [pairs]);
@@ -50,21 +74,39 @@ function useDisplay(projection: DiffComparison, beforeChange: () => void) {
     },
   };
 }
-export function DiffViewer(props: Props) {
+function useDiffViewer(props: Props) {
   const bookmark = useRef<DiffBookmark>({
     selection: null,
     scrollKey: "",
   });
   const views = useRef(new Map<PaneSide, EditorView>());
-  const display = useDisplay(props.projection, () => {
-    const view = views.current.get("before") ?? views.current.get("inline");
-    if (view) rememberScroll(view, bookmark);
-  });
+  const display = useDisplay(
+    props.projection,
+    () => {
+      const view = views.current.get("before") ?? views.current.get("inline");
+      if (view) rememberScroll(view, bookmark);
+    },
+    props.headings,
+  );
+  const width = useComparisonWidth(display.split);
+  const markers = useMemo(
+    () =>
+      "groups" in props.projection
+        ? groupRowMarks(
+            props.projection as ReviewProjection,
+            display.rows,
+            props.selectedGroup || "",
+          )
+        : undefined,
+    [props.projection, display.rows, props.selectedGroup],
+  );
   const alignment = useRef(new PaneAlignment());
   const common = {
+    markers,
     bookmark,
     whitespace: display.whitespace,
     onSelection: props.onSelection,
+    onGroupSelect: props.onGroupSelect,
     onExpand: display.expand,
     onMove: props.onMove,
     jump: props.jump,
@@ -77,9 +119,33 @@ export function DiffViewer(props: Props) {
     onScroll: (side: PaneSide, top: number) =>
       synchronizeScroll(views.current, side, top),
   };
+  return { width, display, common };
+}
+export function DiffViewer(props: Props) {
+  const { width, display, common } = useDiffViewer(props);
   return (
-    <section className="diff-viewer" aria-label="변경 비교">
-      <DisplayToolbar display={display} />
+    <section ref={width.ref} className="diff-viewer" aria-label="변경 비교">
+      {props.tools?.compact || (
+        <div className="review-tools">
+          <div className="review-primary-tools">{props.tools?.header}</div>
+          {props.tools?.selection}
+          <DisplayToolbar display={display} />
+        </div>
+      )}
+      {width.narrow && display.split && (
+        <p className="split-guidance">
+          두 열의 읽기 공간이 좁습니다.{" "}
+          <button type="button" onClick={() => display.setSplit(false)}>
+            인라인으로 넓게 보기
+          </button>
+        </p>
+      )}
+      {display.split && (
+        <div className="diff-column-labels">
+          <span>{props.labels?.[0] ?? "변경 전"}</span>
+          <span>{props.labels?.[1] ?? "변경 후"}</span>
+        </div>
+      )}
       <div className={`diff-panes ${display.split ? "split" : "inline"}`}>
         {display.split ? (
           <>
@@ -91,7 +157,9 @@ export function DiffViewer(props: Props) {
         )}
       </div>
       <FoldControls display={display} />
-      <TextDiff hunks={props.projection.hunks} />
+      {props.textDetails !== false && (
+        <TextDiff hunks={props.projection.hunks} />
+      )}
     </section>
   );
 }

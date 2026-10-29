@@ -1,0 +1,31 @@
+{
+  "detail": {
+    "height": 760,
+    "width": 360
+  },
+  "footer": {
+    "height": 32,
+    "width": 1600
+  },
+  "header": {
+    "height": 50,
+    "width": 1600
+  },
+  "modes": {
+    "height": 52,
+    "width": 1380
+  },
+  "radius": "0px",
+  "sidebar": {
+    "height": 886,
+    "width": 220
+  },
+  "toolbar": {
+    "height": 74,
+    "width": 1380
+  },
+  "viewport": [
+    1600,
+    968
+  ]
+}

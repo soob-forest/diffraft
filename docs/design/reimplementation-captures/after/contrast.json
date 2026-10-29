@@ -1,0 +1,20 @@
+[
+  {
+    "background": "rgb(236, 242, 246)",
+    "foreground": "rgb(70, 86, 107)",
+    "selector": ".sidebar h2",
+    "ratio": 6.633111462718324
+  },
+  {
+    "background": "rgb(236, 242, 246)",
+    "foreground": "rgb(70, 86, 107)",
+    "selector": ".sidebar .task-picker",
+    "ratio": 6.633111462718324
+  },
+  {
+    "background": "rgb(231, 237, 244)",
+    "foreground": "rgb(70, 86, 107)",
+    "selector": "footer",
+    "ratio": 6.354779133887367
+  }
+]

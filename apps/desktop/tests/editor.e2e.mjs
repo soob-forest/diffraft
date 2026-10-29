@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { Key } from "webdriverio";
+import { openScope, saveDocument } from "./support/review-ui.mjs";
 
 const root = process.env.DOCREVIEW_E2E_DATA;
 const source = '[data-testid="source-editor"]';
@@ -42,7 +43,7 @@ describe("실제 파일 편집과 저장", () => {
     const document = await open("document");
     await replace("# 저장한 문서\n\n한글 😀 저장 확인\n");
     await browser.waitUntil(
-      async () => (await $(saved).getText()) === "저장됨",
+      async () => (await $(saved).getText()) === "원문 저장됨",
     );
     const disk = await readFile(join(root, "document.md"), "utf8");
     assert.equal(disk, "# 저장한 문서\r\n\r\n한글 😀 저장 확인\r\n");
@@ -76,6 +77,7 @@ describe("실제 파일 편집과 저장", () => {
     await $(".markdown-preview h1").waitForDisplayed();
     assert.equal(await $(".markdown-preview h1").getText(), "저장한 문서");
     await $("button=원문").click();
+    await openScope();
     await $("button=범위 확인").click();
     await browser.waitUntil(async () =>
       (await $('.scope-bar [role="status"]').getText()).includes("v2"),
@@ -134,10 +136,10 @@ describe("실제 파일 편집과 저장", () => {
     await $(source).waitForDisplayed();
     await writeFile(join(root, "document.md"), "# 외부 내용\n");
     await browser.waitUntil(
-      async () => (await $(saved).getText()) === "저장 중지",
+      async () => (await $(saved).getText()) === "원문 저장 중지",
     );
     await replace("앱의 새 입력 보존");
-    await $("button=저장").click();
+    await saveDocument();
     assert.equal(
       await readFile(join(root, "document.md"), "utf8"),
       "# 외부 내용\n",
@@ -150,7 +152,7 @@ describe("실제 파일 편집과 저장", () => {
     await open("readonly");
     await replace("입력은 보존되어야 합니다 😀");
     await browser.waitUntil(
-      async () => (await $(saved).getText()) === "저장 중지",
+      async () => (await $(saved).getText()) === "원문 저장 중지",
     );
     assert.match(await $(source).getText(), /보존되어야/);
     assert.equal(

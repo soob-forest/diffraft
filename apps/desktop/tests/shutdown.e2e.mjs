@@ -24,7 +24,7 @@ describe("앱 종료 전 저장", () => {
     await source.addValue("종료 전에 보존할 입력");
     await browser.waitUntil(
       async () =>
-        (await $('[data-testid="save-status"]').getText()) === "저장 중지",
+        (await $('[data-testid="save-status"]').getText()) === "원문 저장 중지",
     );
     await invoke("e2e_request_exit", {});
     await invoke("e2e_request_native_exit", {});
@@ -67,6 +67,7 @@ describe("앱 종료 전 저장", () => {
     );
     await $('[data-testid="source-editor"]').click();
     await $('[data-testid="source-editor"]').addValue(expected.content);
+    await $(".task-condition-details > summary").click();
     await $(".task-conditions textarea[required]").setValue(expected.goal);
     await requestExitWhileLocked();
     await waitForExit(expected.pid);
@@ -86,18 +87,18 @@ async function createTaskWhileLocked() {
   try {
     await $("button=작업 만들기").click();
     const disabled = await browser.execute(() =>
-      [...document.querySelectorAll(".task-conditions textarea")].every(
-        (field) => field.disabled,
-      ),
+      [
+        ...document.querySelectorAll(".task-conditions > label > textarea"),
+      ].every((field) => field.disabled),
     );
     assert.equal(disabled, true, "작업 생성 저장 중 입력을 잠가야 합니다.");
   } finally {
     await release();
   }
   await browser.waitUntil(
-    async () => (await $(".task-panel > label select").getValue()) !== "",
+    async () => (await $(".task-picker select").getValue()) !== "",
   );
-  return $(".task-panel > label select").getValue();
+  return $(".task-picker select").getValue();
 }
 
 async function requestExitWhileLocked() {
@@ -122,7 +123,8 @@ async function prepareWritableDocument() {
   await chmod(join(root, "readonly.md"), 0o644);
   await $("button=저장 다시 시도").click();
   await browser.waitUntil(
-    async () => (await $('[data-testid="save-status"]').getText()) === "저장됨",
+    async () =>
+      (await $('[data-testid="save-status"]').getText()) === "원문 저장됨",
   );
   await $("button=새 문서").click();
   await browser.waitUntil(

@@ -4,6 +4,7 @@ import { readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { beginRequest, createTask, terminal } from "./generation-fixture.mjs";
 import { editor, examples, invoke, root } from "./review-fixture.mjs";
+import { chooseGroup, openComment } from "./review-ui.mjs";
 
 export async function prepareExportReview(name) {
   await writeFile(join(root, "next-pick"), name);
@@ -75,8 +76,8 @@ export async function waitVersion(version) {
 }
 
 export async function addReviewComment() {
-  await $("button=3번 변경").click();
-  await $(".comment-form summary").click();
+  await chooseGroup(3);
+  await openComment();
   await $(".comment-form textarea").setValue(
     "여행자의 준비 내용를 명시해 주세요.",
   );

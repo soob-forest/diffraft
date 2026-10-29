@@ -7,9 +7,9 @@ const REFRESH_MS = 500;
 export function GenerationStatus() {
   const { snapshot, error, setError } = useGenerationState();
   async function cancel() {
-    if (!snapshot?.operationId) return;
     try {
-      await cancelGeneration(snapshot.operationId);
+      const current = await generationSnapshot();
+      if (current.operationId) await cancelGeneration(current.operationId);
     } catch (reason) {
       setError(errorMessage(reason));
     }

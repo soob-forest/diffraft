@@ -35,6 +35,9 @@ describe("다음 앱 프로세스의 저장소 복원", () => {
     assert.equal(state.value.document.status, "CONFLICT");
     assert.equal(state.value.tasks[0].goal, "사실과 수치 유지");
     assert.equal(state.value.tasks[0].pinnedRules, "한국어로 간결하게");
-    assert.equal(await $('[data-testid="save-status"]').getText(), "저장 중지");
+    assert.equal(
+      await $('[data-testid="save-status"]').getText(),
+      "원문 저장 중지",
+    );
   });
 });

@@ -36,8 +36,10 @@ describe("재작성 요청 중 사용자 통제", () => {
     await requestRewrite(true);
     await start("EXPLAIN_CANCEL_RACE");
     await waitRunning(fixture.task.id);
-    const operationId =
-      await $("button=생성 중단").getAttribute("data-operation-id");
+    const operationId = (
+      await invoke("generation_snapshot", { request: { schemaVersion: 1 } })
+    ).operationId;
+    assert.ok(operationId);
     try {
       assert.equal(await $(".rewrite-request-dialog").isExisting(), false);
       await assertStopAndEditorAccessible();

@@ -72,7 +72,7 @@
 .diff-panes {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  height: 330px;
+  height: clamp(240px, 48vh, 720px);
   border-block: 1px solid #dce4ee;
 }
 .diff-panes.split {
@@ -112,13 +112,7 @@
   background: #eaf8ef;
 }
 .diff-filler {
-  background: repeating-linear-gradient(
-    135deg,
-    #f5f7fa,
-    #f5f7fa 4px,
-    #edf0f4 4px,
-    #edf0f4 5px
-  );
+  background: #edf0f4;
 }
 .diff-delete .diff-expression {
   background: #facbc3;
@@ -199,7 +193,7 @@
 }
 .review-panel blockquote {
   margin: 10px 0;
-  border-left: 3px solid #abc0df;
+  border-left: 1px solid #abc0df;
   padding: 8px 12px;
   white-space: pre-wrap;
   overflow-wrap: anywhere;

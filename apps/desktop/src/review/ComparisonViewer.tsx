@@ -1,41 +1,50 @@
-import { useState } from "react";
+import { type ReactNode, useState } from "react";
 import type { DiffStats } from "../generated/DiffStats";
 import { comparisonJump } from "./comparison-navigation";
 import type { LogicalSelection } from "./coordinates";
 import { DiffViewer } from "./DiffViewer";
 import type { DiffComparison } from "./rows";
 
-type Props = { comparison: DiffComparison & { stats: DiffStats } };
-export function ComparisonViewer({ comparison }: Props) {
+type Props = {
+  comparison: DiffComparison & { stats: DiffStats };
+  header?: ReactNode;
+  labels?: [string, string];
+};
+export function ComparisonViewer({ comparison, header, labels }: Props) {
   const { move, jump } = useComparisonNavigation(comparison);
   return (
-    <>
-      <div className="group-bar">
-        <strong data-testid="comparison-stats">
-          +{comparison.stats.addedLines} / −{comparison.stats.removedLines}
-        </strong>
-        <button
-          type="button"
-          disabled={!comparison.hunks.length}
-          onClick={() => move(-1)}
-        >
-          이전 차이
-        </button>
-        <button
-          type="button"
-          disabled={!comparison.hunks.length}
-          onClick={() => move(1)}
-        >
-          다음 차이
-        </button>
-      </div>
-      <DiffViewer
-        projection={comparison}
-        onMove={move}
-        onSelection={() => {}}
-        jump={jump}
-      />
-    </>
+    <DiffViewer
+      projection={comparison}
+      labels={labels}
+      onMove={move}
+      onSelection={() => {}}
+      jump={jump}
+      tools={{
+        header: (
+          <>
+            {header}
+            <strong data-testid="comparison-stats">
+              +{comparison.stats.addedLines} / −{comparison.stats.removedLines}
+            </strong>
+            <button
+              type="button"
+              disabled={!comparison.hunks.length}
+              onClick={() => move(-1)}
+            >
+              이전 차이
+            </button>
+            <button
+              type="button"
+              disabled={!comparison.hunks.length}
+              onClick={() => move(1)}
+            >
+              다음 차이
+            </button>
+          </>
+        ),
+        selection: null,
+      }}
+    />
   );
 }
 

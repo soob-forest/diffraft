@@ -27,7 +27,7 @@ async function conflict(content) {
   else await writeFile(file, content);
   await browser.waitUntil(
     async () =>
-      (await $('[data-testid="save-status"]').getText()) === "저장 중지",
+      (await $('[data-testid="save-status"]').getText()) === "원문 저장 중지",
   );
   await $(source).click();
   await browser.keys([Key.Command, "a"]);
@@ -61,6 +61,7 @@ describe("외부 파일 충돌 해결", () => {
       await $(".conflict-dialog .diff-pane").getText(),
       /다른 작성자/,
     );
+    await browser.saveScreenshot(".artifacts/conflict-comparison.png");
     await $("button=외부 파일 사용").click();
     await closedAtVersion(2);
     assert.equal(

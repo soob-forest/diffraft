@@ -3,6 +3,7 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { Key } from "webdriverio";
 import { prepare } from "./support/review-fixture.mjs";
+import { saveDocument } from "./support/review-ui.mjs";
 import {
   candidate,
   choose,
@@ -57,6 +58,14 @@ describe("전체 재작성과 복원", () => {
     assert.equal(
       await $('[data-testid="comparison-stats"]').getText(),
       "+4 / −4",
+    );
+    assert.match(
+      await $(".rewrite-comparison-heading").getText(),
+      /확정본 v14/,
+    );
+    assert.match(
+      await $("button=이 재작성안 적용").getAttribute("class"),
+      /primary/,
     );
     assert.equal(await $("button=선택한 변경 승인").isExisting(), false);
     assert.equal(await $("button=남은 제안 전체 승인").isExisting(), false);
@@ -127,7 +136,7 @@ describe("전체 재작성과 복원", () => {
     await $(source).click();
     await browser.keys([Key.Command, "z"]);
     await browser.keys([Key.Command, Key.Shift, "z"]);
-    await $("button=저장").click();
+    await saveDocument();
     assert.equal(
       (await editor({ kind: "read", documentId: fixture.document.id })).document
         .version,

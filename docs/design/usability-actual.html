@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DocReview · 실제 앱 변경 전후</title>
+  <link rel="stylesheet" href="usability-actual.css">
+</head>
+<body>
+<header>
+  <nav aria-label="관련 자료"><a href="usability-comparison.html">구현 전 디자인 제안</a><a href="gallery.html">기존 디자인 0.2</a><a href="../../TODO.md">구현·검증 상태</a></nav>
+  <h1>이전 구현 이력 · 실제 앱 변경 전후</h1>
+  <p class="notice">이 페이지는 재구현 이전의 중간 결과입니다. <a href="design-reimplementation.html">새 디자인 목표·재구현 비교</a>를 확인하세요. 아래의 TO-BE는 당시 구현이며 최신 완료 기준이 아닙니다.</p>
+  <p>요청을 먼저 작성하고, 선택한 변경을 읽으며 결정할 수 있도록 배치를 바꿨습니다. 이미지는 클릭하면 원본 크기로 볼 수 있습니다.</p>
+  <p class="notice">캡처 기준: 2026-10-28 이전 구현의 네이티브 사용성 검사. 10개 시나리오와 9개 창·배율 조합을 통과했습니다. 실제 한국어 IME·OS 대화창·5명 사용자 평가는 미검증입니다. VoiceOver는 요청에 따라 제외했습니다.</p>
+  <p>양쪽 모두 합성 여행 문서 v12·여행 준비 명확화 작업·1440×900 창·100% WebView 배율입니다. 임시 파일 경로와 포커스 위치는 실행마다 다릅니다. 코멘트는 같은 첫 제안과 동일한 미등록 문구를 사용합니다.</p>
+  <nav aria-label="화면 바로 가기"><a href="#request">요청·범위</a><a href="#review">비교·승인</a><a href="#comment">코멘트</a><a href="#states">실패·대상 변경</a><a href="#sizes">창·배율</a></nav>
+</header>
+<main>
+  <section id="request">
+    <h2>요청과 범위를 한곳에</h2>
+    <p>T1-06 · T2 · T3 — 반복 입력하던 조건을 접고 요청 폼을 앞에 배치했습니다. 원문 저장과 세션 초안의 보존 범위를 구분합니다. 조건 요약은 대화 이력 앞에 위치합니다.</p>
+    <div class="pair">
+      <figure><figcaption>AS-IS · 구현 전 실제 앱</figcaption><a href="usability-captures/before/request.png"><img src="usability-captures/before/request.png" alt="개선 전 원문과 작업 조건 화면"></a></figure>
+      <figure><figcaption>TO-BE · 구현 후 실제 앱</figcaption><a href="usability-captures/after/request.png"><img src="usability-captures/after/request.png" alt="개선된 요청 우선 배치와 요청 가까이의 범위 선택"></a></figure>
+    </div>
+  </section>
+  <section id="review">
+    <h2>선택한 변경과 승인 행동 연결</h2>
+    <p>T4 — 선택 번호·제목·승인·거절을 비교 위로 옮겼습니다. 읽기 위치와 선택 대상의 차이를 설명하고, 전체 승인은 별도 행동과 건수로 구분합니다.</p>
+    <div class="pair">
+      <figure><figcaption>AS-IS · 구현 전 실제 앱</figcaption><a href="usability-captures/before/review.png"><img loading="lazy" src="usability-captures/before/review.png" alt="개선 전 변경 비교와 하단 승인 행동"></a></figure>
+      <figure><figcaption>TO-BE · 구현 후 실제 앱</figcaption><a href="usability-captures/after/review.png"><img loading="lazy" src="usability-captures/after/review.png" alt="선택 대상과 승인 버튼을 비교 위에 함께 표시한 화면"></a></figure>
+    </div>
+  </section>
+  <section id="comment">
+    <h2>작성 중인 코멘트와 대상 보존</h2>
+    <p>T1 · T7-03 — 화면을 왕복해도 코멘트와 인용을 보존합니다. 저장 후에는 재제안 작성으로 이동할 수 있으며 자동 실행하지 않습니다. 실제 보존 여부는 이미지가 아닌 회귀 검사로 확인합니다.</p>
+    <div class="pair">
+      <figure><figcaption>AS-IS · 구현 전 실제 앱</figcaption><a href="usability-captures/before/comment.png"><img loading="lazy" src="usability-captures/before/comment.png" alt="개선 전 펼친 코멘트 폼"></a></figure>
+      <figure><figcaption>TO-BE · 구현 후 실제 앱</figcaption><a href="usability-captures/after/comment.png"><img loading="lazy" src="usability-captures/after/comment.png" alt="세션 초안 안내와 비우기를 제공하는 코멘트 폼"></a></figure>
+    </div>
+  </section>
+  <section id="states">
+    <h2>제안이 바뀌면 대상을 다시 확인</h2>
+    <p>T1-05 · T0-06 — 후보를 수정해 revision이 바뀐 실제 상태입니다. 기존 초안·인용을 남기고 저장을 막습니다. 현재 선택으로 재확인해야 등록할 수 있습니다. 아래 실제 상태는 합성 문서·가짜 CLI·임시 DB로 재현했습니다. 코멘트 화면은 입력란을 확인할 수 있도록 스크롤한 위치입니다.</p>
+    <figure class="state"><figcaption>후보 변경 후 · 초안 대상 재확인</figcaption><a href="usability-captures/after/anchor-reconfirm.png"><img loading="lazy" src="usability-captures/after/anchor-reconfirm.png" alt="코멘트 대상 변경 경고와 현재 선택으로 대상 재확인 버튼"></a></figure>
+    <figure class="state"><figcaption>조건 저장 실패 · 접힌 요약에도 미저장과 오류 표시</figcaption><a href="usability-captures/after/conditions-save-failed.png"><img loading="lazy" src="usability-captures/after/conditions-save-failed.png" alt="조건 저장 실패 · 접힌 요약에도 미저장과 오류 표시"></a></figure>
+    <figure class="state"><figcaption>요청 실패 · 기존 초안 유지 또는 이전 지시 가져오기</figcaption><a href="usability-captures/after/request-failed.png"><img loading="lazy" src="usability-captures/after/request-failed.png" alt="요청 실패 · 기존 초안 유지 또는 이전 지시 가져오기"></a></figure>
+    <figure class="state"><figcaption>생성 진행 중 · 승인·코멘트 저장 차단과 중단 안내</figcaption><a href="usability-captures/after/request-running.png"><img loading="lazy" src="usability-captures/after/request-running.png" alt="생성 진행 중 · 승인·코멘트 저장 차단과 중단 안내"></a></figure>
+    <figure class="state"><figcaption>승인 직전 버전 비교 · 취소 시 현재 확정본 유지</figcaption><a href="usability-captures/after/applied-version.png"><img loading="lazy" src="usability-captures/after/applied-version.png" alt="승인 직전 버전 비교 · 취소 시 현재 확정본 유지"></a></figure>
+    <figure class="state"><figcaption>100개 변경 · 목록과 이전·다음으로 탐색</figcaption><a href="usability-captures/after/many-changes.png"><img loading="lazy" src="usability-captures/after/many-changes.png" alt="100개 변경 · 목록과 이전·다음으로 탐색"></a></figure>
+    <figure class="state"><figcaption>100개 변경 전체 승인 · 목록 스크롤 후 취소 가능</figcaption><a href="usability-captures/after/bulk-confirm.png"><img loading="lazy" src="usability-captures/after/bulk-confirm.png" alt="100개 변경 전체 승인 · 목록 스크롤 후 취소 가능"></a></figure>
+  </section>
+  <section id="sizes">
+    <h2>창 크기와 실제 WebView 확대</h2>
+    <p>T6 — 아래 9개 조합에서 문서·작업 패널 왕복, 초안 보존, 가로 넘침 없음과 요청·승인 버튼 중앙의 실제 클릭 대상을 확인했습니다. 작은 창은 본문과 작업 패널을 전환하며 세로로 스크롤합니다. 800×600·200%에서는 한 번에 보이는 내용이 적습니다. 버튼 도달 검사는 읽기 편안함이나 사용자 과업 평가를 대신하지 않습니다.</p>
+    <div class="table-scroll"><table><thead><tr><th>창</th><th>100% viewport</th><th>150% viewport</th><th>200% viewport</th></tr></thead><tbody>
+      <tr><td>800×600</td><td>800×568</td><td>533×378</td><td>400×284</td></tr>
+      <tr><td>1280×800</td><td>1280×768</td><td>853×512</td><td>640×384</td></tr>
+      <tr><td>1440×900</td><td>1440×868</td><td>960×578</td><td>720×434</td></tr>
+    </tbody></table></div>
+    <div class="table-scroll"><table><caption>각 크기·배율의 실제 화면</caption><thead><tr><th>창</th><th>100%</th><th>150%</th><th>200%</th></tr></thead><tbody><tr><th>800×600</th><td><a href="usability-captures/after/review-800-1.png">검토</a> · <a href="usability-captures/after/request-800-1.png">요청</a></td><td><a href="usability-captures/after/review-800-1.5.png">검토</a> · <a href="usability-captures/after/request-800-1.5.png">요청</a></td><td><a href="usability-captures/after/review-800-2.png">검토</a> · <a href="usability-captures/after/request-800-2.png">요청</a></td></tr><tr><th>1280×800</th><td><a href="usability-captures/after/review-1280-1.png">검토</a> · <a href="usability-captures/after/request-1280-1.png">요청</a></td><td><a href="usability-captures/after/review-1280-1.5.png">검토</a> · <a href="usability-captures/after/request-1280-1.5.png">요청</a></td><td><a href="usability-captures/after/review-1280-2.png">검토</a> · <a href="usability-captures/after/request-1280-2.png">요청</a></td></tr><tr><th>1440×900</th><td><a href="usability-captures/after/review-1440-1.png">검토</a> · <a href="usability-captures/after/request-1440-1.png">요청</a></td><td><a href="usability-captures/after/review-1440-1.5.png">검토</a> · <a href="usability-captures/after/request-1440-1.5.png">요청</a></td><td><a href="usability-captures/after/review-1440-2.png">검토</a> · <a href="usability-captures/after/request-1440-2.png">요청</a></td></tr></tbody></table></div>
+    <p>요청과 비교를 한 화면에서 읽는 기존 구조를 유지했습니다. 제안의 별도 상세 패널 대신 기존 코멘트 폼을 유지해 변경 범위를 줄였습니다. 좁은 창에서는 선택 도구를 고정하지 않아 스크롤로 내용을 읽을 수 있습니다.</p>
+    <p><a href="usability-captures/measurements.json">실측 JSON</a> · <a href="../development/usability-implementation.md">변경 결정·검증 결과·남은 제약</a></p>
+  </section>
+</main>
+</body>
+</html>

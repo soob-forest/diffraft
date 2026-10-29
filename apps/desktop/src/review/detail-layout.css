@@ -1,0 +1,156 @@
+.review-detail {
+  padding: 24px;
+}
+.review-detail .proposal-details,
+.review-detail .comment-list,
+.review-detail .processed {
+  padding: 0;
+  border: 0;
+  margin: 0 0 24px;
+}
+.review-detail h3 {
+  font-size: 16px;
+  line-height: 26.4px;
+  font-weight: 600;
+  margin: 0 0 16px;
+}
+.review-detail p {
+  font-size: 13px;
+  line-height: 21.45px;
+  overflow-wrap: anywhere;
+}
+.review-detail .proposal-reason {
+  color: var(--muted);
+  margin: 0 0 14px;
+}
+.review-conditions {
+  margin: 16px 0;
+}
+.review-conditions strong {
+  font-size: 14px;
+  font-weight: 600;
+}
+.review-conditions p {
+  color: var(--muted);
+  margin: 6px 0 0;
+  white-space: pre-wrap;
+}
+.review-detail blockquote {
+  margin: 12px 0;
+  padding: 12px 16px;
+  background: #edf2f6;
+  border: 0;
+  border-radius: 0;
+  font-size: 16px;
+  line-height: 1.7;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.quote-text {
+  display: block;
+  max-height: 6.8em;
+  overflow: hidden;
+}
+.quote-text[data-expanded="true"] {
+  max-height: none;
+  overflow: visible;
+}
+.quote-toggle {
+  padding: 0;
+  min-height: 0;
+  font-size: 12px;
+  border: 0;
+  background: transparent;
+  color: #2957c8;
+}
+.comment-entry {
+  width: 100%;
+}
+.proposal-secondary {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+}
+.proposal-secondary button {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  font-size: 13px;
+  min-height: 0;
+  color: var(--muted);
+}
+.task-continuation {
+  margin-top: 24px;
+}
+.task-continuation strong {
+  font-size: 14px;
+}
+.task-continuation p {
+  margin: 6px 0 0;
+  color: var(--muted);
+}
+.proposal-card + .proposal-card {
+  margin-top: 24px;
+}
+.proposal-workflow[hidden] {
+  display: none;
+}
+.proposal-workflow details {
+  margin-top: 16px;
+}
+.proposal-workflow textarea {
+  width: 100%;
+  font-size: 16px;
+  padding: 12px;
+  line-height: 26.4px;
+}
+.workflow-back {
+  border: 0;
+  background: transparent;
+  font-size: 12px;
+  color: var(--muted);
+  padding: 0;
+  min-height: 0;
+}
+.review-task-options {
+  margin-top: 24px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.workspace-panel:has(
+    .review-detail:not([hidden]) .proposal-details[data-view="comment"]
+  )
+  .panel-tabs {
+  display: none;
+}
+.review-detail .muted {
+  font-size: 13px;
+}
+.review-resume p {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 21.45px;
+  margin: 0;
+}
+.applied-version-host:empty {
+  display: none;
+}
+.applied-notice {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: space-between;
+  align-items: center;
+}
+.applied-version > p {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.quote-context-note {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+  margin-top: 12px;
+}

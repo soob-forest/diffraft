@@ -1,3 +1,4 @@
+import { draftError } from "../drafts/validation";
 import { editorCommand } from "../editor/api";
 import type { FlushRef } from "../editor/DocumentWorkspace";
 import type { RequestScope } from "../editor/request-scope";
@@ -14,6 +15,7 @@ export type GenerationProps = {
   taskFlush: FlushRef;
   scope: RequestScope;
   onProposal: () => void;
+  onRewrite?: () => void;
 };
 export type PendingRequest = { request: GenerateRequest; scope: ScopeSnapshot };
 
@@ -44,6 +46,8 @@ export async function prepareRequest(
   mode: "PATCH" | "EXPLAIN",
   instruction: string,
 ): Promise<PendingRequest> {
+  const error = draftError(instruction);
+  if (error) throw new Error(error);
   const selection = props.scope.value();
   return props.model.gate.run(async () => {
     await props.model.autosave.flush();

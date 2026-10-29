@@ -1,0 +1,163 @@
+:root {
+  font-size: 16px;
+  line-height: 1.65;
+  accent-color: #2957c8;
+  caret-color: #2957c8;
+  --panel-width: 360px;
+  --line: #dce4ee;
+  --muted: #526276;
+}
+::selection {
+  background: #c9d9fc;
+  color: #182537;
+}
+::placeholder {
+  color: var(--muted);
+  opacity: 1;
+}
+.workspace-panel[hidden],
+#review-detail[hidden],
+#task-content[hidden] {
+  display: none;
+}
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+summary {
+  cursor: pointer;
+  line-height: 1.6;
+}
+button,
+select,
+textarea {
+  max-width: 100%;
+}
+button {
+  min-height: 34px;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 8px 12px;
+  border-color: #c2cfe1;
+  line-height: 23.1px;
+}
+.app-shell {
+  grid-template: 50px minmax(0, 1fr) 32px / 196px minmax(0, 1fr);
+}
+.app-header {
+  min-width: 0;
+  gap: 14px;
+}
+.app-header strong {
+  font-size: 16px;
+}
+.app-header > span:last-child {
+  margin-left: 0;
+  font-size: 13px;
+  color: #c6d3e4;
+}
+.document-list-toggle {
+  display: none;
+}
+.app-shell[data-documents-open="false"] {
+  grid-template-columns: 0 minmax(0, 1fr);
+}
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 24px 16px;
+  background: #edf2f6;
+}
+.sidebar > h2 {
+  margin: 0 0 14px;
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--muted);
+}
+.sidebar p {
+  color: var(--muted);
+}
+.sidebar .document-actions {
+  display: block;
+}
+.sidebar button {
+  margin: 0 0 12px;
+  background: transparent;
+  border-color: transparent;
+  padding: 8px 12px 8px 8px;
+}
+.sidebar button[aria-current="page"],
+.sidebar button[aria-pressed="true"] {
+  background: #eaf0ff;
+  border-color: transparent;
+  color: #214da8;
+}
+.sidebar ul {
+  margin: 12px 0 0;
+}
+.sidebar-connection {
+  margin: 0 0 12px;
+  padding: 0;
+}
+.sidebar .task-picker {
+  display: block;
+  color: var(--muted);
+  font-size: 13px;
+}
+.task-picker select {
+  margin-top: 8px;
+  vertical-align: top;
+  width: 100%;
+  min-width: 0;
+}
+.navigation-more {
+  margin-top: 12px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.navigation-more > summary {
+  padding: 8px;
+}
+.sidebar .outline {
+  display: block;
+  width: auto;
+  padding: 0;
+  border: 0;
+  font-size: 14px;
+}
+.sidebar .outline strong {
+  margin: 0 0 8px;
+  font-size: 13px;
+}
+.sidebar h3 {
+  color: var(--muted);
+  font-size: 13px;
+  margin: 0 0 8px;
+}
+.sidebar [aria-label="변경 그룹"] {
+  display: grid;
+  gap: 4px;
+}
+.workspace-body {
+  grid-column: 2;
+  overflow: hidden;
+}
+.detail-entry,
+.panel-return {
+  display: none;
+}
+footer {
+  color: var(--muted);
+  justify-content: flex-start;
+  gap: 4px;
+  font-size: 12px;
+}
+footer > span + span::before {
+  content: " · ";
+}

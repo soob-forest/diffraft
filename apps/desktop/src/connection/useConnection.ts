@@ -3,13 +3,15 @@ import type { ConnectionAction } from "../generated/ConnectionAction";
 import type { ConnectionReport } from "../generated/ConnectionReport";
 import { errorMessage } from "../ipc";
 import { cancelGeneration, connectionCommand } from "./api";
+import { connectionNextAction } from "./next-action";
 
 export function useConnection() {
   const [report, setReport] = useState<ConnectionReport | null>(null);
+  const [tested, setTested] = useState(false);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
-  const [operation, setOperation] = useState<string | null>(null);
-  const [cancelling, setCancelling] = useState(false);
+  const cancellation = useCancellation(setError);
+  const { setOperation, setCancelling } = cancellation;
   const lock = useRef(false);
   const active = useMounted();
   async function run(action: ConnectionAction) {
@@ -21,7 +23,10 @@ export function useConnection() {
     setOperation("operation_id" in action ? action.operation_id : null);
     try {
       const value = await connectionCommand(action);
-      if (active.current && value) setReport(value);
+      if (active.current && value) {
+        setReport(value);
+        setTested(action.kind === "test");
+      }
     } catch (reason) {
       if (active.current) setError(errorMessage(reason));
     } finally {
@@ -32,18 +37,15 @@ export function useConnection() {
       }
     }
   }
-  async function cancel() {
-    if (!operation || cancelling) return;
-    setCancelling(true);
-    try {
-      const snapshot = await cancelGeneration(operation);
-      if (!snapshot.cancelling) setCancelling(false);
-    } catch (reason) {
-      setError(errorMessage(reason));
-      setCancelling(false);
-    }
-  }
-  return { report, error, busy, operation, cancelling, run, cancel };
+  return {
+    report,
+    tested,
+    error,
+    busy,
+    ...cancellation,
+    run,
+    next: connectionNextAction(report?.status, tested, error),
+  };
 }
 
 function useMounted() {
@@ -55,4 +57,21 @@ function useMounted() {
     };
   }, []);
   return active;
+}
+
+function useCancellation(setError: (value: string) => void) {
+  const [operation, setOperation] = useState<string | null>(null);
+  const [cancelling, setCancelling] = useState(false);
+  async function cancel() {
+    if (!operation || cancelling) return;
+    setCancelling(true);
+    try {
+      const snapshot = await cancelGeneration(operation);
+      if (!snapshot.cancelling) setCancelling(false);
+    } catch (reason) {
+      setError(errorMessage(reason));
+      setCancelling(false);
+    }
+  }
+  return { operation, cancelling, setOperation, setCancelling, cancel };
 }

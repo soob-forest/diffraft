@@ -16,6 +16,10 @@ const app = fileURLToPath(new URL("../", import.meta.url));
 if (
   process.argv[2] &&
   ![
+    "tobe",
+    "design",
+    "design-resume",
+    "usability",
     "review",
     "recovery",
     "connection",
@@ -34,7 +38,7 @@ if (
   ].includes(process.argv[2])
 )
   throw new Error(
-    "지원하는 선택 실행은 connection, generation, review, recovery, conflict, layout, regeneration, history, rewrite, rewrite-cancel, navigation, export, shutdown, performance, startup-failure입니다.",
+    "지원하는 선택 실행은 usability, connection, generation, review, recovery, conflict, layout, regeneration, history, rewrite, rewrite-cancel, navigation, export, shutdown, performance, startup-failure입니다.",
   );
 const regeneration = ["regeneration", "regeneration-restart"];
 const generation = ["generation", "generation-restart"];
@@ -44,24 +48,30 @@ const navigation = ["navigation", "navigation-restart"];
 const recovery = ["recovery", "recovery-restart"];
 const scenarios = process.argv[2]
   ? [
-      process.argv[2] === "regeneration"
-        ? regeneration
-        : process.argv[2] === "generation"
-          ? generation
-          : process.argv[2] === "export"
-            ? exportPhases
-            : process.argv[2] === "shutdown"
-              ? shutdown
-              : process.argv[2] === "navigation"
-                ? navigation
-                : process.argv[2] === "recovery"
-                  ? recovery
-                  : [process.argv[2]],
+      process.argv[2] === "design-resume"
+        ? ["design-resume", "design-resume-restart"]
+        : process.argv[2] === "regeneration"
+          ? regeneration
+          : process.argv[2] === "generation"
+            ? generation
+            : process.argv[2] === "export"
+              ? exportPhases
+              : process.argv[2] === "shutdown"
+                ? shutdown
+                : process.argv[2] === "navigation"
+                  ? navigation
+                  : process.argv[2] === "recovery"
+                    ? recovery
+                    : [process.argv[2]],
     ]
   : [
       ["editor", "restart"],
       ["connection"],
       generation,
+      ["design"],
+      ["tobe"],
+      ["design-resume", "design-resume-restart"],
+      ["usability"],
       ["review"],
       recovery,
       ["conflict"],

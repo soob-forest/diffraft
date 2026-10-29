@@ -1,0 +1,54 @@
+{
+  "kind": "native WKWebView synthetic fixtures; before TB UI changes",
+  "preservedAt": "2026-10-29T00:49:21.221202+00:00",
+  "captures": [
+    {
+      "file": "comment.json",
+      "sha256": "caf04133626508f0703c08eaffd8f12bb510fbe81ef7b089874dcfdf84177c8d"
+    },
+    {
+      "file": "comment.png",
+      "sha256": "b75f4391a40cd97021bcaf17c016aed409a5a2dd7e37f1ffd5512b6f025246fc"
+    },
+    {
+      "file": "connection.json",
+      "sha256": "43cfe479fe0a4309f56fe10f2006ec65bf026d316bd479db6df4d34bcc4e6883"
+    },
+    {
+      "file": "connection.png",
+      "sha256": "215de7753f423b3020594b1b69b18df0591831864043d1fe68e42c54d1d987b2"
+    },
+    {
+      "file": "narrow.json",
+      "sha256": "0d4041c05fd91dae61a96d4707d4178cf09e1143fb293eb9f780eeee68976c68"
+    },
+    {
+      "file": "narrow.png",
+      "sha256": "5fd38efbac9e26ecad667276d330618f41cd1cf2a64c81f73c464355034f9a3c"
+    },
+    {
+      "file": "request.json",
+      "sha256": "b4b3f9a729f760d6755ec21e6120c8f6c28430e7474846621b4a2352088b6598"
+    },
+    {
+      "file": "request.png",
+      "sha256": "151b1b9caee3a2252d3ce64e607ca48868a2edff8b1ed09aa2652193373a5c0d"
+    },
+    {
+      "file": "resume.json",
+      "sha256": "7fb5dc67d61e904138c55e37ae6805cad29a3b7a0234a3c078b090f5a6656b58"
+    },
+    {
+      "file": "resume.png",
+      "sha256": "93103c64db7084c8c013d09678edbb1f4531e6549e82567f43d118639df6fa67"
+    },
+    {
+      "file": "review.json",
+      "sha256": "d85ad5b03bf01d312d6b122fefdec1c3e03ce798cad3d25a0b1bd762c1560586"
+    },
+    {
+      "file": "review.png",
+      "sha256": "dce37c32b9893395880387b127b83012b38eee5387f29326078892c6fdd3cd4e"
+    }
+  ]
+}

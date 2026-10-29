@@ -1,0 +1,74 @@
+.conversation-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+}
+.task-panel .conversation-heading h3 {
+  font-size: 14px;
+  line-height: 23.1px;
+  margin: 0 0 8px;
+}
+.conversation-privacy {
+  position: relative;
+  font-size: 12px;
+  color: var(--muted);
+}
+.conversation-privacy summary {
+  list-style: none;
+}
+.conversation-privacy summary::-webkit-details-marker {
+  display: none;
+}
+.conversation-privacy p {
+  position: absolute;
+  z-index: 4;
+  top: 100%;
+  right: 0;
+  width: min(300px, calc(var(--panel-width) - 48px));
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: white;
+}
+.conversation > .session-state {
+  margin: 0 0 14px;
+}
+.conversation:has(.conversation-messages:empty) > .session-state {
+  margin-bottom: 0;
+}
+.attempt-recovery .attempt-failure {
+  padding: 16px;
+  border: 0;
+  border-radius: 0;
+  background: #fff3d9;
+  color: #815a13;
+  margin: 16px 0;
+}
+.attempt-recovery .attempt-failure p {
+  margin: 6px 0 0;
+}
+.attempt-request-label {
+  color: var(--muted);
+  font-size: 14px;
+  margin: 16px 0 8px;
+}
+.attempt-recovery .quote-preview blockquote {
+  background: #edf2f6;
+  padding: 12px 16px;
+  margin: 12px 0;
+  border: 0;
+  font-size: 16px;
+  line-height: 1.7;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.attempt-recovery > button {
+  display: block;
+  width: 100%;
+  margin: 12px 0;
+}
+.attempt-recovery > p:last-child {
+  color: var(--muted);
+  margin: 16px 0;
+}

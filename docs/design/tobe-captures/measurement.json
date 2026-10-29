@@ -1,0 +1,739 @@
+{
+  "schemaVersion": 1,
+  "method": "Frozen computed target vs native CSS px; screenshots reviewed separately",
+  "maximumError": 1,
+  "metrics": [
+    {
+      "scene": "request",
+      "label": "right panel",
+      "target": {
+        "x": 1080,
+        "y": 50,
+        "width": 360,
+        "height": 818
+      },
+      "actual": {
+        "height": 818,
+        "width": 360,
+        "x": 1080,
+        "y": 50
+      },
+      "delta": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "maximumError": 0,
+      "passed": true
+    },
+    {
+      "scene": "request",
+      "label": "footer",
+      "target": {
+        "x": 0,
+        "y": 868,
+        "width": 1440,
+        "height": 32
+      },
+      "actual": {
+        "height": 32,
+        "width": 1440,
+        "x": 0,
+        "y": 868
+      },
+      "delta": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "maximumError": 0,
+      "passed": true
+    },
+    {
+      "scene": "request",
+      "label": "document header",
+      "target": {
+        "x": 196,
+        "y": 50,
+        "width": 884,
+        "height": 125.1875
+      },
+      "actual": {
+        "height": 125,
+        "width": 884,
+        "x": 196,
+        "y": 50
+      },
+      "delta": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0.1875
+      },
+      "maximumError": 0.1875,
+      "passed": true
+    },
+    {
+      "scene": "request",
+      "label": "request field",
+      "target": {
+        "x": 1105,
+        "y": 505.765625,
+        "width": 311,
+        "height": 112
+      },
+      "actual": {
+        "height": 112,
+        "width": 311,
+        "x": 1105,
+        "y": 505.390625
+      },
+      "delta": {
+        "x": 0,
+        "y": 0.375,
+        "width": 0,
+        "height": 0
+      },
+      "maximumError": 0.375,
+      "passed": true
+    },
+    {
+      "scene": "request",
+      "label": "source text start",
+      "target": {
+        "x": 260
+      },
+      "actual": {
+        "headerX": 260,
+        "x": 260,
+        "y": 207
+      },
+      "delta": {
+        "x": 0
+      },
+      "maximumError": 0,
+      "passed": true
+    },
+    {
+      "scene": "review",
+      "label": "right panel",
+      "target": {
+        "x": 1080,
+        "y": 50,
+        "width": 360,
+        "height": 818
+      },
+      "actual": {
+        "height": 818,
+        "width": 360,
+        "x": 1080,
+        "y": 50
+      },
+      "delta": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "maximumError": 0,
+      "passed": true
+    },
+    {
+      "scene": "review",
+      "label": "footer",
+      "target": {
+        "x": 0,
+        "y": 868,
+        "width": 1440,
+        "height": 32
+      },
+      "actual": {
+        "height": 32,
+        "width": 1440,
+        "x": 0,
+        "y": 868
+      },
+      "delta": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "maximumError": 0,
+      "passed": true
+    },
+    {
+      "scene": "review",
+      "label": "document header",
+      "target": {
+        "x": 196,
+        "y": 50,
+        "width": 884,
+        "height": 125.1875
+      },
+      "actual": {
+        "height": 125,
+        "width": 884,
+        "x": 196,
+        "y": 50
+      },
+      "delta": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0.1875
+      },
+      "maximumError": 0.1875,
+      "passed": true
+    },
+    {
+      "scene": "review",
+      "label": "comparison reading area",
+      "target": {
+        "x": 196,
+        "y": 377.46875,
+        "width": 884,
+        "height": 444.09375
+      },
+      "actual": {
+        "height": 445,
+        "width": 884,
+        "x": 196,
+        "y": 377
+      },
+      "delta": {
+        "x": 0,
+        "y": 0.46875,
+        "width": 0,
+        "height": 0.90625
+      },
+      "maximumError": 0.90625,
+      "passed": true
+    },
+    {
+      "scene": "review",
+      "label": "change text start",
+      "target": {
+        "x": 280
+      },
+      "actual": {
+        "headerX": 221,
+        "x": 281,
+        "y": 437.78125
+      },
+      "delta": {
+        "x": 1
+      },
+      "maximumError": 1,
+      "passed": true
+    },
+    {
+      "scene": "review",
+      "label": "context text start",
+      "target": {
+        "x": 256
+      },
+      "actual": {
+        "headerX": 257,
+        "x": 257,
+        "y": 503.34375
+      },
+      "delta": {
+        "x": 1
+      },
+      "maximumError": 1,
+      "passed": true
+    },
+    {
+      "scene": "review",
+      "label": "group title start",
+      "target": {
+        "x": 220
+      },
+      "actual": {
+        "x": 221
+      },
+      "delta": {
+        "x": 1
+      },
+      "maximumError": 1,
+      "passed": true
+    },
+    {
+      "scene": "comment",
+      "label": "right panel",
+      "target": {
+        "x": 1080,
+        "y": 50,
+        "width": 360,
+        "height": 818
+      },
+      "actual": {
+        "height": 818,
+        "width": 360,
+        "x": 1080,
+        "y": 50
+      },
+      "delta": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "maximumError": 0,
+      "passed": true
+    },
+    {
+      "scene": "comment",
+      "label": "footer",
+      "target": {
+        "x": 0,
+        "y": 868,
+        "width": 1440,
+        "height": 32
+      },
+      "actual": {
+        "height": 32,
+        "width": 1440,
+        "x": 0,
+        "y": 868
+      },
+      "delta": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "maximumError": 0,
+      "passed": true
+    },
+    {
+      "scene": "comment",
+      "label": "document header",
+      "target": {
+        "x": 196,
+        "y": 50,
+        "width": 884,
+        "height": 125.1875
+      },
+      "actual": {
+        "height": 125,
+        "width": 884,
+        "x": 196,
+        "y": 50
+      },
+      "delta": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0.1875
+      },
+      "maximumError": 0.1875,
+      "passed": true
+    },
+    {
+      "scene": "comment",
+      "label": "comment field",
+      "target": {
+        "x": 1105,
+        "y": 267.765625,
+        "width": 311,
+        "height": 112
+      },
+      "actual": {
+        "height": 112,
+        "width": 311,
+        "x": 1105,
+        "y": 267
+      },
+      "delta": {
+        "x": 0,
+        "y": 0.765625,
+        "width": 0,
+        "height": 0
+      },
+      "maximumError": 0.765625,
+      "passed": true
+    },
+    {
+      "scene": "comment",
+      "label": "comparison reading area",
+      "target": {
+        "x": 196,
+        "y": 222.28125,
+        "width": 884,
+        "height": 599.28125
+      },
+      "actual": {
+        "height": 600,
+        "width": 884,
+        "x": 196,
+        "y": 222
+      },
+      "delta": {
+        "x": 0,
+        "y": 0.28125,
+        "width": 0,
+        "height": 0.71875
+      },
+      "maximumError": 0.71875,
+      "passed": true
+    },
+    {
+      "scene": "comment",
+      "label": "change text start",
+      "target": {
+        "x": 280
+      },
+      "actual": {
+        "headerX": 221,
+        "x": 281,
+        "y": 282.78125
+      },
+      "delta": {
+        "x": 1
+      },
+      "maximumError": 1,
+      "passed": true
+    },
+    {
+      "scene": "comment",
+      "label": "context text start",
+      "target": {
+        "x": 256
+      },
+      "actual": {
+        "headerX": 257,
+        "x": 257,
+        "y": 348.34375
+      },
+      "delta": {
+        "x": 1
+      },
+      "maximumError": 1,
+      "passed": true
+    },
+    {
+      "scene": "comment",
+      "label": "group title start",
+      "target": {
+        "x": 220
+      },
+      "actual": {
+        "x": 221
+      },
+      "delta": {
+        "x": 1
+      },
+      "maximumError": 1,
+      "passed": true
+    },
+    {
+      "scene": "resume",
+      "label": "right panel",
+      "target": {
+        "x": 1080,
+        "y": 50,
+        "width": 360,
+        "height": 818
+      },
+      "actual": {
+        "height": 818,
+        "width": 360,
+        "x": 1080,
+        "y": 50
+      },
+      "delta": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "maximumError": 0,
+      "passed": true
+    },
+    {
+      "scene": "resume",
+      "label": "footer",
+      "target": {
+        "x": 0,
+        "y": 868,
+        "width": 1440,
+        "height": 32
+      },
+      "actual": {
+        "height": 32,
+        "width": 1440,
+        "x": 0,
+        "y": 868
+      },
+      "delta": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "maximumError": 0,
+      "passed": true
+    },
+    {
+      "scene": "resume",
+      "label": "document header",
+      "target": {
+        "x": 196,
+        "y": 50,
+        "width": 884,
+        "height": 125.1875
+      },
+      "actual": {
+        "height": 125,
+        "width": 884,
+        "x": 196,
+        "y": 50
+      },
+      "delta": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0.1875
+      },
+      "maximumError": 0.1875,
+      "passed": true
+    },
+    {
+      "scene": "narrow",
+      "label": "right panel",
+      "target": {
+        "x": 510,
+        "y": 50,
+        "width": 290,
+        "height": 518
+      },
+      "actual": {
+        "height": 518,
+        "width": 290,
+        "x": 510,
+        "y": 50
+      },
+      "delta": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "maximumError": 0,
+      "passed": true
+    },
+    {
+      "scene": "narrow",
+      "label": "footer",
+      "target": {
+        "x": 0,
+        "y": 568,
+        "width": 800,
+        "height": 32
+      },
+      "actual": {
+        "height": 32,
+        "width": 800,
+        "x": 0,
+        "y": 568
+      },
+      "delta": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "maximumError": 0,
+      "passed": true
+    },
+    {
+      "scene": "narrow",
+      "label": "document header",
+      "target": {
+        "x": 0,
+        "y": 50,
+        "width": 510,
+        "height": 133.1875
+      },
+      "actual": {
+        "height": 133,
+        "width": 510,
+        "x": 0,
+        "y": 50
+      },
+      "delta": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0.1875
+      },
+      "maximumError": 0.1875,
+      "passed": true
+    },
+    {
+      "scene": "narrow",
+      "label": "request field",
+      "target": {
+        "x": 527,
+        "y": 346.34375,
+        "width": 257,
+        "height": 96
+      },
+      "actual": {
+        "height": 96,
+        "width": 257,
+        "x": 527,
+        "y": 346
+      },
+      "delta": {
+        "x": 0,
+        "y": 0.34375,
+        "width": 0,
+        "height": 0
+      },
+      "maximumError": 0.34375,
+      "passed": true
+    },
+    {
+      "scene": "narrow",
+      "label": "source text start",
+      "target": {
+        "x": 60
+      },
+      "actual": {
+        "headerX": 60,
+        "x": 60,
+        "y": 272
+      },
+      "delta": {
+        "x": 0
+      },
+      "maximumError": 0,
+      "passed": true
+    },
+    {
+      "scene": "connection",
+      "label": "right panel",
+      "target": {
+        "x": 1080,
+        "y": 50,
+        "width": 360,
+        "height": 818
+      },
+      "actual": {
+        "height": 818,
+        "width": 360,
+        "x": 1080,
+        "y": 50
+      },
+      "delta": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "maximumError": 0,
+      "passed": true
+    },
+    {
+      "scene": "connection",
+      "label": "footer",
+      "target": {
+        "x": 0,
+        "y": 868,
+        "width": 1440,
+        "height": 32
+      },
+      "actual": {
+        "height": 32,
+        "width": 1440,
+        "x": 0,
+        "y": 868
+      },
+      "delta": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "maximumError": 0,
+      "passed": true
+    },
+    {
+      "scene": "connection",
+      "label": "document header",
+      "target": {
+        "x": 196,
+        "y": 50,
+        "width": 884,
+        "height": 125.1875
+      },
+      "actual": {
+        "height": 125,
+        "width": 884,
+        "x": 196,
+        "y": 50
+      },
+      "delta": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0.1875
+      },
+      "maximumError": 0.1875,
+      "passed": true
+    },
+    {
+      "scene": "connection",
+      "label": "request field",
+      "target": {
+        "x": 1105,
+        "y": 505.765625,
+        "width": 311,
+        "height": 112
+      },
+      "actual": {
+        "height": 112,
+        "width": 311,
+        "x": 1105,
+        "y": 505.390625
+      },
+      "delta": {
+        "x": 0,
+        "y": 0.375,
+        "width": 0,
+        "height": 0
+      },
+      "maximumError": 0.375,
+      "passed": true
+    },
+    {
+      "scene": "connection",
+      "label": "connection dialog",
+      "target": {
+        "x": 395,
+        "y": 240.609375,
+        "width": 650,
+        "height": 436.78125
+      },
+      "actual": {
+        "height": 436.796875,
+        "width": 650,
+        "x": 395,
+        "y": 240.59375
+      },
+      "delta": {
+        "x": 0,
+        "y": 0.015625,
+        "width": 0,
+        "height": 0.015625
+      },
+      "maximumError": 0.015625,
+      "passed": true
+    }
+  ]
+}

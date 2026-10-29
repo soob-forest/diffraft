@@ -40,9 +40,9 @@ function useScope({ model, requestScope }: Props) {
     !model.status.dirty &&
     pinnedSelection === selectionKey;
   const label = !scope
-    ? "저장한 원문을 기준으로 범위를 확인합니다."
+    ? `v${model.status.version} · 요청 확인 시 최신 원문으로 검증`
     : current
-      ? `v${scope.version} · ${scope.blocks.length}개 블록 선택됨`
+      ? `v${scope.version} · 선택 원문 ${scope.text.length.toLocaleString()}자`
       : "문서 또는 선택이 변경되어 범위를 다시 확인해야 합니다.";
   return {
     kind,
@@ -58,28 +58,57 @@ function useScope({ model, requestScope }: Props) {
 
 export function ScopeBar(props: Props) {
   const scope = useScope(props);
+  const [expanded, setExpanded] = useState(false);
+  const selection = props.requestScope.selection;
+  const heading =
+    props.model.state.headings
+      .filter((item) => item.fromUtf16 <= selection.cursor)
+      .at(-1)?.title ?? "문서 시작";
+  const summary =
+    scope.kind === "whole"
+      ? "전체 문서"
+      : scope.kind === "section"
+        ? `현재 섹션 · ${heading}`
+        : selection.to > selection.from
+          ? `선택 영역 · ${selection.to - selection.from}자`
+          : "선택 영역이 없습니다. 원문에서 선택해 주세요.";
   return (
     <section className="scope-bar" aria-label="요청 범위">
-      <label>
-        범위
-        <select
-          value={scope.kind}
-          onChange={(event) => scope.choose(event.target.value)}
+      <div className="scope-heading">
+        <strong>요청 범위</strong>
+        <button
+          type="button"
+          aria-expanded={expanded}
+          onClick={() => setExpanded((value) => !value)}
         >
-          <option value="whole">전체 문서</option>
-          <option value="section">현재 섹션</option>
-          <option value="selection">선택 영역</option>
-        </select>
-      </label>
-      <button
-        type="button"
-        onClick={() => {
-          void scope.pin();
-        }}
-      >
-        범위 확인
-      </button>
-      <span role="status">{scope.label}</span>
+          변경
+        </button>
+      </div>
+      <span className="scope-summary">
+        {summary} · v{props.model.status.version}
+      </span>
+      <div className="scope-editor" hidden={!expanded}>
+        <label>
+          범위
+          <select
+            value={scope.kind}
+            onChange={(event) => scope.choose(event.target.value)}
+          >
+            <option value="whole">전체 문서</option>
+            <option value="section">현재 섹션</option>
+            <option value="selection">선택 영역</option>
+          </select>
+        </label>
+        <button
+          type="button"
+          onClick={() => {
+            void scope.pin();
+          }}
+        >
+          범위 확인
+        </button>
+        <span role="status">{scope.label}</span>
+      </div>
     </section>
   );
 }

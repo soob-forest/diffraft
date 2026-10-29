@@ -195,6 +195,25 @@ export function splitRows(rows: ReviewRow[]): SplitRow[] {
 export function displayLine(raw: string): string {
   return raw.replace(/(?:\r\n|\r|\n)$/, "");
 }
+export function compactReviewRows(rows: ReviewRow[], headings: number[]) {
+  const positions = new Set(headings);
+  const heading = (row: ReviewRow | undefined) =>
+    Boolean(
+      row &&
+        row.kind === "equal" &&
+        row.beforeFrom !== null &&
+        positions.has(row.beforeFrom),
+    );
+  return rows.filter(
+    (row, index) =>
+      !heading(row) &&
+      !(
+        row.kind === "equal" &&
+        !row.raw.trim() &&
+        (heading(rows[index - 1]) || heading(rows[index + 1]))
+      ),
+  );
+}
 export function utf16AtByte(text: string, byte: number): number {
   const bytes = encoder.encode(text);
   if (byte < 0 || byte > bytes.length)

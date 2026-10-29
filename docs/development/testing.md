@@ -37,7 +37,9 @@ npm run test:e2e -- connection
 npm run test:e2e -- shutdown
 ```
 
-선택 실행: `connection`, `generation`, `review`, `recovery`, `conflict`, `layout`, `regeneration`, `history`, `rewrite`, `rewrite-cancel`, `navigation`, `export`, `shutdown`, `performance`, `startup-failure`. 재시작 검사가 필요한 흐름은 실행기가 별도 프로세스로 이어 실행한다.
+선택 실행: `design`, `design-resume`, `usability`, `connection`, `generation`, `review`, `recovery`, `conflict`, `layout`, `regeneration`, `history`, `rewrite`, `rewrite-cancel`, `navigation`, `export`, `shutdown`, `performance`, `startup-failure`. 재시작 검사가 필요한 흐름은 실행기가 별도 프로세스로 이어 실행한다.
+
+`usability`는 세션 초안·후보 변경·조건 저장 실패·실패 요청 수정·적용 전 비교·100개 변경을 검사한다. 창 크기 3개와 `Webview.setZoom(1/1.5/2)` 조합을 측정하며 버튼과 diff 본문 중앙의 실제 hit target도 확인한다. `design`은 영역 치수·배치·본문16px·그룹 선택·모드 왕복을, `design-resume`은 독립 SC07 v13/D03 r2 재시작을 검사한다. 테스트 빌드에만 창 표시·크기·확대 권한을 부여한다. `document.visibilityState`가 hidden이면 검사를 중단한다. 이를 통과나 제품 동작 실패로 오인하지 않는다.
 
 E2E와 일반 앱은 같은 debug 실행 파일을 사용한다. 검사가 끝나면 일반 앱을 복원한다.
 
@@ -56,10 +58,16 @@ CLI 버전별 검사는 `DOCREVIEW_TEST_CLI`에 실행 파일의 절대 경로�
 ## 검증 범위와 한계
 
 - macOS WebView 자동 문자 삽입은 실제 두벌식 조합 검사가 아니다. 실제 입력기에서 `한` 입력 직후 Backspace로 `하`가 남는지, 이어 쓰기·조합 중 삭제·저장·재시작을 별도로 확인한다.
-- 실제 OS 열기·저장·취소·덮어쓰기 창과 VoiceOver도 일반 앱에서 확인해야 한다. 테스트 파일 선택 fixture와 DOM 검사가 이를 대신하지 않는다.
-- 현재 네이티브 종료 입력 잠금 검사는 이벤트 대기를 보완한 뒤 최신 재검증이 완료되지 않았다. 전체 네이티브 검증 완료로 간주하지 않는다.
+- 실제 OS 열기·저장·취소·덮어쓰기 창은 일반 앱에서 별도로 확인한다. 테스트 파일 선택 fixture와 DOM 검사가 이를 대신하지 않는다. VoiceOver는 사용자 요청에 따라 이번 사용성 개선 범위에서 제외한다.
+- 2026-10-28 이전 구현의 네이티브 종료·입력 잠금·CLI 종료·재시작 검사는 통과했다. 전체 시나리오별 결과와 중간 실패 수정 근거는 사용성 실행 기록을 따른다.
 - macOS 14·M1·8 GB 최소 장치, 개발 도구 없는 새 macOS 사용자 환경, 실제 작성자 사용성 검증은 확인되지 않았다.
 - Pro·Max·Enterprise 허용은 합성 인증 계약으로 검사했다. 실제 해당 플랜 계정 검증과 구분한다.
 - 개발용 WDIO ZIP 전이 의존성에 알려진 audit 항목이 있다. 현재 embedded 경로는 브라우저 다운로드·ZIP 해제를 사용하지 않는다. `npm audit --omit=dev`와 전체 audit 결과를 구분하고 `npm audit fix --force`를 일괄 적용하지 않는다.
 
 승인·범위·버전·저장 실패의 기대 동작은 [제품 인수 기준](../product/acceptance-criteria.md)을 따른다.
+
+2026-10-28 사용성 개선의 실행 결과·캡처 시점·미검증 항목은 [별도 실행 기록](usability-implementation.md)에 정리한다. 이전 단계 통과 결과와 최신 수정 후 재실행 결과를 구분한다. 시안 이행 재구현은 [새 실행 기록](design-reimplementation.md)을 따른다.
+
+## 디자인 비교 자료 검사
+
+저장소 루트에서 `node --test docs/design/usability-comparison.test.mjs docs/design/reimplementation.test.mjs`를 실행한다. 브라우저 검사는 별도 터미널의 `python3 -m http.server 8766 --bind 127.0.0.1`과 `node docs/design/verify-browser.mjs`를 사용한다. Chrome 임시 프로필은 스크립트가 종료·삭제하며 서버는 확인 후 Ctrl+C로 종료한다. 페이지 검사는 네이티브 제품이나 실제 사용자 평가를 대신하지 않는다.

@@ -1,66 +1,69 @@
+import { useState } from "react";
 import { ReviewPanel } from "../review/ReviewPanel";
-import {
-  type DocumentMode,
-  DocumentToolbar,
-  SaveError,
-} from "./DocumentToolbar";
+import { type DocumentMode, SaveError } from "./DocumentToolbar";
 import { EditingArea } from "./EditingArea";
+import { ReviewResume } from "./ReviewResume";
 import type { RequestScope } from "./request-scope";
-import { ScopeBar } from "./ScopeBar";
 import type { DocumentModel } from "./useDocument";
-import { VersionHistory } from "./VersionHistory";
 
 type DocumentMainProps = {
   model: DocumentModel;
   mode: DocumentMode;
   setMode: (value: DocumentMode) => void;
   taskId: string;
-  onConflict: () => void;
   flushTask: () => Promise<void>;
   scope: RequestScope;
+  rewriteRequest: number;
 };
-export function DocumentMain({
-  model,
-  mode,
-  setMode,
-  taskId,
-  onConflict,
-  flushTask,
-  scope,
-}: DocumentMainProps) {
+export function DocumentMain(props: DocumentMainProps) {
+  const { model, mode, setMode, taskId, flushTask, scope, rewriteRequest } =
+    props;
+  const [appliedTarget, setAppliedTarget] = useState<HTMLDivElement | null>(
+    null,
+  );
   return (
     <div
       className="document-main"
       inert={model.mutating}
       aria-busy={model.mutating}
     >
-      <DocumentToolbar
-        model={model}
-        mode={mode}
-        setMode={setMode}
-        onConflict={onConflict}
-      />
-      <div className="document-path" title={model.state.document.path}>
-        {model.state.document.path}
-      </div>
       <SaveError model={model} />
-      <div className="editor-region" hidden={mode === "review"}>
-        <EditingArea
+      {mode !== "review" && taskId && (
+        <ReviewResume
+          key={`resume:${taskId}`}
           model={model}
-          preview={mode === "preview"}
-          onSelection={scope.setSelection}
-        />
-        <ScopeBar model={model} requestScope={scope} />
-      </div>
-      {mode === "review" && (
-        <ReviewPanel
-          key={taskId}
-          document={model}
           taskId={taskId}
-          flushTask={flushTask}
+          resume={() => setMode("review")}
         />
       )}
-      <VersionHistory model={model} />
+      <WorkspaceEditor model={model} mode={mode} scope={scope} />
+      <ReviewPanel
+        active={mode === "review"}
+        key={`review:${taskId}`}
+        document={model}
+        taskId={taskId}
+        flushTask={flushTask}
+        rewriteRequest={rewriteRequest}
+        appliedTarget={appliedTarget}
+      />
+      <div className="applied-version-host" ref={setAppliedTarget} />
+    </div>
+  );
+}
+
+function WorkspaceEditor({
+  model,
+  mode,
+  scope,
+}: Pick<DocumentMainProps, "model" | "mode" | "scope">) {
+  return (
+    <div className="editor-region" hidden={mode === "review"}>
+      <EditingArea
+        model={model}
+        preview={mode === "preview"}
+        navigationVisible={mode !== "review"}
+        onSelection={scope.setSelection}
+      />
     </div>
   );
 }

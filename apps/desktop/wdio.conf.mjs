@@ -5,11 +5,16 @@ const phase = process.env.DOCREVIEW_E2E_PHASE;
 if (
   !testRoot ||
   ![
+    "tobe",
     "editor",
     "connection",
     "generation",
     "generation-restart",
     "restart",
+    "design",
+    "design-resume",
+    "design-resume-restart",
+    "usability",
     "review",
     "recovery",
     "recovery-restart",
@@ -72,11 +77,15 @@ export const config = {
 };
 
 async function ensureVisibleWindow() {
-  await browser.execute(() =>
-    window.__TAURI__.window.getCurrentWindow().setFocus(),
-  );
   await browser.waitUntil(
-    async () => browser.execute(() => document.visibilityState === "visible"),
+    async () =>
+      browser.execute(async () => {
+        const window = globalThis.__TAURI__.window.getCurrentWindow();
+        await window.unminimize();
+        await window.show();
+        await window.setFocus();
+        return document.visibilityState === "visible";
+      }),
     { timeoutMsg: "테스트 창이 표시되어야 화면 배치를 검증할 수 있습니다." },
   );
 }

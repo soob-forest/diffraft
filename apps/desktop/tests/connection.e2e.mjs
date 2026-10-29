@@ -13,12 +13,17 @@ async function inspect(mode) {
   await browser.waitUntil(
     async () => await $("button=상태 다시 확인").isEnabled(),
   );
+  await mkdir(".artifacts/design", { recursive: true });
+  await browser.saveScreenshot(
+    `.artifacts/design/connection-${mode.toLowerCase()}.png`,
+  );
 }
 describe("공식 CLI 연결 화면과 생성 수명", () => {
   it("최소 버전 미달을 안내하고 최신 버전의 연결 테스트를 허용한다", async () => {
     await $("button=AI 연결 설정").click();
     await inspect("TOO_OLD");
     const dialog = $(".connection-dialog");
+    await $("summary=설치 경로·버전 진단 정보").click();
     assert.match(await dialog.getText(), /2\.1\.295 이상 정식 버전/);
     assert.match(await dialog.getText(), /2\.1\.294/);
     assert.equal(await $("button=연결 테스트").isEnabled(), false);
@@ -55,13 +60,19 @@ describe("공식 CLI 연결 화면과 생성 수명", () => {
     await $("button=AI 연결 설정").click();
     await inspect("READY");
     await writeFile(join(root, "next-generation"), "EXPLAIN");
+    await openDiagnostics();
     await $("button=연결 테스트").click();
     await browser.waitUntil(async () =>
-      (await $('[data-testid="connection-status"]').getText()).includes("성공"),
+      (await $('[data-testid="connection-status"]').getText()).includes(
+        "테스트를 완료",
+      ),
     );
     await mkdir(".artifacts", { recursive: true });
+    if ((await $(".connection-diagnostics").getAttribute("open")) !== null)
+      await $(".connection-diagnostics > summary").click();
     await browser.saveScreenshot(".artifacts/connection-ready.png");
     await writeFile(join(root, "next-generation"), "malformed");
+    await openDiagnostics();
     await $("button=연결 테스트").click();
     await $(".connection-dialog [role='alert']").waitForDisplayed();
     assert.match(
@@ -80,6 +91,7 @@ describe("공식 CLI 연결 화면과 생성 수명", () => {
     await $("button=AI 연결 설정").click();
     await inspect("READY");
     await writeFile(join(root, "next-generation"), "EXPLAIN_DELAY");
+    await openDiagnostics();
     await $("button=연결 테스트").click();
     await browser.waitUntil(async () => Boolean((await status()).operationId));
     await browser.waitUntil(async () => {
@@ -120,3 +132,8 @@ describe("공식 CLI 연결 화면과 생성 수명", () => {
     await $("button=설정 닫기").click();
   });
 });
+
+async function openDiagnostics() {
+  if ((await $(".connection-diagnostics").getAttribute("open")) === null)
+    await $(".connection-diagnostics > summary").click();
+}
