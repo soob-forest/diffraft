@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "recordedAt": "2026-10-29T02:55:39.509001+00:00",
   "implementationBaseline": "b5def61",
-  "state": "installed; general-app visible check awaiting unlocked display",
+  "state": "complete: installed ordinary-app display and normal-exit checks passed",
   "beforeRegression": {
     "signal": "SIGSEGV",
     "pid": 6866,
@@ -43,9 +43,34 @@
     ],
     "finalRepeatInterrupted": {
       "passedBeforeInterruption": 1,
-      "reason": "macOS screen locked; ensureVisibleWindow failed"
+      "reason": "macOS screen locked; ensureVisibleWindow failed",
+      "followup": "Completed ordinary installed-app checks after unlock; prior environment failure retained as history."
     },
-    "generalAppVisibleQuitCheck": "pending: AX editor not ready while display locked",
+    "generalAppVisibleQuitCheck": {
+      "state": "passed",
+      "runs": [
+        {
+          "path": "/Applications/DocReview.app/Contents/MacOS/docreview",
+          "pid": 29266,
+          "method": "native Quit menu via AXPress",
+          "code": 0,
+          "signal": null,
+          "exitedAt": "2026-10-29T03:10:14.322961+00:00"
+        },
+        {
+          "path": "/Users/dltntnqo/Applications/DocReview.app/Contents/MacOS/docreview",
+          "pid": 41822,
+          "method": "NSRunningApplication.terminate",
+          "axEditorReady": true,
+          "code": 0,
+          "signal": null
+        }
+      ],
+      "newCrashReports": [],
+      "screenUnlocked": true,
+      "visibleEditorAndRequestPanel": true,
+      "sourceSavedAndNoUnsubmittedRequestOrCommentDraft": true
+    },
     "physicalCommandQAndDockUiClick": "unverified"
   },
   "build": {
@@ -81,7 +106,9 @@
     "all18TablesExactlyUnchanged": true,
     "newDocumentsOrEdits": 0,
     "launchedPath": "/Applications/DocReview.app/Contents/MacOS/docreview",
-    "launchedPid": 29266
+    "launchedPid": 29266,
+    "finalLaunchedPid": 42314,
+    "finalLaunchedPath": "/Applications/DocReview.app/Contents/MacOS/docreview"
   },
   "localLogSha256": {
     "quit-fix-contract-before.log": "5321ccd4ad9e18865e18bf018bf4443a8dcc1e6a34857c51dd7f85bc9a0d657b",
@@ -89,6 +116,10 @@
     "quit-fix-stress.log": "16bda001627631b9b54adb2430ea54764d49ddb202a91574a8b9a7bd94b40f3b",
     "quit-final-stress.log": "277952adb59ff05613effe7a2d89b20a8ee8b5f073e6822d0e71f6b2665e448a",
     "quit-fix-rust-test.log": "c0f3590a753d5ab6eba8169d6ddd18a205e35ec30e69bd846c7879df476962b9",
-    "quit-release.log": "b5b754b4ae5a2ddec7ed0b9dfead9edf297e3f1e2b7275271177c44a75e821c6"
-  }
+    "quit-release.log": "b5b754b4ae5a2ddec7ed0b9dfead9edf297e3f1e2b7275271177c44a75e821c6",
+    "quit-first-install.json": "c917e14761572a8fbff4f21e163b20c8d68e7e225b6f225a21c485c1747b5b09",
+    "quit-second-install.json": "f7562f490ad33d785c63e912c07cb898bf734fb4e2f33fd4208c809b41e3efce"
+  },
+  "completedAt": "2026-10-29T03:11:57.236533+00:00",
+  "implementationCommit": "526939a"
 }
