@@ -69,7 +69,14 @@
       "newCrashReports": [],
       "screenUnlocked": true,
       "visibleEditorAndRequestPanel": true,
-      "sourceSavedAndNoUnsubmittedRequestOrCommentDraft": true
+      "sourceSavedAndNoUnsubmittedRequestOrCommentDraft": true,
+      "launchServicesRelaunch": {
+        "pid": 42314,
+        "path": "/Applications/DocReview.app/Contents/MacOS/docreview",
+        "desktopFolderPermission": "allowed for existing document access",
+        "axEditorReady": true,
+        "sourceBinaryChanged": false
+      }
     },
     "physicalCommandQAndDockUiClick": "unverified"
   },
@@ -120,6 +127,6 @@
     "quit-first-install.json": "c917e14761572a8fbff4f21e163b20c8d68e7e225b6f225a21c485c1747b5b09",
     "quit-second-install.json": "f7562f490ad33d785c63e912c07cb898bf734fb4e2f33fd4208c809b41e3efce"
   },
-  "completedAt": "2026-10-29T03:11:57.236533+00:00",
+  "completedAt": "2026-10-29T03:18:25.155378+00:00",
   "implementationCommit": "526939a"
 }
