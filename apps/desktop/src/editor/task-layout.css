@@ -1,0 +1,272 @@
+.task-panel {
+  border: 0;
+  background: transparent;
+  padding: 24px 24px 0;
+  overflow: visible;
+}
+.task-panel h2,
+.task-panel h3 {
+  font-size: 16px;
+  line-height: 26.4px;
+  font-weight: 600;
+  margin: 0 0 16px;
+}
+.task-panel h3 {
+  margin-top: 24px;
+}
+.task-panel label {
+  font-size: 14px;
+  margin: 16px 0 0;
+  gap: 8px;
+}
+.task-panel p {
+  overflow-wrap: anywhere;
+  font-size: 13px;
+  line-height: 21.45px;
+}
+.task-panel select {
+  width: 100%;
+  min-width: 0;
+}
+.task-panel .task-picker {
+  display: block;
+  margin: 0 0 14px;
+}
+.task-panel .task-picker select {
+  appearance: none;
+  margin: 0;
+  padding: 12px;
+  min-height: 52.4px;
+  font-size: 16px;
+  line-height: 26.4px;
+  border-color: #a5b4c6;
+}
+.task-panel .generation-panel {
+  border: 0;
+  margin: 0;
+  padding: 0;
+}
+.task-panel .task-condition-details {
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  margin: 16px 0;
+}
+.task-condition-details > summary {
+  list-style: none;
+  line-height: 23.1px;
+  font-size: 14px;
+}
+.task-condition-details > summary::-webkit-details-marker {
+  display: none;
+}
+.task-condition-details > summary strong {
+  font-weight: 600;
+}
+.condition-summary {
+  display: block;
+  color: var(--muted);
+  font-weight: 400;
+  margin-top: 6px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 13px;
+  line-height: 21.45px;
+  max-height: 64px;
+  overflow: auto;
+}
+.condition-edit {
+  display: block;
+  margin-top: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+.task-panel .common-rules {
+  margin: 12px 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+}
+.task-panel .scope-bar {
+  display: block;
+  border: 0;
+  padding: 12px;
+  background: #ecf2f6;
+  border-radius: 6px;
+  margin: 16px 0;
+  font-size: 13px;
+}
+.scope-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+.task-panel .scope-heading strong {
+  font-size: 14px;
+  font-weight: 500;
+}
+.scope-heading button {
+  min-height: 0;
+  font-size: 12px;
+  padding: 3px 8px;
+  line-height: 19.8px;
+}
+.scope-summary {
+  display: block;
+  color: var(--muted);
+  margin-top: 4px;
+  line-height: 21.45px;
+}
+.scope-editor {
+  padding-top: 8px;
+}
+.scope-editor[hidden] {
+  display: none;
+}
+.scope-editor label {
+  margin: 0 0 8px;
+}
+.scope-editor [role="status"] {
+  display: block;
+  margin-top: 8px;
+}
+.task-conditions button[type="submit"] {
+  background: white;
+  color: #233a59;
+  border-color: #c2cfe1;
+}
+.task-panel textarea {
+  font-size: 16px;
+  line-height: 26.4px;
+  padding: 12px;
+  border-color: #a5b4c6;
+}
+.request-kind {
+  display: flex;
+  gap: 10px;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  min-width: 0;
+}
+.request-kind button[aria-pressed="true"] {
+  border-color: transparent;
+  background: #eaf0ff;
+  color: #214da8;
+}
+.request-form > label,
+.request-form label {
+  display: flex;
+  flex-direction: column;
+  font-weight: 500;
+  margin: 18px 0 0;
+}
+.request-form textarea {
+  min-height: 112px;
+  height: 112px;
+  margin-bottom: 0;
+  font-weight: 400;
+}
+.request-actions {
+  display: block;
+}
+.request-actions button[type="submit"] {
+  width: 100%;
+  margin: 0;
+}
+.request-draft-note {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+  margin: 8px 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 21.45px;
+}
+.request-draft-note details {
+  margin-left: auto;
+  font-size: 12px;
+}
+.request-draft-note summary {
+  list-style: none;
+}
+.request-draft-note summary::-webkit-details-marker {
+  display: none;
+}
+.request-draft-note button {
+  display: block;
+  font-size: 13px;
+}
+.generation-panel > p:empty,
+.request-extras > p:empty {
+  display: none;
+}
+.request-extras > .muted {
+  margin: 12px 0 24px;
+}
+.task-panel .rewrite-entry {
+  display: block;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-size: 13px;
+  color: var(--muted);
+  min-height: 0;
+  margin-bottom: 24px;
+}
+.conversation h3 {
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+.conversation > p,
+.conversation .session-state {
+  color: var(--muted);
+}
+.conversation-messages:empty {
+  display: none;
+}
+.conversation > details {
+  font-size: 13px;
+}
+.panel-tabs {
+  display: flex;
+  padding: 24px 24px 0;
+  gap: 10px;
+  border: 0;
+}
+.panel-tabs button {
+  padding: 8px 12px;
+  border: 1px solid #c2cfe1;
+  border-radius: 6px;
+  background: white;
+}
+.panel-tabs [aria-selected="true"] {
+  color: #214da8;
+  border-color: transparent;
+  background: #eaf0ff;
+}
+.request-extras {
+  margin: 0;
+}
+.request-extras > summary {
+  display: none;
+}
+.request-draft-note {
+  position: relative;
+}
+.request-draft-note details[open] {
+  position: absolute;
+  right: 0;
+  top: 0;
+  z-index: 4;
+  padding: 8px;
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  width: 240px;
+}
+.request-draft-note details p {
+  margin-bottom: 0;
+}

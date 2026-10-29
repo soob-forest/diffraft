@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="ko">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>DocReview · TO-BE 이행 비교</title><link rel="stylesheet" href="tobe-implementation.css"><script src="tobe-implementation.js" defer></script></head>
+<body>
+<header><a href="design-guide.md#13-현재-to-be-계약">DocReview · 디자인 명세</a><h1>TO-BE와 실제 앱 직접 비교</h1><p>오른쪽 TO-BE 원본, 이번 변경 전 실제 앱, 새 실제 앱을 같은 과업으로 비교합니다.</p></header>
+<main>
+<p class="notice">TO-BE 구현과 두 설치본 검증을 완료했습니다. 자동 검사·시안 대조·Impeccable·설치본 근거를 별도로 기록했습니다. 사용자 평가는 미검증이며 VoiceOver는 제외합니다.</p>
+<nav aria-label="화면 선택" id="scenes"></nav>
+<div class="controls"><label>보기 <select id="view"><option value="all">3종 나란히</option><option value="target">고정 TO-BE만</option><option value="before">변경 전 실제만</option><option value="after">새 실제만</option></select></label><a href="usability-comparison.html">원본 비교 시안</a><a href="../development/tobe-implementation.md">실행·ADR 기록</a></div>
+<section aria-labelledby="scene-title"><h2 id="scene-title"></h2><p id="scene-note"></p><div class="captures" id="captures"></div><p id="evidence"></p></section>
+<section class="notes"><h2>비교 방법과 차이</h2><p>목표는 원본 scene.after()와 .refined cascade를1440×900, 좁은 창은800×600 콘텐츠 크기로 고정한 합성 목업입니다. 전/후는 가짜 CLI·독립 임시 DB의 동일 합성 문서입니다. 실제 사용자 문서나 인증 정보는 포함하지 않습니다.</p><p>WKWebView의 실제 값·문서 목록·버전 개수·메뉴·접기 진입은 작동하는 상태를 표시합니다. 원문·제안·코멘트 앵커는 생략하지 않습니다. 긴 인용의4줄 제한은 표시만 제한합니다. 시스템 글꼴과 Chrome/WKWebView의 래스터화 차이는 유지합니다.</p><p>네이티브 PNG는 기기 배율과 창 아래쪽 여백을 포함할 수 있습니다. 나란히 보기는 콘텐츠 크기의 동일 비율로 배치하고 아래쪽 창 여백만 화면 밖으로 둡니다. 확대는 원본 PNG를 표시합니다. 치수 판정은 JSON의 CSS px를 사용합니다.</p><p>재개 목업의 여러 안내는 실제로 독립된 조건입니다. 기본 재개, 실패 요청 수정, 적용 전 비교, 독립 재시작을 별도 상태 증거로 확인합니다.</p><ul id="states"></ul><h3>창 크기·확대</h3><p><a href="tobe-captures/states/zoom-measurements.json">9개 환경의 치수·히트·기록 교차 검사</a></p><ul id="zoom-states"></ul></section>
+</main>
+<dialog id="zoom" aria-labelledby="zoom-title"><div class="zoom-bar"><h2 id="zoom-title"></h2><button type="button" id="close">확대 닫기 · Esc</button></div><img id="zoom-image" alt=""></dialog>
+<noscript>비교 조작에는 JavaScript가 필요합니다. tobe-captures의 target/before/after 폴더에서 원본 PNG와 JSON을 직접 열 수 있습니다.</noscript>
+</body></html>

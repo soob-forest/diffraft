@@ -1,0 +1,239 @@
+.change-nav-item {
+  display: grid;
+  gap: 4px;
+  margin-block: 8px;
+}
+.change-nav-item > span {
+  color: var(--muted);
+  font-size: 13px;
+  padding-inline: 8px;
+  overflow-wrap: anywhere;
+}
+.review-panel {
+  min-height: 0;
+  overflow: hidden;
+}
+.review-panel[hidden] {
+  display: none;
+}
+.diff-viewer {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.review-panel > .diff-viewer {
+  flex: 1 1 0;
+  min-height: 0;
+}
+.diff-panes {
+  flex: 1;
+  min-height: 120px;
+  height: auto;
+  background: white;
+  border: 0;
+}
+.review-tools {
+  background: white;
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--line);
+}
+.review-primary-tools {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 22px 24px 0;
+}
+.review-primary-tools > strong {
+  font-size: 16px;
+}
+.review-history-menu {
+  margin-left: auto;
+  position: relative;
+  color: var(--muted);
+  font-size: 12px;
+}
+.review-history-menu > summary {
+  padding: 4px;
+}
+.review-history-menu .review-header {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  z-index: 5;
+  padding: 12px;
+  width: 280px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: white;
+}
+.review-history-menu select {
+  max-width: 100%;
+  font-size: 14px;
+}
+.diff-stats {
+  font-size: 12px;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  color: #14633b;
+  margin-left: 4px;
+}
+.review-primary-tools .bulk-approval {
+  margin-left: 0;
+}
+.review-tools .group-bar {
+  padding: 10px 24px 12px;
+  position: static;
+  border: 0;
+  min-height: 0;
+}
+.selected-group {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-width: 0;
+}
+.selected-group h3 {
+  flex: 1;
+  min-width: 150px;
+  margin: 0;
+  font-size: 14px;
+  line-height: 23.1px;
+  font-weight: 400;
+}
+.selected-group .selection-location {
+  padding: 0;
+  min-height: 0;
+  border: 0;
+  background: transparent;
+  font-size: 14px;
+  text-align: left;
+  color: inherit;
+}
+.selection-navigation,
+.selected-group .proposal-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+.selected-group button {
+  font-size: 14px;
+  padding: 8px 12px;
+}
+.review-tools .diff-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 12px 24px;
+  background: #f5f7fa;
+  gap: 10px;
+  font-size: 14px;
+}
+.diff-toolbar > span {
+  font-size: 13px;
+  color: var(--muted);
+}
+.diff-toolbar button[aria-pressed="true"] {
+  background: #eaf0ff;
+  border-color: transparent;
+}
+.comment-selection {
+  padding: 12px 24px;
+  background: #f5f7fa;
+  font-size: 14px;
+  line-height: 23.1px;
+}
+.split-guidance {
+  padding: 8px 24px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+.diff-folds:empty {
+  display: none;
+}
+.diff-folds {
+  padding: 4px 24px;
+  background: white;
+}
+.diff-folds button {
+  padding: 2px 8px;
+  min-height: 0;
+  font-size: 12px;
+}
+.diff-pane .change-group-start::before {
+  box-sizing: border-box;
+  content: attr(data-group-title);
+  height: 42.4px;
+  display: block;
+  padding: 12px 0 8px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 14px;
+  line-height: 22.4px;
+  font-weight: 600;
+  color: #182537;
+  background: white;
+}
+.diff-pane .cm-content {
+  position: relative;
+  z-index: 1;
+}
+.diff-panes.inline .change-group-start::before {
+  position: relative;
+  z-index: 2;
+  margin-left: -36px;
+  width: calc(100% + 36px);
+}
+.diff-pane .selected-change.change-group-start::before {
+  color: #2957c8;
+}
+.diff-pane .group-number {
+  display: block;
+  padding-top: 42.4px;
+}
+.review-panel .text-diff {
+  font-size: 12px;
+  background: white;
+}
+.review-panel .text-diff[open] {
+  max-height: 45vh;
+  overflow: auto;
+}
+.approval-dialog {
+  max-height: calc(100vh - 48px);
+}
+.approval-dialog > h2 {
+  margin-top: 0;
+}
+.approval-dialog > ul {
+  max-height: 40vh;
+  overflow: auto;
+}
+.rewrite-comparison-heading {
+  padding: 12px 24px;
+  background: white;
+}
+.rewrite-comparison-heading h3 {
+  font-size: 16px;
+  margin: 0 0 4px;
+}
+.rewrite-comparison-heading p {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 4px 0;
+}
+.diff-column-labels {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  flex-shrink: 0;
+  background: #ecf2f6;
+  font-size: 13px;
+}
+.diff-column-labels span {
+  padding: 6px 12px;
+  border-inline-end: 1px solid var(--line);
+}

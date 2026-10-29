@@ -1,18 +1,28 @@
+import { useEffect, useRef } from "react";
 import { RewriteRequestDialog } from "./RewriteRequestDialog";
 import {
   type RewriteFormProps,
   useRewriteGeneration,
 } from "./useRewriteGeneration";
 
-export function RewriteForm(props: RewriteFormProps) {
+export function RewriteForm(
+  props: RewriteFormProps & { openRequest?: number; visible?: boolean },
+) {
+  const details = useRef<HTMLDetailsElement>(null);
   const form = useRewriteGeneration(props);
+  useRequestedFocus(
+    details,
+    props.openRequest,
+    form.blocked,
+    props.visible !== false,
+  );
   const batch = props.review.projection?.batch;
   const canReference =
     batch?.mode === "REWRITE" &&
     (batch.status === "ACTIVE" || batch.status === "ARCHIVED") &&
     batch.baseVersionId === props.model.autosave.document.versionId;
   return (
-    <details className="rewrite-form proposal-details">
+    <details ref={details} className="rewrite-form proposal-details">
       <summary>전체 재작성·다른 방향 요청</summary>
       <p>
         현재 확정본 전체에서 새 후보를 만듭니다. 부분 제안은 확인 후 기록으로
@@ -66,4 +76,32 @@ function RequestButtons({
       )}
     </div>
   );
+}
+
+function useRequestedFocus(
+  details: React.RefObject<HTMLDetailsElement | null>,
+  request: number | undefined,
+  blocked: boolean,
+  visible: boolean,
+) {
+  const focusedRequest = useRef(0);
+  useEffect(() => {
+    if (
+      visible &&
+      request &&
+      request !== focusedRequest.current &&
+      details.current
+    ) {
+      details.current.open = true;
+      if (!blocked) {
+        requestAnimationFrame(() => {
+          const input = details.current?.querySelector("textarea");
+          if (input?.isConnected && input.offsetParent && !input.disabled) {
+            input.focus();
+            focusedRequest.current = request;
+          }
+        });
+      }
+    }
+  }, [request, blocked, details, visible]);
 }

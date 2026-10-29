@@ -9,10 +9,11 @@ import {
   prepareRequest,
   prepareRetry,
 } from "./request";
+import { useRequestDraft } from "./useRequestDraft";
 
 export function useGeneration(props: GenerationProps) {
-  const [mode, setMode] = useState<"PATCH" | "EXPLAIN">("PATCH");
-  const [instruction, setInstruction] = useState("");
+  const draft = useRequestDraft(props.model.state.document.id, props.taskId);
+  const { mode, instruction } = draft;
   const [pending, setPending] = useState<PendingRequest | null>(null);
   const operation = useGenerationOperation(props);
   const prepare = () =>
@@ -33,10 +34,7 @@ export function useGeneration(props: GenerationProps) {
     });
   usePendingValidity({ props, pending, setPending, operation });
   return {
-    mode,
-    setMode,
-    instruction,
-    setInstruction,
+    ...draft,
     pending,
     prepare,
     generate,

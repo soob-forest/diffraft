@@ -27,6 +27,7 @@ describe("범위 요청·대화·수동 재개", () => {
     await $(".source-editor .cm-content").waitForExist();
     document = await currentDocument();
     taskId = await createTask("초기 목표");
+    await $(".task-condition-details > summary").click();
     await $(".task-conditions textarea[required]").setValue("최신 목표");
     await $(".task-conditions textarea:not([required])").setValue(
       "수치는 유지",

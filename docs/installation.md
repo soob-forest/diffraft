@@ -38,6 +38,10 @@ npm run native:bundle:internal
 
 ## 데이터 보존과 앱 교체
 
+시안 이행 재구현의 최신 설치 파일·실행 파일 해시는 [빌드 기록](development/redesign-build.json)에 있다. 앱 버전이 같은 `0.1.0`이어도 내용이 다른 빌드일 수 있다. `/Applications/DocReview.app`과 `~/Applications/DocReview.app`을 혼동하지 말고, 교체한 경로의 앱을 직접 실행한다. 이번 변경의 [시안/실제 비교](design/design-reimplementation.html)에서 오른쪽 변경 상세·코멘트, 두 행 검토 도구, 왼쪽 작업 선택을 확인할 수 있다.
+
+요청·코멘트의 미제출 세션 초안은 앱 종료 후 복원되지 않는다. 필요한 초안을 별도로 보관하고 정상 종료한 뒤 앱을 교체한다. 원문 저장·확정본·작업 이력과 세션 초안을 구분한다.
+
 앱의 버전·작업·코멘트·대화·저장 저널은 다음 위치에 보관한다.
 
 ```text

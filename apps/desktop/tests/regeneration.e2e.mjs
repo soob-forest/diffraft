@@ -3,6 +3,12 @@ import { readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { Key } from "webdriverio";
 import { editor, invoke, prepare, root } from "./support/review-fixture.mjs";
+import {
+  chooseGroup,
+  openComment,
+  openRegenerate,
+  showSummary,
+} from "./support/review-ui.mjs";
 
 const instruction = "코멘트를 반영하고 여행자의 준비 내용를 명시해 주세요.";
 let fixture;
@@ -20,24 +26,24 @@ async function start(mode) {
 describe("코멘트를 반영한 재제안", () => {
   it("삭제 쪽 선택과 코멘트 대상이 보기 전환 뒤에도 유지된다", async () => {
     fixture = await prepare("regeneration");
-    await $("button=3번 변경").click();
+    await chooseGroup(3);
     await browser.execute(() =>
       document.querySelector('[data-testid="diff-inline"]').focus(),
     );
-    await browser.keys(Key.ArrowLeft);
+    await browser.keys([Key.Command, Key.ArrowLeft]);
     await browser.keys([Key.Shift, Key.ArrowRight, Key.ArrowRight]);
-    await $(".comment-form summary").click();
-    await browser.execute(() => {
-      const select = document.querySelector(".comment-form select");
-      select.value = "before";
-      select.dispatchEvent(new Event("change", { bubbles: true }));
-    });
+    await openComment();
+    await $(".comment-side").$("button=변경 전").click();
     await browser.waitUntil(
       async () => (await $(".comment-form blockquote").getText()) === "필요",
     );
+    await showSummary();
     await $("button=나란히").click();
+    await openComment();
     assert.equal(await $(".comment-form blockquote").getText(), "필요");
+    await showSummary();
     await $("button=인라인").click();
+    await openComment();
     assert.equal(await $(".comment-form blockquote").getText(), "필요");
     await $(".comment-form textarea").setValue(
       "실행 주체를 명확하게 해 주세요.",
@@ -51,7 +57,7 @@ describe("코멘트를 반영한 재제안", () => {
     assert.equal(state.comments[0].anchor.quote, "필요");
   });
   it("형식 오류가 나도 이전 후보와 코멘트·입력 지시를 유지한다", async () => {
-    await $(".regenerate-form summary").click();
+    await openRegenerate();
     await $(".regenerate-form textarea").setValue(instruction);
     await start("malformed");
     await browser.waitUntil(async () =>
@@ -59,7 +65,10 @@ describe("코멘트를 반영한 재제안", () => {
         "응답 형식",
       ),
     );
-    assert.match(await $(".candidate-form summary").getText(), /r1/);
+    assert.match(
+      await $(".candidate-form summary").getProperty("textContent"),
+      /r1/,
+    );
     assert.equal(await $(".regenerate-form textarea").getValue(), instruction);
     const state = await reviewState(fixture.task.id);
     assert.equal(state.generating, false);
@@ -81,7 +90,9 @@ describe("코멘트를 반영한 재제안", () => {
     );
     await $("button=나란히").click();
     await browser.waitUntil(async () =>
-      (await $(".candidate-form summary").getText()).includes("r2"),
+      (await $(".candidate-form summary").getProperty("textContent")).includes(
+        "r2",
+      ),
     );
     const state = await reviewState(fixture.task.id);
     assert.equal(state.comments[0].anchor.side, "before");
@@ -105,8 +116,8 @@ describe("코멘트를 반영한 재제안", () => {
   });
   it("생성 중 원문을 수정하면 늦은 후보가 덮어쓰지 않는다", async () => {
     const late = await prepare("regeneration-late");
-    await $("button=3번 변경").click();
-    await $(".regenerate-form summary").click();
+    await chooseGroup(3);
+    await openRegenerate();
     await $(".regenerate-form textarea").setValue(instruction);
     await start("REGENERATE_DELAY");
     await $("button=원문").click();

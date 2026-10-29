@@ -1,0 +1,102 @@
+@media (max-width: 719px) {
+  .document-workspace {
+    grid-template-columns: minmax(0, 1fr);
+    overflow: auto;
+  }
+  .document-workspace[data-tasks-open="true"] .document-main {
+    display: none;
+  }
+  .workspace-panel {
+    grid-column: 1;
+    grid-row: 3;
+    border-left: 0;
+  }
+  .document-history {
+    grid-row: 4;
+  }
+  .detail-entry,
+  .panel-return {
+    display: inline-block;
+  }
+  .panel-return {
+    margin: 12px 16px 0;
+  }
+  .document-toolbar {
+    padding-inline: 12px;
+    gap: 8px;
+  }
+  .document-menu {
+    position: relative;
+    left: auto;
+    top: auto;
+  }
+  .document-header-actions {
+    flex-wrap: wrap;
+  }
+  .app-header {
+    gap: 8px;
+  }
+  .app-header > span:not(.brand-icon) {
+    display: none;
+  }
+  .generation-status:not(:empty) {
+    margin-left: auto;
+    font-size: 12px;
+  }
+  .review-panel,
+  .review-panel > .diff-viewer {
+    min-height: 480px;
+  }
+  .review-panel .diff-panes {
+    min-height: 280px;
+  }
+}
+@media (max-height: 700px) {
+  .document-workspace[data-mode="review"] {
+    overflow: auto;
+    grid-template-rows: max-content max-content max-content max-content;
+  }
+  .document-workspace[data-mode="review"] .document-main {
+    display: block;
+    height: auto;
+    min-height: 0;
+    overflow: visible;
+  }
+  .document-workspace[data-mode="review"][data-tasks-open="true"]
+    .document-main {
+    display: flex;
+  }
+  .document-workspace[data-mode="review"] .review-panel,
+  .document-workspace[data-mode="review"] .review-panel > .diff-viewer {
+    flex: none;
+    min-height: 0;
+    overflow: visible;
+  }
+  .document-workspace[data-mode="review"] .diff-panes {
+    flex: none;
+    height: 280px;
+    min-height: 280px;
+  }
+}
+@media (max-width: 719px) and (max-height: 700px) {
+  .document-workspace[data-mode="review"][data-tasks-open="true"]
+    .document-main {
+    display: none;
+  }
+}
+
+@media (max-width: 1000px) {
+  .request-extras > summary {
+    display: block;
+    padding: 12px 0;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .task-panel .request-draft-note {
+    flex-wrap: nowrap;
+    font-size: 13px;
+  }
+  .task-panel .request-draft-note > span {
+    white-space: nowrap;
+  }
+}

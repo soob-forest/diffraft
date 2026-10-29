@@ -69,6 +69,7 @@ function RewriteButtons({
         <button
           type="button"
           disabled={actions.blocked || !current}
+          className="primary"
           onClick={() => actions.confirm("apply_rewrite")}
         >
           이 재작성안 적용

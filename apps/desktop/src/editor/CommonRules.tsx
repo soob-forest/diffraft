@@ -24,6 +24,9 @@ function useCommonRules({ documentId, flushRef }: Props) {
     });
     try {
       await pending.current;
+    } catch (reason) {
+      setMessage(errorMessage(reason));
+      throw reason;
     } finally {
       pending.current = null;
       setBusy(false);
@@ -38,6 +41,7 @@ function useCommonRules({ documentId, flushRef }: Props) {
     };
   }, [flushRef]);
   return {
+    dirty: saved !== null && value !== saved,
     value,
     setValue,
     message,
@@ -74,7 +78,10 @@ export function CommonRules(props: Props) {
   const form = useCommonRules(props);
   return (
     <details className="common-rules">
-      <summary>문서 공통 조건</summary>
+      <summary>
+        문서 공통 조건 (선택){form.dirty ? " · 저장 전 변경 있음" : ""}
+        {form.message ? ` · ${form.message}` : ""}
+      </summary>
       <p>이 문서의 모든 작업에서 다음 요청부터 사용합니다.</p>
       <label>
         공통 용어·독자·문체

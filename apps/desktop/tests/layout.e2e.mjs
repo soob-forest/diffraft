@@ -199,10 +199,24 @@ async function sameVisibleRow(side, anchor) {
 async function roundTrip(fraction) {
   await scrollTo("before", fraction);
   let anchor;
-  await browser.waitUntil(async () => {
-    anchor = await firstVisible("before");
-    return anchor === (await firstVisible("after")) && anchor !== "equal:1:1";
-  });
+  await browser.waitUntil(
+    async () => {
+      const rows = await alignment();
+      const context =
+        rows?.before.filter((row) => row.key.startsWith("equal:")) ?? [];
+      return (
+        context.length > 0 &&
+        context.every((row) =>
+          rows.after.some(
+            (other) =>
+              other.key === row.key && Math.abs(other.top - row.top) < 2,
+          ),
+        ) &&
+        (await firstVisible("before")) !== "equal:1:1"
+      );
+    },
+    { timeoutMsg: "좌우의 같은 원문 문맥이 같은 높이에 있어야 합니다." },
+  );
   anchor = await switchView("before", "인라인");
   await sameVisibleRow("inline", anchor);
   anchor = await switchView("inline", "나란히");
@@ -238,6 +252,11 @@ describe("긴 줄과 보기 보존", () => {
   });
   it("문맥 확장 후 인라인과 나란히 보기를 오가도 스크롤 기준을 유지한다", async () => {
     await $(".diff-toolbar input").click();
+    assert.equal(
+      await $(".diff-toolbar input").isSelected(),
+      true,
+      "전체 문맥 체크박스가 실제로 선택되어야 합니다.",
+    );
     for (const fraction of [0.35, 0.65, 0.85, 0.25, 0.75, 0.45, 0.95, 0.55])
       await roundTrip(fraction);
     await scrollTo("before", 0);

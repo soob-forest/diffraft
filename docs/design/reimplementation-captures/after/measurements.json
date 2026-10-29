@@ -1,0 +1,137 @@
+[
+  {
+    "window": [
+      800,
+      600
+    ],
+    "zoom": 1,
+    "height": 568,
+    "overflow": false,
+    "width": 800,
+    "workspaceOverflow": false,
+    "readable": {
+      "height": 318,
+      "hit": true
+    }
+  },
+  {
+    "window": [
+      800,
+      600
+    ],
+    "zoom": 1.5,
+    "height": 378,
+    "overflow": false,
+    "width": 533,
+    "workspaceOverflow": false,
+    "readable": {
+      "height": 318,
+      "hit": true
+    }
+  },
+  {
+    "window": [
+      800,
+      600
+    ],
+    "zoom": 2,
+    "height": 284,
+    "overflow": false,
+    "width": 400,
+    "workspaceOverflow": false,
+    "readable": {
+      "height": 318,
+      "hit": true
+    }
+  },
+  {
+    "window": [
+      1280,
+      800
+    ],
+    "zoom": 1,
+    "height": 768,
+    "overflow": false,
+    "width": 1280,
+    "workspaceOverflow": false,
+    "readable": {
+      "height": 413,
+      "hit": true
+    }
+  },
+  {
+    "window": [
+      1280,
+      800
+    ],
+    "zoom": 1.5,
+    "height": 512,
+    "overflow": false,
+    "width": 853,
+    "workspaceOverflow": false,
+    "readable": {
+      "height": 318,
+      "hit": true
+    }
+  },
+  {
+    "window": [
+      1280,
+      800
+    ],
+    "zoom": 2,
+    "height": 384,
+    "overflow": false,
+    "width": 640,
+    "workspaceOverflow": false,
+    "readable": {
+      "height": 318,
+      "hit": true
+    }
+  },
+  {
+    "window": [
+      1440,
+      900
+    ],
+    "zoom": 1,
+    "height": 868,
+    "overflow": false,
+    "width": 1440,
+    "workspaceOverflow": false,
+    "readable": {
+      "height": 513,
+      "hit": true
+    }
+  },
+  {
+    "window": [
+      1440,
+      900
+    ],
+    "zoom": 1.5,
+    "height": 578,
+    "overflow": false,
+    "width": 960,
+    "workspaceOverflow": false,
+    "readable": {
+      "height": 223,
+      "hit": true
+    }
+  },
+  {
+    "window": [
+      1440,
+      900
+    ],
+    "zoom": 2,
+    "height": 434,
+    "overflow": false,
+    "width": 720,
+    "workspaceOverflow": false,
+    "readable": {
+      "height": 318,
+      "hit": true
+    }
+  }
+]

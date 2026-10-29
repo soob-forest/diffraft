@@ -1,0 +1,68 @@
+.diff-pane .cm-editor {
+  height: 100%;
+  font-size: 16px;
+}
+.diff-pane .cm-scroller {
+  font-size: 16px;
+  line-height: 1.8;
+}
+.diff-pane .cm-gutters {
+  background: white;
+  color: var(--muted);
+  font-size: 13px;
+  z-index: 0;
+}
+.diff-numbers.inline {
+  min-width: 60px;
+}
+.diff-pane .cm-line {
+  padding-inline: 0 24px;
+  padding-block: 2.4px;
+}
+.diff-pane .cm-gutterElement {
+  padding: 2.4px 8px;
+}
+.diff-gutter-delete {
+  background: #fdedec;
+  color: #752d28;
+}
+.diff-gutter-insert {
+  background: #e8f5ec;
+  color: #174f31;
+}
+.diff-delete {
+  background: #fdedec;
+  color: #752d28;
+}
+.diff-insert {
+  background: #e8f5ec;
+  color: #174f31;
+}
+.diff-delete .diff-expression {
+  background: #f6c1bb;
+  text-decoration: none;
+}
+.diff-insert .diff-expression {
+  background: #b6e1c2;
+  text-decoration: none;
+}
+
+.diff-gutter-delete:has(.group-number) {
+  background: linear-gradient(white 0 42.4px, #fdedec 42.4px);
+}
+.diff-gutter-insert:has(.group-number) {
+  background: linear-gradient(white 0 42.4px, #e8f5ec 42.4px);
+}
+
+.diff-numbers.inline .cm-gutterElement {
+  width: 60px;
+  min-width: 60px;
+}
+.diff-panes.inline .diff-delete,
+.diff-panes.inline .diff-insert {
+  padding-left: 24px;
+}
+
+.review-panel .diff-pane .cm-content {
+  padding-top: 12px;
+}

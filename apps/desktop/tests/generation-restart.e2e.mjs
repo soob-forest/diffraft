@@ -15,7 +15,7 @@ describe("별도 프로세스에서 작업 재개", () => {
     );
     assert.notEqual(await invoke("e2e_process_id", {}), expected.processId);
     await $(".sidebar ul").$("button=새 문서").click();
-    await $(".task-panel > label select").waitForExist();
+    await $(".task-picker select").waitForExist();
     await chooseTask(expected.taskId);
     const page = await conversation(expected.taskId);
     assert.deepEqual(page.messages, expected.messages);
@@ -32,5 +32,6 @@ describe("별도 프로세스에서 작업 재개", () => {
       (await $(".conversation-messages").getText()).includes("조건을 확인"),
     );
     assert.equal(await $("button=마지막 요청 다시 실행").isExisting(), true);
+    await browser.saveScreenshot(".artifacts/generation-resume.png");
   });
 });

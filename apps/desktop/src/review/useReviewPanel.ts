@@ -4,7 +4,8 @@ import type { ReviewGroup } from "../generated/ReviewGroup";
 import type { ReviewProjection } from "../generated/ReviewProjection";
 import type { Approval } from "./ApprovalDialog";
 import type { LogicalSelection } from "./coordinates";
-import { utf16AtByte } from "./rows";
+import { groupAtSelection, groupJumpSelection } from "./group-selection";
+import { reviewRows } from "./rows";
 import { confirmationFingerprint } from "./state";
 import { useReview } from "./useReview";
 import { useReviewActions } from "./useReviewActions";
@@ -20,10 +21,9 @@ export function useReviewPanel(props: Props) {
     props.document.autosave.document.versionId,
   );
   const actions = useReviewActions(props.document, review);
-  const [approval, setApproval] = useState<Approval | null>(null);
   const [regenerating, setRegenerating] = useState(false);
-  const groups = review.projection?.groups ?? [];
   const navigation = useNavigation(review.projection);
+  const detail = useDetail(navigation.selected?.id ?? "");
   const blocked = Boolean(
     props.document.status.error ||
       props.document.status.dirty ||
@@ -32,6 +32,36 @@ export function useReviewPanel(props: Props) {
       regenerating ||
       review.error,
   );
+  const approval = useApproval({
+    review,
+    actions,
+    document: props.document,
+    blocked,
+  });
+  return {
+    review,
+    setRegenerating,
+    prepareGeneration: () => flushGeneration(props),
+    actions,
+    ...navigation,
+    ...detail,
+    ...approval,
+    blocked: blocked || actions.busy || review.loading,
+  };
+}
+
+function useApproval({
+  review,
+  actions,
+  document,
+  blocked,
+}: {
+  review: ReturnType<typeof useReview>;
+  actions: ReturnType<typeof useReviewActions>;
+  document: DocumentModel;
+  blocked: boolean;
+}) {
+  const [approval, setApproval] = useState<Approval | null>(null);
   const fingerprint = review.projection
     ? confirmationFingerprint(review.projection, review.state, blocked)
     : "";
@@ -44,23 +74,40 @@ export function useReviewPanel(props: Props) {
     }
   }, [approval, fingerprint, actions.setMessage]);
   return {
-    review,
-    setRegenerating,
-    prepareGeneration: () => flushGeneration(props),
-    actions,
-    ...navigation,
     approval,
     setApproval,
-    blocked: blocked || actions.busy || review.loading,
     confirm: () =>
       setApproval({
         fingerprint,
-        proposals: groups.flatMap((g) => g.proposals),
-        version: props.document.status.version,
+        proposals: (review.projection?.groups ?? []).flatMap(
+          (g) => g.proposals,
+        ),
+        version: document.status.version,
       }),
   };
 }
 export type Panel = ReturnType<typeof useReviewPanel>;
+
+type DetailKind = "summary" | "comment" | "candidate" | "regenerate";
+function useDetail(groupId: string) {
+  const [detail, setDetail] = useState({
+    groupId,
+    kind: "summary" as DetailKind,
+    proposalId: "",
+  });
+  useEffect(() => {
+    setDetail((current) =>
+      current.groupId === groupId
+        ? current
+        : { groupId, kind: "summary", proposalId: "" },
+    );
+  }, [groupId]);
+  return {
+    detail,
+    openDetail: (kind: DetailKind, proposalId: string) =>
+      setDetail({ groupId, kind, proposalId }),
+  };
+}
 
 async function flushGeneration(props: Props) {
   await props.document.gate.run(async () => {
@@ -81,20 +128,30 @@ function useNavigation(projection: ReviewProjection | null) {
   const choose = (group: ReviewGroup) => {
     setSelectedId(group.id);
     if (!projection) return;
-    const range = group.beforeRanges[0];
-    setJump({
-      selection: {
-        side: "before",
-        from: utf16AtByte(projection.before, range.from),
-        to: utf16AtByte(projection.before, range.to),
-      },
-      serial: Date.now(),
-    });
+    const target = groupJumpSelection(
+      projection,
+      reviewRows(projection, new Set(), false),
+      group.id,
+    );
+    if (!target) return;
+    setJump((previous) => ({
+      selection: target,
+      serial: (previous?.serial ?? 0) + 1,
+    }));
   };
   return {
     selected,
+    selectGroup: (id: string) => {
+      if (groups.some((group) => group.id === id)) setSelectedId(id);
+    },
     selection,
-    setSelection,
+    setSelection: (value: LogicalSelection | null) => {
+      setSelection(value);
+      if (value && projection) {
+        const group = groupAtSelection(projection, value);
+        if (group) setSelectedId(group.id);
+      }
+    },
     jump,
     choose,
     move: (direction: number) => {

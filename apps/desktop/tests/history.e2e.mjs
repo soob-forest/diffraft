@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { Key } from "webdriverio";
+import { saveDocument } from "./support/review-ui.mjs";
 
 const root = process.env.DOCREVIEW_E2E_DATA;
 const source = '[data-testid="source-editor"]';
@@ -136,7 +137,7 @@ describe("버전 비교와 복원", () => {
     await $(source).click();
     await browser.keys([Key.Command, "z"]);
     await browser.keys([Key.Command, Key.Shift, "z"]);
-    await $("button=저장").click();
+    await saveDocument();
     const state = (await snapshot()).value;
     assert.equal(state.document.version, 3);
     assert.equal(state.document.content, original);

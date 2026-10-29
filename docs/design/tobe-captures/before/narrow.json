@@ -1,0 +1,101 @@
+{
+  "capturedAt": "2026-10-29T00:48:25.050Z",
+  "elements": [
+    {
+      "background": "rgb(24, 37, 55)",
+      "font": "14px",
+      "lineHeight": "normal",
+      "rect": {
+        "height": 50,
+        "width": 800,
+        "x": 0,
+        "y": 0
+      },
+      "selector": ".app-header"
+    },
+    {
+      "background": "rgb(236, 242, 246)",
+      "font": "14px",
+      "lineHeight": "normal",
+      "rect": {
+        "height": 0,
+        "width": 0,
+        "x": 0,
+        "y": 0
+      },
+      "selector": ".sidebar"
+    },
+    {
+      "background": "rgb(255, 255, 255)",
+      "font": "14px",
+      "lineHeight": "normal",
+      "rect": {
+        "height": 74,
+        "width": 800,
+        "x": 0,
+        "y": 50
+      },
+      "selector": ".document-toolbar"
+    },
+    {
+      "background": "rgb(255, 255, 255)",
+      "font": "14px",
+      "lineHeight": "normal",
+      "rect": {
+        "height": 52,
+        "width": 800,
+        "x": 0,
+        "y": 124
+      },
+      "selector": ".document-modebar"
+    },
+    {
+      "background": "rgb(255, 255, 255)",
+      "font": "14px",
+      "lineHeight": "normal",
+      "rect": {
+        "height": 392,
+        "width": 800,
+        "x": 0,
+        "y": 176
+      },
+      "selector": ".workspace-panel"
+    },
+    {
+      "missing": true,
+      "selector": ".review-tools"
+    },
+    {
+      "missing": true,
+      "selector": ".comment-form textarea"
+    },
+    {
+      "background": "rgb(255, 255, 255)",
+      "font": "14px",
+      "lineHeight": "22.4px",
+      "rect": {
+        "height": 85.171875,
+        "width": 738,
+        "x": 24,
+        "y": 620
+      },
+      "selector": ".request-form textarea"
+    },
+    {
+      "background": "rgb(231, 237, 244)",
+      "font": "12px",
+      "lineHeight": "normal",
+      "rect": {
+        "height": 32,
+        "width": 800,
+        "x": 0,
+        "y": 568
+      },
+      "selector": "footer"
+    }
+  ],
+  "viewport": [
+    800,
+    600
+  ]
+}

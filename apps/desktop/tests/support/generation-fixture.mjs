@@ -17,14 +17,15 @@ export async function review(taskId) {
   ).value;
 }
 export async function chooseTask(id) {
+  await showTaskPanel();
   await browser.execute((id) => {
-    const select = document.querySelector(".task-panel > label select");
+    const select = document.querySelector(".task-picker select");
     select.value = id;
     select.dispatchEvent(new Event("change", { bubbles: true }));
   }, id);
   await browser.waitUntil(async () =>
     browser.execute((id) => {
-      const select = document.querySelector(".task-panel > label select");
+      const select = document.querySelector(".task-picker select");
       const goal = document.querySelector(
         ".task-conditions textarea[required]",
       );
@@ -45,20 +46,17 @@ export async function createTask(goal) {
   await $(".task-conditions textarea[required]").setValue(goal);
   await $("button=작업 만들기").click();
   await browser.waitUntil(
-    async () => (await $(".task-panel > label select").getValue()) !== "",
+    async () => (await $(".task-picker select").getValue()) !== "",
   );
-  return $(".task-panel > label select").getValue();
+  return $(".task-picker select").getValue();
 }
 export async function beginRequest(mode, fixture, instruction) {
+  await showTaskPanel();
   await browser.waitUntil(
-    async () => await $(".generation-panel select").isEnabled(),
+    async () => await $(".request-kind button").isEnabled(),
   );
-  await browser.execute((mode) => {
-    const select = document.querySelector(".generation-panel select");
-    select.value = mode;
-    select.dispatchEvent(new Event("change", { bubbles: true }));
-  }, mode);
-  await $(".generation-panel textarea").setValue(instruction);
+  await $(mode === "EXPLAIN" ? "button=설명만" : "button=수정 제안").click();
+  await $(".request-form textarea").setValue(instruction);
   await $("button=요청 내용 확인").click();
   await $(".generation-dialog").waitForDisplayed();
   await writeFile(join(root, "next-generation"), fixture);
@@ -83,4 +81,11 @@ export async function currentDocument() {
     (value) => value.title === "새 문서",
   );
   return (await editor({ kind: "read", documentId: document.id })).document;
+}
+
+export async function showTaskPanel() {
+  const open = await $("button=작업·AI 요청 열기");
+  if (await open.isExisting()) await open.click();
+  const tab = await $("button=작업·대화");
+  if (await tab.isExisting()) await tab.click();
 }

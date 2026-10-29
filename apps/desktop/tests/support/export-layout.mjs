@@ -10,6 +10,8 @@ export async function inspectExportLayout() {
     await browser.execute(() => {
       document.documentElement.style.zoom = "1.5";
     });
+    if (await $("button=작업 패널 접기").isExisting())
+      await $("button=작업 패널 접기").click();
     await openExport();
     await assertDialogFits();
     for (let index = 0; index < 10; index++) {
@@ -40,6 +42,12 @@ export async function inspectExportLayout() {
       document.documentElement.style.zoom = "1";
     });
     await browser.setWindowSize(previous.width, previous.height);
+    if (await $("button=작업·AI 요청 열기").isExisting())
+      await $("button=작업·AI 요청 열기").click();
+    if (await $("button=변경 상세").isDisplayed())
+      await $("button=변경 상세").click();
+    if ((await $("button=문서 목록").getAttribute("aria-expanded")) === "false")
+      await $("button=문서 목록").click();
   }
 }
 

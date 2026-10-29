@@ -1,0 +1,140 @@
+.document-heading {
+  min-width: 0;
+}
+.document-location {
+  font-size: 12px;
+  color: var(--muted);
+}
+.document-location .document-path {
+  display: block;
+  padding: 8px 0;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  border: 0;
+}
+.restore-dialog,
+.export-dialog {
+  width: min(1440px, calc(100vw - 48px));
+  height: calc(100vh - 72px);
+  max-height: calc(100vh - 48px);
+  padding: 24px;
+}
+.restore-layout {
+  display: grid;
+  grid-template-columns: 200px minmax(0, 1fr);
+  gap: 24px;
+  height: 100%;
+}
+.restore-versions {
+  overflow: auto;
+  border-right: 1px solid var(--line);
+  padding-right: 16px;
+}
+.restore-versions h3 {
+  font-size: 16px;
+  margin-top: 0;
+}
+.restore-versions button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  margin-bottom: 8px;
+}
+.restore-reading {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+}
+.restore-reading > h2 {
+  margin-top: 0;
+  font-size: 22px;
+}
+.restore-reading > .diff-viewer {
+  flex: 1;
+}
+.restore-dialog .diff-panes {
+  height: auto;
+  min-height: 180px;
+}
+.export-dialog {
+  overflow: hidden;
+}
+.export-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 24px;
+  height: calc(100% - 48px);
+}
+.export-reading {
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.export-options {
+  border-left: 1px solid var(--line);
+  padding-left: 24px;
+  overflow: auto;
+}
+.export-options h3 {
+  margin-top: 0;
+  font-size: 16px;
+}
+.export-preview {
+  flex: 1;
+  max-height: none;
+  background: white;
+}
+.export-preview textarea {
+  height: 100%;
+  resize: none;
+  font-size: 16px;
+}
+.export-preview .markdown-preview {
+  padding: 24px 32px;
+}
+.export-options .export-actions {
+  display: grid;
+}
+.conflict-dialog .diff-panes {
+  flex: none;
+  height: 45vh;
+}
+@media (max-width: 950px) {
+  .restore-dialog,
+  .export-dialog {
+    padding: 16px;
+    width: calc(100vw - 24px);
+    height: calc(100vh - 32px);
+    max-height: calc(100vh - 24px);
+    overflow: auto;
+  }
+  .restore-layout {
+    grid-template-columns: minmax(0, 1fr);
+    height: auto;
+  }
+  .restore-versions {
+    max-height: 140px;
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .restore-reading {
+    min-height: 500px;
+  }
+  .export-layout {
+    grid-template-columns: minmax(0, 1fr);
+    height: auto;
+  }
+  .export-reading {
+    min-height: 280px;
+  }
+  .export-preview {
+    max-height: 50vh;
+  }
+  .export-options {
+    border-left: 0;
+    border-top: 1px solid var(--line);
+    padding: 16px 0;
+  }
+}

@@ -5,7 +5,7 @@ import { holdDatabase } from "./support/database-lock.mjs";
 import { chooseTask, createTask } from "./support/generation-fixture.mjs";
 import { invoke, root } from "./support/review-fixture.mjs";
 
-const picker = ".task-panel > label select";
+const picker = ".task-picker select";
 let aFirst, aLast, bLast;
 async function open(name) {
   await writeFile(join(root, "next-pick"), name);
@@ -25,7 +25,15 @@ describe("마지막 문서·문서별 작업 선택 보존", () => {
   it("두 문서 사이를 이동해도 마지막 작업과 명시적인 새 작업 선택을 유지한다", async () => {
     await open("document");
     aFirst = await createTask("A 첫 작업");
-    aLast = await createTask("A 이어갈 작업");
+    aLast = await createTask("기획자에게 mac의 brew에 대해 설명하기 위한 문서");
+    const sidebarWidth = await browser.execute(() => {
+      const sidebar = document.querySelector(".sidebar");
+      return { visible: sidebar.clientWidth, content: sidebar.scrollWidth };
+    });
+    assert.ok(
+      sidebarWidth.content <= sidebarWidth.visible,
+      "긴 작업명이 탐색 영역에 가로 스크롤을 만들면 안 됩니다",
+    );
     await open("rewrite");
     await createTask("B 첫 작업");
     bLast = await createTask("B 이어갈 작업");
@@ -43,11 +51,11 @@ describe("마지막 문서·문서별 작업 선택 보존", () => {
     const release = await holdDatabase();
     try {
       await browser.execute((id) => {
-        const select = document.querySelector(".task-panel > label select");
+        const select = document.querySelector(".task-picker select");
         select.value = id;
         select.dispatchEvent(new Event("change", { bubbles: true }));
       }, aFirst);
-      await $(".task-panel > [role=alert]").waitForDisplayed();
+      await $(".task-panel [role=alert]").waitForDisplayed();
       assert.equal(await $(picker).getValue(), aLast);
       await $(".sidebar").$("button=rewrite").click();
       await $(".workspace-body > .error-banner").waitForDisplayed();

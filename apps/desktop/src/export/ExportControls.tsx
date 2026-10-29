@@ -67,10 +67,32 @@ function ExportDialog({
 function ExportContent({ output }: { output: Output }) {
   const snapshot = output.snapshot;
   if (!snapshot) return null;
-  const count = snapshot.pendingGroups + snapshot.pendingRewrites;
   return (
     <>
       <h2 id="export-title">v{snapshot.document.version} 확정본 내보내기</h2>
+      <div className="export-layout">
+        <div className="export-reading">
+          <ExportPreview content={snapshot.document.content} />
+        </div>
+        <aside className="export-options">
+          <ExportSummary output={output} />
+          <ExportActions output={output} />
+          <p className="export-feedback" role="status">
+            {output.message}
+          </p>
+        </aside>
+      </div>
+    </>
+  );
+}
+
+function ExportSummary({ output }: { output: Output }) {
+  const snapshot = output.snapshot;
+  if (!snapshot) return null;
+  const count = snapshot.pendingGroups + snapshot.pendingRewrites;
+  return (
+    <>
+      <h3>확정본 저장·복사</h3>
       <p>
         {count
           ? `미승인 ${count}건은 제외하고 확정본만 내보냅니다.`
@@ -83,11 +105,6 @@ function ExportContent({ output }: { output: Output }) {
           {snapshot.pendingRewrites}개
         </p>
       )}
-      <ExportPreview content={snapshot.document.content} />
-      <p className="export-feedback" role="status">
-        {output.message}
-      </p>
-      <ExportActions output={output} />
     </>
   );
 }
@@ -97,6 +114,7 @@ function ExportActions({ output }: { output: Output }) {
     <>
       <div className="export-actions">
         <button
+          className="primary"
           type="button"
           disabled={output.busy}
           onClick={() => void output.copy()}
@@ -138,7 +156,7 @@ function ExportActions({ output }: { output: Output }) {
 }
 
 function ExportPreview({ content }: { content: string }) {
-  const [rendered, setRendered] = useState(false);
+  const [rendered, setRendered] = useState(true);
   const [error, setError] = useState("");
   return (
     <>

@@ -7,17 +7,29 @@ import {
   WidgetType,
 } from "@codemirror/view";
 import type { DisplayRow, PaneSide } from "./coordinates";
+import type { GroupMark } from "./group-selection";
 
 class NumberMarker extends GutterMarker {
-  constructor(private text: string) {
+  elementClass: string;
+  constructor(
+    private text: string,
+    private heading = false,
+    private kind = "equal",
+  ) {
     super();
+    this.elementClass = `diff-gutter-${kind}`;
   }
   eq(other: NumberMarker) {
-    return other.text === this.text;
+    return (
+      other.text === this.text &&
+      other.heading === this.heading &&
+      other.kind === this.kind
+    );
   }
   toDOM() {
     const span = document.createElement("span");
     span.textContent = this.text;
+    if (this.heading) span.className = "group-number";
     return span;
   }
 }
@@ -35,7 +47,20 @@ class Ending extends WidgetType {
     return span;
   }
 }
-export function numberGutter(rows: DisplayRow[], side: PaneSide) {
+export function numberGutter(
+  rows: DisplayRow[],
+  side: PaneSide,
+  markers?: Map<string, GroupMark>,
+) {
+  const starts = new Set<string>();
+  const seen = new Set<string>();
+  for (const display of rows) {
+    const mark = display.row && markers?.get(display.row.key);
+    if (mark && !seen.has(mark.id)) {
+      starts.add(display.row?.key ?? "");
+      seen.add(mark.id);
+    }
+  }
   return gutter({
     class: `diff-numbers ${side}`,
     lineMarker: (view, line) => {
@@ -45,11 +70,17 @@ export function numberGutter(rows: DisplayRow[], side: PaneSide) {
         row.kind === "delete" ? "−" : row.kind === "insert" ? "+" : " ";
       const number =
         side === "inline"
-          ? `${String(row.oldLine ?? "").padStart(4)} ${String(row.newLine ?? "").padStart(4)}`
+          ? String(
+              row.kind === "delete" ? (row.oldLine ?? "") : (row.newLine ?? ""),
+            ).padStart(4)
           : String(
               (side === "before" ? row.oldLine : row.newLine) ?? "",
             ).padStart(4);
-      return new NumberMarker(`${number} ${sign}`);
+      return new NumberMarker(
+        `${number} ${sign}`,
+        starts.has(row.key),
+        row.kind,
+      );
     },
   });
 }
@@ -96,4 +127,30 @@ function lineEnding(raw: string) {
   if (raw.endsWith("\r")) return "CR";
   if (raw.endsWith("\n")) return "LF";
   return "줄 끝 없음";
+}
+
+export function groupDecorations(
+  rows: DisplayRow[],
+  markers?: Map<string, GroupMark>,
+) {
+  const ranges: Range<Decoration>[] = [];
+  const started = new Set<string>();
+  for (const display of rows) {
+    const mark = display.row && markers?.get(display.row.key);
+    if (mark) {
+      const first = !started.has(mark.id);
+      started.add(mark.id);
+      ranges.push(
+        Decoration.line({
+          attributes: {
+            class: `${mark.selected ? "selected-change" : "review-change"}${first ? " change-group-start" : ""}`,
+            "data-group-title": mark.title,
+            "data-group-id": mark.id,
+            title: mark.title,
+          },
+        }).range(display.from),
+      );
+    }
+  }
+  return EditorView.decorations.of(Decoration.set(ranges, true));
 }

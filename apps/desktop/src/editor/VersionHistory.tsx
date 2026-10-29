@@ -1,17 +1,8 @@
 import { useRef } from "react";
 import { RestoreDialog } from "../history/RestoreDialog";
 import { useHistory } from "../history/useHistory";
+import { versionReasons } from "../history/version-reasons";
 import type { DocumentModel as Model } from "./useDocument";
-
-const reasons: Record<string, string> = {
-  opened: "문서 열기",
-  edit: "원문 편집",
-  accept: "제안 승인",
-  rewrite: "전체 재작성 적용",
-  restore: "버전 복원",
-  external: "외부 파일 사용",
-  merge: "수동 통합",
-};
 
 export function VersionHistory({ model }: { model: Model }) {
   const history = useHistory(model);
@@ -24,7 +15,7 @@ export function VersionHistory({ model }: { model: Model }) {
           {model.state.versions.map((version) => (
             <li key={version.id}>
               <strong>v{version.number}</strong>
-              <span>{reasons[version.reason] ?? version.reason}</span>
+              <span>{versionReasons[version.reason] ?? version.reason}</span>
               <time dateTime={new Date(version.createdAt).toISOString()}>
                 {new Date(version.createdAt).toLocaleString("ko-KR")}
               </time>

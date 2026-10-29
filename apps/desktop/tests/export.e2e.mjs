@@ -13,6 +13,12 @@ import {
 import { inspectExportLayout } from "./support/export-layout.mjs";
 import { conversation, review } from "./support/generation-fixture.mjs";
 import { editor, examples, invoke, root } from "./support/review-fixture.mjs";
+import {
+  chooseGroup,
+  openDocumentMenu,
+  openRegenerate,
+  showSummary,
+} from "./support/review-ui.mjs";
 
 let fixture;
 let confirmed;
@@ -28,8 +34,6 @@ describe("확정본 내보내기와 작업 파일 저장", () => {
     await addReviewComment();
     await openExport();
     assert.match(await $(".export-dialog").getText(), /미승인 3건은 제외/);
-    assert.equal(await $(".export-preview textarea").getValue(), fixture.base);
-    await $(".export-preview-toggle input").click();
     await $(".export-preview .markdown-preview").waitForDisplayed();
     assert.match(
       await $(".export-preview .markdown-preview").getText(),
@@ -57,22 +61,25 @@ describe("확정본 내보내기와 작업 파일 저장", () => {
     await inspectExportLayout();
   });
   it("D02 거절→D01 승인→D03 재제안·승인 뒤 v14를 내보낸다", async () => {
-    await $("button=2번 변경").click();
+    await chooseGroup(2);
     await $("button=선택한 변경 거절").click();
     await browser.waitUntil(
       async () =>
         (await $('[data-testid="diff-stats"]').getText()) === "+2 / −2",
     );
-    await $("button=1번 변경").click();
+    await chooseGroup(1);
     await $("button=선택한 변경 승인").click();
     await waitVersion(13);
-    await $(".regenerate-form summary").click();
+    await openRegenerate();
     await $(".regenerate-form textarea").setValue("코멘트를 반영해 주세요.");
     await writeFile(join(root, "next-generation"), "REGENERATE");
     await $("button=재제안 요청").click();
     await browser.waitUntil(async () =>
-      (await $(".candidate-form summary").getText()).includes("r2"),
+      (await $(".candidate-form summary").getProperty("textContent")).includes(
+        "r2",
+      ),
     );
+    await showSummary();
     await browser.waitUntil(
       async () => await $("button=선택한 변경 승인").isEnabled(),
     );
@@ -91,6 +98,8 @@ describe("확정본 내보내기와 작업 파일 저장", () => {
   it("작업 파일 저장 취소와 경로 변경 뒤에도 ID·이력·기존 파일을 유지한다", async () => {
     await changeWorkingFile();
     await $("button=내보내기 닫기").click();
+    await openDocumentMenu();
+    await $(".document-location summary").click();
     assert.match(await $(".document-path").getText(), /export-working\.md$/);
     const state = await editor({
       kind: "read",
@@ -108,6 +117,7 @@ describe("확정본 내보내기와 작업 파일 저장", () => {
     await browser.keys("경로 변경 후 직접 입력");
     await openExport();
     await waitVersion(15);
+    await $(".export-preview-toggle input").click();
     assert.equal(await $(".export-preview textarea").getValue(), next);
     assert.equal(await readFile(join(root, "export-working.md"), "utf8"), next);
     assert.equal(await readFile(join(root, "review.md"), "utf8"), confirmed);

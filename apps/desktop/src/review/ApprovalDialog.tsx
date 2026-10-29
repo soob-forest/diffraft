@@ -49,8 +49,10 @@ function ApprovalContent(props: Props) {
     <>
       <h2 id="approval-title">남은 유효 제안 전체 승인</h2>
       <p>
-        v{props.approval.version} 확정본에 아래{" "}
-        {props.approval.proposals.length}개 제안을 한 번에 반영합니다.
+        v{props.approval.version} 확정본에 아래 {props.projection.groups.length}
+        개 독립 그룹의 {props.approval.proposals.length}개 제안을 한 번에
+        반영합니다. 추가 {props.projection.stats.addedLines}줄 · 삭제{" "}
+        {props.projection.stats.removedLines}줄입니다.
       </p>
       <ul>
         {props.approval.proposals.map((target) => {

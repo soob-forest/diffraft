@@ -1,0 +1,74 @@
+{
+  "artifacts": [
+    {
+      "path": "apps/desktop/src-tauri/target/release/bundle/macos/DocReview.app/Contents/MacOS/docreview",
+      "sha256": "8c705271c192b27a9e52abb289395992c5554af5893fa9da713887e35ce4f2cb",
+      "modifiedAt": "2026-10-29T00:26:00.240186+00:00",
+      "bytes": 18672464
+    },
+    {
+      "path": "apps/desktop/src-tauri/target/release/bundle/dmg/DocReview_0.1.0_aarch64.dmg",
+      "sha256": "8d712e958eb3134014b72b66c1a5cbc34cdbda8020f7a981364c323f829d059f",
+      "modifiedAt": "2026-10-29T00:26:22.008223+00:00",
+      "bytes": 5915081
+    }
+  ],
+  "verification": {
+    "architecture": "arm64",
+    "signatureValid": true,
+    "testMarkers": 0
+  },
+  "installedStatus": "F7 수정본을 두 Applications에 설치 완료. 번들·서명·데이터 보존·실행 경로 확인. S01/S02/S04와 IME·Tab/F7/Shift+F7/Esc·OS 파일 대화창 확인. 사용자 제안은 미처리 유지. 5명 형성 평가만 미검증.",
+  "installation": {
+    "installedAt": "2026-10-29T00:26:55.090202+00:00",
+    "paths": [
+      "/Applications/DocReview.app",
+      "~/Applications/DocReview.app"
+    ],
+    "bundleFilesMatch": true,
+    "signatureValid": true,
+    "dataUnchangedDuringInstall": true,
+    "receipt": "apps/desktop/.artifacts/redesign-folded-install.json",
+    "launchPath": "/Applications/DocReview.app",
+    "representativeScreensVerified": true,
+    "screenChecks": {
+      "S01": "요청·조건 요약·왼쪽 작업 선택 확인",
+      "S02": "사용자가 준비한 미처리 제안 1개: 두 행 도구·선택1/1·오른쪽 상세 확인",
+      "S04": "코멘트 입력·작업/상세 왕복 초안 유지·저장·해결 표시 확인. 검증 코멘트1개만 추가; 수정본 재시작 후 해결 상태·빈 입력 확인",
+      "longTaskName": "수정본 설치 후 실제 긴 작업명에서 가로 스크롤 제거 확인"
+    },
+    "sha256": "8c705271c192b27a9e52abb289395992c5554af5893fa9da713887e35ce4f2cb",
+    "bundleMatchVerifiedAgainstSha256": "8c705271c192b27a9e52abb289395992c5554af5893fa9da713887e35ce4f2cb",
+    "matchesLatestArtifact": true,
+    "verifiedAt": "2026-10-29T00:28:18.449017+00:00",
+    "processId": 73036,
+    "inputChecks": {
+      "koreanIME": "macOS 두벌식 + CGEvent 키코드: 한 → Backspace → 하 → 하 한글 입력 테스트 통과",
+      "tab": "내보내기에서 Markdown 복사 버튼으로 이동 확인",
+      "escape": "OS 열기 취소 및 내보내기 닫기 확인",
+      "openFile": "별도 검증 파일 선택·표시 확인",
+      "cancelOpen": "통과",
+      "cancelSave": "통과",
+      "saveCopy": "사본 저장 및 검증 파일과 바이트 동일성 확인",
+      "F7": "수정된 일반 설치본에서 CGEvent F7/Shift+F7: 접힘·전체 문맥 모두 실제 추가 행으로 이동. 미처리 그룹1개로 왕복 확인",
+      "method": "AX 조작과 macOS 키 이벤트. 사람 참여형 키보드 평가는 아님."
+    }
+  },
+  "latestBuildChecks": {
+    "typecheck": "passed",
+    "lint": "passed",
+    "comparisonTests": 8,
+    "signatureValid": true,
+    "testMarkers": 0,
+    "unitTests": 69,
+    "reviewNativeTests": 6,
+    "layoutNativeTests": 4,
+    "generalNativeBuild": "passed; debug binary restored without e2e feature"
+  },
+  "dataPreservationChecks": {
+    "documentsUnchanged": true,
+    "proposalsUnchanged": true,
+    "testCommentResolved": true,
+    "jobsUnchanged": true
+  }
+}

@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { ComparisonViewer } from "../review/ComparisonViewer";
 import type { useHistory } from "./useHistory";
 import "./history.css";
+import { versionReasons } from "./version-reasons";
 
 type Props = { history: ReturnType<typeof useHistory> };
 export function RestoreDialog({
@@ -26,7 +27,12 @@ export function RestoreDialog({
         if (!history.busy) history.close();
       }}
     >
-      <RestoreContent history={history} />
+      <div className="restore-layout">
+        <RestoreVersions history={history} />
+        <section className="restore-reading">
+          <RestoreContent history={history} />
+        </section>
+      </div>
     </dialog>
   );
 }
@@ -59,5 +65,27 @@ function RestoreContent({ history }: Props) {
         </button>
       </div>
     </>
+  );
+}
+
+function RestoreVersions({ history }: Props) {
+  return (
+    <nav className="restore-versions" aria-label="복원할 버전">
+      <h3>버전 기록</h3>
+      {history.versions.map((version) => (
+        <button
+          type="button"
+          key={version.id}
+          aria-pressed={version.id === history.selected?.comparison.target.id}
+          disabled={
+            history.busy ||
+            version.number === history.selected?.comparison.currentVersion
+          }
+          onClick={() => void history.compare(version.id)}
+        >
+          v{version.number} · {versionReasons[version.reason] ?? version.reason}
+        </button>
+      ))}
+    </nav>
   );
 }

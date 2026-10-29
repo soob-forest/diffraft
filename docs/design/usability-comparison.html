@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DocReview · 사용성과 미감 전후 비교</title>
+  <link rel="stylesheet" href="usability-comparison.css">
+  <script defer src="usability-scenes.js"></script>
+  <script defer src="usability-comparison.js"></script>
+</head>
+<body>
+  <header class="page-header">
+    <a class="product" href="../../README.md">DocReview</a>
+    <div class="document-links"><a href="design-guide.md#13-현재-to-be-계약">디자인 명세</a><a href="../development/tobe-implementation.md">실행 기록</a></div>
+    <h1>사용성과 미감, 전후 비교</h1>
+    <p><a href="usability-actual.html">실제 앱 구현 전후 캡처와 검증 상태 보기</a></p>
+    <p>기존 제품의 색과 구조를 유지하고, 읽는 내용과 결정할 행동에 집중합니다.</p>
+    <p class="disclosure">기존 디자인 0.2 또는 현재 앱을 기준으로 비교합니다. TO-BE는 구현 전 제안이며 제품 기능은 동작하지 않습니다. 문서·선택·버전이 다른 참고 화면은 각 설명에 표시했습니다.</p>
+    <p class="disclosure"><a href="gallery.html">기존 시안 11개</a> · <a href="design-guide.md#11-미감-검토와-비교-목업-보완">미감 검토·변경 근거</a></p>
+  </header>
+  <main>
+    <nav id="scene-navigation" class="scene-navigation" aria-label="비교할 화면"></nav>
+    <div class="baseline-controls" role="group" aria-label="비교 기준">
+      <span>비교 기준</span><button type="button" data-baseline="design" aria-pressed="true">기존 디자인 0.2</button><button type="button" data-baseline="current" aria-pressed="false">현재 앱</button>
+    </div>
+    <section class="scene-heading" aria-labelledby="scene-title">
+      <div><h2 id="scene-title"></h2><p id="scene-description"></p></div>
+      <div class="view-controls" role="group" aria-label="비교 표시 방식">
+        <button type="button" data-view="both" aria-pressed="true">나란히 비교</button>
+        <button type="button" data-view="before" aria-pressed="false">AS-IS만</button>
+        <button type="button" data-view="after" aria-pressed="false">TO-BE만</button>
+      </div>
+    </section>
+    <p id="navigation-status" role="status"></p>
+    <div id="comparison" class="comparison" data-view="both">
+      <figure id="before-panel">
+        <figcaption><div><strong id="before-title">기존 디자인</strong><span id="before-provenance"></span></div><button type="button" data-enlarge="before">크게 보기</button></figcaption>
+        <div id="before-stage" class="stage"></div>
+        <p id="before-note" class="panel-note"></p>
+      </figure>
+      <figure id="after-panel">
+        <figcaption><div><strong>TO-BE</strong><span>구현 전 제안 · 정적 목업</span></div><button type="button" data-enlarge="after">크게 보기</button></figcaption>
+        <div id="after-stage" class="stage"></div>
+        <p id="after-note" class="panel-note"></p>
+      </figure>
+    </div>
+    <p class="visual-note" id="visual-note"></p>
+    <section class="changes" aria-labelledby="changes-title">
+      <h2 id="changes-title">현재 앱에서 개선할 동작</h2>
+      <div class="table-scroll"><table><thead><tr><th>현재 앱의 불편</th><th>제안하는 변화</th><th>관련 태스크</th></tr></thead><tbody id="change-rows"></tbody></table></div>
+      <p class="verification" id="verification"></p>
+    </section>
+    <section class="review-boundary"><h2>비교할 때의 기준</h2>
+      <p>기존 캡처는 원본 비율을 유지합니다. 재구성 화면은 코드의 배치를 설명하기 위한 예시이며 실제 픽셀·스크롤 결과를 증명하지 않습니다. 제안 화면의 크기는 설계용이며, 좁은 창과 배율은 실제 앱에서 다시 검증합니다.</p>
+      <p>승인 전 원문 불변, 전송 전 확인, 전체 승인 확인, 복원 시 새 버전 생성 원칙을 유지합니다. 목업에 표시한 초안은 세션 내 보존 제안이며 앱 재시작 보존을 의미하지 않습니다.</p>
+      <p><a href="../usage/images/README.md">실제 캡처 출처</a> · <a href="design-guide.md">기존 디자인 기준</a></p>
+    </section>
+  </main>
+  <dialog id="enlarged" aria-labelledby="enlarged-title">
+    <div class="dialog-heading"><h2 id="enlarged-title"></h2><button id="close-enlarged" type="button">닫기</button></div>
+    <div id="enlarged-stage" class="stage"></div>
+    <p>정적 디자인 비교용 화면입니다. Esc로 닫을 수 있습니다.</p>
+  </dialog>
+  <noscript>화면별 비교에는 JavaScript가 필요합니다. 디자인 명세와 원본 캡처는 위 링크에서 확인할 수 있습니다.</noscript>
+</body>
+</html>

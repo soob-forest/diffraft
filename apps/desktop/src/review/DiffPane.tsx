@@ -1,5 +1,5 @@
 import { defaultKeymap } from "@codemirror/commands";
-import { EditorState } from "@codemirror/state";
+import { Compartment, EditorState } from "@codemirror/state";
 import {
   drawSelection,
   EditorView,
@@ -16,7 +16,8 @@ import {
   logicalSelection,
   type PaneSide,
 } from "./coordinates";
-import { numberGutter, rowDecorations } from "./decorations";
+import { groupDecorations, numberGutter, rowDecorations } from "./decorations";
+import type { GroupMark } from "./group-selection";
 import type { ReviewRow } from "./rows";
 import { bindScroll } from "./scroll";
 
@@ -25,11 +26,13 @@ export type DiffBookmark = {
   scrollKey: string;
 };
 type Props = {
+  markers?: Map<string, GroupMark>;
   rows: (ReviewRow | null)[];
   side: PaneSide;
   whitespace: boolean;
   bookmark: React.RefObject<DiffBookmark>;
   onSelection: (value: LogicalSelection | null) => void;
+  onGroupSelect?: (id: string) => void;
   onExpand: (key: string) => void;
   onMove: (direction: number) => void;
   onScroll: (side: PaneSide, top: number) => void;
@@ -41,9 +44,10 @@ function createPane(
   parent: HTMLElement,
   props: Props,
   current: React.RefObject<Props>,
+  markers: Compartment,
 ) {
   const rows = displayRows(props.rows);
-  const state = paneState(rows, props, current);
+  const state = paneState(rows, props, current, markers);
   const index = props.rows.findIndex(
     (row) => row?.key === props.bookmark.current.scrollKey,
   );
@@ -63,6 +67,7 @@ function paneState(
   rows: DisplayRow[],
   props: Props,
   current: React.RefObject<Props>,
+  markers: Compartment,
 ) {
   const restore = props.bookmark.current.selection;
   return EditorState.create({
@@ -80,8 +85,9 @@ function paneState(
       EditorState.transactionFilter.of((transaction) =>
         transaction.docChanged ? [] : transaction,
       ),
-      numberGutter(rows, props.side),
+      numberGutter(rows, props.side, props.markers),
       rowDecorations(rows, props.whitespace),
+      markers.of(groupDecorations(rows, props.markers)),
       ...(props.whitespace ? [highlightWhitespace()] : []),
       EditorView.contentAttributes.of({
         "aria-label":
@@ -126,15 +132,7 @@ function paneEvents(
       },
       ...defaultKeymap,
     ]),
-    EditorView.domEventHandlers({
-      dblclick: (event, view) => {
-        const position = view.posAtCoords({
-          x: event.clientX,
-          y: event.clientY,
-        });
-        return position !== null && expandAt(position, view, current.current);
-      },
-    }),
+    pointerEvents(current),
     EditorView.updateListener.of((update) => {
       if (!update.selectionSet) return;
       const value = logicalSelection(
@@ -147,6 +145,23 @@ function paneEvents(
     }),
   ];
 }
+function pointerEvents(current: React.RefObject<Props>) {
+  return EditorView.domEventHandlers({
+    click: (event) => {
+      const row =
+        event.target instanceof Element
+          ? event.target.closest<HTMLElement>("[data-group-id]")
+          : null;
+      if (row?.dataset.groupId)
+        current.current.onGroupSelect?.(row.dataset.groupId);
+      return false;
+    },
+    dblclick: (event, view) => {
+      const position = view.posAtCoords({ x: event.clientX, y: event.clientY });
+      return position !== null && expandAt(position, view, current.current);
+    },
+  });
+}
 function expandAt(position: number, view: EditorView, props: Props) {
   const row = props.rows[view.state.doc.lineAt(position).number - 1];
   if (!row?.folded) return false;
@@ -154,35 +169,8 @@ function expandAt(position: number, view: EditorView, props: Props) {
   return true;
 }
 export function DiffPane(props: Props) {
-  const parent = useRef<HTMLDivElement>(null);
-  const current = useRef(props);
-  current.current = props;
-  const editor = useRef<EditorView | null>(null);
+  const { parent, editor, markerConfiguration } = usePaneView(props);
   const handledJump = useRef(props.jump?.serial);
-  useEffect(() => {
-    if (!parent.current) return;
-    const options = {
-      ...current.current,
-      rows: props.rows,
-      side: props.side,
-      whitespace: props.whitespace,
-    };
-    const view = createPane(parent.current, options, current);
-    editor.current = view;
-    current.current.register(props.side, view);
-    const unbind = bindScroll(view, current.current);
-    const resize = new ResizeObserver(() => {
-      current.current.onMeasure();
-    });
-    resize.observe(parent.current);
-    return () => {
-      resize.disconnect();
-      unbind();
-      view.destroy();
-      editor.current = null;
-      current.current.register(props.side, null);
-    };
-  }, [props.rows, props.side, props.whitespace]);
   useEffect(() => {
     if (
       !editor.current ||
@@ -200,6 +188,51 @@ export function DiffPane(props: Props) {
       handledJump.current = props.jump.serial;
       editor.current.dispatch({ selection, scrollIntoView: true });
     }
-  }, [props.jump, props.rows, props.side]);
+  }, [props.jump, props.rows, props.side, editor]);
+  useEffect(() => {
+    editor.current?.dispatch({
+      effects: markerConfiguration.current.reconfigure(
+        groupDecorations(displayRows(props.rows), props.markers),
+      ),
+    });
+  }, [props.markers, props.rows, editor, markerConfiguration]);
   return <div className="diff-pane" ref={parent} />;
+}
+
+function usePaneView(props: Props) {
+  const parent = useRef<HTMLDivElement>(null);
+  const current = useRef(props);
+  current.current = props;
+  const editor = useRef<EditorView | null>(null);
+  const markerConfiguration = useRef(new Compartment());
+  useEffect(() => {
+    if (!parent.current) return;
+    const options = {
+      ...current.current,
+      rows: props.rows,
+      side: props.side,
+      whitespace: props.whitespace,
+    };
+    const view = createPane(
+      parent.current,
+      options,
+      current,
+      markerConfiguration.current,
+    );
+    editor.current = view;
+    current.current.register(props.side, view);
+    const unbind = bindScroll(view, current.current);
+    const resize = new ResizeObserver(() => {
+      current.current.onMeasure();
+    });
+    resize.observe(parent.current);
+    return () => {
+      resize.disconnect();
+      unbind();
+      view.destroy();
+      editor.current = null;
+      current.current.register(props.side, null);
+    };
+  }, [props.rows, props.side, props.whitespace]);
+  return { parent, editor, markerConfiguration };
 }
