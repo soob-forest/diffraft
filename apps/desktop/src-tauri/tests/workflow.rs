@@ -16,6 +16,10 @@ mod generation_jobs;
 mod generation_migration;
 #[path = "workflow_cases/migration.rs"]
 mod migration;
+#[path = "workflow_cases/model_modes.rs"]
+mod model_modes;
+#[path = "workflow_cases/model_selection.rs"]
+mod model_selection;
 #[path = "workflow_cases/navigation.rs"]
 mod navigation;
 #[path = "workflow_cases/navigation_migration.rs"]

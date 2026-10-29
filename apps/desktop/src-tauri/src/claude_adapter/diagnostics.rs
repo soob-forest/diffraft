@@ -79,12 +79,18 @@ fn option_status(
     if !help.status.success() {
         return Ok(ConnectionStatus::DiagnosticFailed);
     }
-    if profile::supports(version, &help.stdout) {
+    if profile::supports(version, &help.stdout)
+        && std::str::from_utf8(&help.stdout).is_ok_and(|text| {
+            text.split_ascii_whitespace()
+                .any(|word| word.trim_end_matches(',') == "--model")
+        })
+    {
         return Ok(ConnectionStatus::Ready);
     }
-    let args = profile::arguments(
+    let args = profile::model_arguments(
         crate::domain::ai::ResponseMode::Explain,
         Some(profile::OPTION_PROBE_SESSION),
+        crate::domain::model::ModelSelection::Sonnet,
     )?;
     let borrowed: Vec<_> = args
         .iter()

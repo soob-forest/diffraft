@@ -65,6 +65,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 fn export_generation(config: &Config) -> Result<(), Box<dyn Error>> {
     ConnectionReport::export_all(config)?;
     ConnectionRequest::export_all(config)?;
+    docreview_core::domain::model::ModelSettingsRequest::export_all(config)?;
     GenerationSnapshot::export_all(config)?;
     TaskConversation::export_all(config)?;
     GenerateRequest::export_all(config)?;

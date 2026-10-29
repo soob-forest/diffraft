@@ -13,6 +13,7 @@ const attempt: GenerationAttempt = {
   request: {
     kind: "rewrite",
     value: {
+      model: "opus",
       documentId: "document",
       taskId: "task",
       expectedHeadId: "head",
@@ -63,6 +64,7 @@ it("retries a failed rewrite after its confirmed PATCH was archived at request s
   expect(result.value).toMatchObject({
     expectedActiveBatchId: null,
     retryOf: "failed-job",
+    model: "opus",
     operationId: "new-operation",
   });
   expect(attempt.request.value.operationId).toBe("original");

@@ -1,0 +1,47 @@
+.model-settings {
+  margin-block: 24px;
+}
+.model-settings h3 {
+  margin: 0 0 8px;
+  font-size: 16px;
+}
+.model-settings p {
+  margin: 8px 0;
+  overflow-wrap: anywhere;
+  word-break: keep-all;
+  font-size: 14px;
+}
+.model-settings-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-block: 16px;
+}
+.model-settings-controls label {
+  flex-basis: 100%;
+  font-size: 14px;
+}
+.model-settings-controls select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='m1 1 5 5 5-5' fill='none' stroke='%23526276' stroke-width='2'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  flex: 1;
+  min-width: 140px;
+  min-height: 42px;
+  padding: 8px 36px 8px 12px;
+  border: 1px solid #a5b4c6;
+  border-radius: 6px;
+  background-color: white;
+  color: inherit;
+  font-size: 14px;
+  max-width: 100%;
+}
+.model-settings .muted {
+  color: var(--muted);
+  font-size: 13px;
+}
+.model-settings [role="status"]:empty {
+  display: none;
+}

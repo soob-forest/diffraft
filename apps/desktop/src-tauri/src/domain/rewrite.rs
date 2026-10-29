@@ -37,6 +37,8 @@ impl BatchDecisionRequest {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema, TS)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct RewriteRequest {
+    #[serde(default)]
+    pub model: super::model::ModelSelection,
     pub document_id: String,
     pub task_id: String,
     pub expected_head_id: String,

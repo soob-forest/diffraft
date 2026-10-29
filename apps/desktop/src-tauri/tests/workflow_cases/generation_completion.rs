@@ -13,6 +13,7 @@ const OTHER_SESSION: &str = "10000000-0000-4000-8000-000000000002";
 
 fn execution() -> ExecutionContext {
     ExecutionContext {
+        requested_model: Some(Default::default()),
         mode: ResponseMode::Rewrite,
         requested_session_id: None,
         cwd: "/private/test/task".into(),

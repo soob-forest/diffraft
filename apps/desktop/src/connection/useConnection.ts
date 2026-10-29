@@ -3,9 +3,26 @@ import type { ConnectionAction } from "../generated/ConnectionAction";
 import type { ConnectionReport } from "../generated/ConnectionReport";
 import { errorMessage } from "../ipc";
 import { cancelGeneration, connectionCommand } from "./api";
+import { modelTestCurrent } from "./model";
 import { connectionNextAction } from "./next-action";
+import { useModelSettings } from "./useModelSettings";
 
 export function useConnection() {
+  const model = useModelSettings();
+  const state = useConnectionRequest(model);
+  const tested =
+    state.tested &&
+    modelTestCurrent(state.report?.testedModel, model.saved, model.selected);
+  return {
+    ...state,
+    model,
+    tested,
+    busy: state.busy || model.saving,
+    next: connectionNextAction(state.report?.status, tested, state.error),
+  };
+}
+
+function useConnectionRequest(model: ReturnType<typeof useModelSettings>) {
   const [report, setReport] = useState<ConnectionReport | null>(null);
   const [tested, setTested] = useState(false);
   const [error, setError] = useState("");
@@ -15,7 +32,12 @@ export function useConnection() {
   const lock = useRef(false);
   const active = useMounted();
   async function run(action: ConnectionAction) {
-    if (lock.current) return;
+    if (
+      lock.current ||
+      model.saving ||
+      (action.kind === "test" && !model.ready)
+    )
+      return;
     lock.current = true;
     setBusy(true);
     setError("");
@@ -37,15 +59,7 @@ export function useConnection() {
       }
     }
   }
-  return {
-    report,
-    tested,
-    error,
-    busy,
-    ...cancellation,
-    run,
-    next: connectionNextAction(report?.status, tested, error),
-  };
+  return { report, tested, error, busy, ...cancellation, run };
 }
 
 function useMounted() {

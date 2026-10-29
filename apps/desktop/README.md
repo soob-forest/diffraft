@@ -53,6 +53,12 @@ npm run native:build
 
 [고정 TO-BE·변경 전·새 실제 비교](../../docs/design/tobe-implementation.html)와 [TO-BE 실행·검증 기록](../../docs/development/tobe-implementation.md)에서 캡처 시점 및 남은 검증을 확인한다.
 
+## Claude 모델 선택
+
+`AI 연결 설정 → 기본 모델`에서 CLI 기본값·Sonnet·Opus·Haiku를 저장한다. 설치·인증 없이 설정 가능하며, 새 요청 준비 때 선택을 고정한다. `CLI 기본값`은 `--model`을 생략한다. 계정의 이용 가능 모델을 자동 조회하거나 실제 응답 모델을 추정하지 않는다.
+
+설정 변경은 진행 중 요청과 기존 요청 재시도에 영향을 주지 않는다. 다른 모델로 실행하려면 새 요청을 작성한다. 재제안도 `재제안 요청 → 요청 모델 확인 → 확인 후 재제안` 순서로 실행한다. [구현·검증 기록](../../docs/development/model-selection.md)을 참고한다.
+
 ## 검사
 
 실행 명령과 실제 OS·계정 검증의 경계는 [테스트 안내](../../docs/development/testing.md)를 따른다. 기본 자동 검사는 Claude 계정에 접근하지 않으며 네이티브 검사는 실제 WKWebView와 Rust IPC를 사용한다.

@@ -2,6 +2,7 @@ use crate::domain::ai::ResponseMode;
 
 #[derive(Debug, Clone)]
 pub struct ExecutionContext {
+    pub requested_model: Option<crate::domain::model::ModelSelection>,
     pub mode: ResponseMode,
     pub requested_session_id: Option<String>,
     pub cwd: String,

@@ -25,7 +25,7 @@ fn v3_migrates_to_rewrite_jobs_after_backup_without_losing_versions() {
         .configure_database_for_test(|db| {
             assert_eq!(
                 db.pragma_query_value(None, "user_version", |row| row.get::<_, u32>(0))?,
-                6
+                7
             );
             db.prepare("SELECT request_json,context_json FROM rewrite_jobs")?;
             Ok(())

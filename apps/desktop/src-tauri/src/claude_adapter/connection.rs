@@ -50,6 +50,7 @@ pub fn prepared(
     task: &str,
     mode: ResponseMode,
     session: Option<&str>,
+    model: crate::domain::model::ModelSelection,
 ) -> Result<PreparedCli, AppError> {
     validate_id(task)?;
     let environment = environment::current()?;
@@ -58,7 +59,7 @@ pub fn prepared(
     let workspace = settings::private_directory(directory, "cli-sessions")?;
     let spec = ProcessSpec {
         program: PathBuf::from(report.executable.ok_or_else(missing)?),
-        args: profile::arguments(mode, session)?,
+        args: profile::model_arguments(mode, session, model)?,
         directory: settings::private_directory(&workspace, task)?,
         environment: environment.values,
         timeout: GENERATION_TIMEOUT,
@@ -74,8 +75,9 @@ pub fn test(
     operation: &str,
     cancelled: Arc<AtomicBool>,
 ) -> Result<ConnectionReport, AppError> {
+    let model = super::model_settings::load(directory)?;
     let PreparedCli { spec, version } =
-        prepared(directory, operation, ResponseMode::Explain, None)?;
+        prepared(directory, operation, ResponseMode::Explain, None, model)?;
     let output = guarded_process::run(&spec, TEST_INPUT, cancelled, directory)?;
     if !matches!(result::response(&output)?, AiResponse::Explain { .. }) {
         return Err(AppError::new(
@@ -88,6 +90,7 @@ pub fn test(
         Some(spec.program.to_string_lossy().into_owned()),
         Some(version),
     );
+    report.tested_model = Some(model);
     report.message =
         "연결 테스트에 성공했습니다. 문서를 전송하지 않은 최소 요청과 응답 검증을 완료했습니다."
             .into();

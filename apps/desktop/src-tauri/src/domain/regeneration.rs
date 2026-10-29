@@ -8,6 +8,8 @@ pub const MAX_INSTRUCTION_BYTES: usize = 16 * 1024;
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema, TS)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct RegenerateRequest {
+    #[serde(default)]
+    pub model: super::model::ModelSelection,
     pub document_id: String,
     pub batch_id: String,
     pub proposal_id: String,

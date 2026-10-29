@@ -120,6 +120,7 @@ fn create_task(store: &Store, document: &str) -> String {
 }
 fn request(head: &DocumentSnapshot, task: &str, mode: ResponseMode) -> GenerateRequest {
     GenerateRequest {
+        model: Default::default(),
         document_id: head.id.clone(), task_id: task.into(), expected_head_id: head.version_id.clone(),
         operation_id: id(), mode, selection: ScopeSelection::Whole,
         instruction: "본문의 초안 단어만 검토안으로 바꾸세요. changes는 정확히 하나이고 제목은 변경하지 마세요.".into(),
@@ -144,6 +145,7 @@ fn create_patch(store: &Store, head: &DocumentSnapshot, task: &str) -> ReviewBat
 fn revise_patch(store: &Store, head: &DocumentSnapshot, batch: &ReviewBatch) -> ReviewBatch {
     let proposal = &batch.proposals[0];
     let request = RegenerateRequest {
+        model: Default::default(),
         document_id: head.id.clone(), batch_id: batch.id.clone(), proposal_id: proposal.id.clone(),
         expected_revision: proposal.revision, expected_head_id: head.version_id.clone(),
         operation_id: id(), instruction: "같은 원문에 대해 검토안을 최종 검토안으로 바꾸는 후보 하나만 반환하세요. 원문 before는 제공한 target.operation.before와 같아야 합니다.".into(), retry_of: None,

@@ -16,6 +16,8 @@ pub mod export;
 pub mod generation;
 pub mod history;
 #[cfg(feature = "desktop")]
+pub mod model_settings;
+#[cfg(feature = "desktop")]
 pub mod regeneration;
 pub mod review;
 #[cfg(feature = "desktop")]

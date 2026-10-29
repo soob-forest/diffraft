@@ -2,21 +2,38 @@ import { invoke } from "@tauri-apps/api/core";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { errorMessage, SCHEMA_VERSION } from "../ipc";
+import { ModelSettings } from "./ModelSettings";
+import { MODEL_LABELS } from "./model";
 import { useConnection } from "./useConnection";
 import "./connection.css";
 
 export function ConnectionSettings() {
   const [open, setOpen] = useState(false);
+  const trigger = useRef<HTMLButtonElement>(null);
+  function close() {
+    setOpen(false);
+    requestAnimationFrame(() => {
+      const target = trigger.current?.getClientRects().length
+        ? trigger.current
+        : document.querySelector<HTMLButtonElement>(
+            'button[aria-controls="document-list"]',
+          );
+      target?.focus();
+    });
+  }
   return (
     <>
-      <button type="button" onClick={() => setOpen(true)}>
+      <button
+        ref={trigger}
+        type="button"
+        onClick={(event) => {
+          event.currentTarget.focus();
+          setOpen(true);
+        }}
+      >
         AI 연결 설정
       </button>
-      {open &&
-        createPortal(
-          <ConnectionDialog close={() => setOpen(false)} />,
-          document.body,
-        )}
+      {open && createPortal(<ConnectionDialog close={close} />, document.body)}
     </>
   );
 }
@@ -56,6 +73,7 @@ function ConnectionBody({ connection, close }: Props & { close: () => void }) {
       <ConnectionDetails connection={connection} />
       <ConnectionPrimary connection={connection} close={close} />
       <ConnectionCancel connection={connection} />
+      <ModelSettings model={connection.model} busy={connection.busy} />
       <details className="connection-diagnostics">
         <summary>설치 경로·버전 진단 정보</summary>
         <ConnectionReportDetails connection={connection} />
@@ -87,7 +105,9 @@ function ConnectionDetails({ connection }: Props) {
             : undefined
         }
       >
-        {connection.busy ? (
+        {connection.model.saving ? (
+          "모델 설정을 저장하는 중…"
+        ) : connection.busy ? (
           connection.cancelling ? (
             "CLI 종료를 확인하는 중…"
           ) : (
@@ -98,8 +118,13 @@ function ConnectionDetails({ connection }: Props) {
           connection.report?.status === "READY" ? (
           <>
             <strong>연결 테스트를 완료했습니다.</strong>
-            <span>이제 문서에서 AI 수정을 요청할 수 있습니다.</span>
+            <span>
+              요청 모델: {MODEL_LABELS[connection.model.selected]} · 이제 AI
+              수정을 요청할 수 있습니다.
+            </span>
           </>
+        ) : connection.report?.testedModel ? (
+          "선택한 모델로 연결 테스트를 실행해 주세요."
         ) : (
           (connection.report?.message ??
           "상태 다시 확인을 눌러 설치와 인증을 진단하세요.")
@@ -131,7 +156,11 @@ function CliRequestActions({ connection }: Props) {
   return (
     <button
       type="button"
-      disabled={connection.busy || connection.report?.status !== "READY"}
+      disabled={
+        connection.busy ||
+        !connection.model.ready ||
+        connection.report?.status !== "READY"
+      }
       onClick={() =>
         void connection.run({
           kind: "test",

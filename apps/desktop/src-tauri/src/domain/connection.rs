@@ -16,6 +16,7 @@ pub enum ConnectionStatus {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema, TS)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct ConnectionReport {
+    pub tested_model: Option<super::model::ModelSelection>,
     pub status: ConnectionStatus,
     pub executable: Option<String>,
     pub version: Option<String>,

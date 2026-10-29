@@ -10,6 +10,7 @@ fn inspect_fake(outcome: &str) -> (ConnectionStatus, bool) {
             "printf '%s\\n' 'No conversation found with session ID: 10000000-0000-4000-8000-000000000001' >&2; exit 1"
         }
         "unsupported" => "printf '%s\\n' \"error: unknown option '--restricted'\" >&2; exit 1",
+        "unsupported-model" => "printf '%s\\n' \"error: unknown option '--model'\" >&2; exit 1",
         "unexpected" => "printf '%s\\n' 'diagnostic failed' >&2; exit 1",
         _ => unreachable!(),
     };
@@ -38,5 +39,13 @@ fn missing_options_and_unexpected_failures_remain_distinct() {
     assert_eq!(
         inspect_fake("unexpected"),
         (ConnectionStatus::DiagnosticFailed, true)
+    );
+}
+
+#[test]
+fn unsupported_model_flag_is_not_treated_as_a_usable_cli() {
+    assert_eq!(
+        inspect_fake("unsupported-model"),
+        (ConnectionStatus::Unsupported, true)
     );
 }

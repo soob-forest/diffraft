@@ -1,6 +1,8 @@
 import { invoke } from "@tauri-apps/api/core";
 import { useEffect, useRef, useState } from "react";
+import { readModel } from "../connection/model";
 import type { DocumentModel } from "../editor/useDocument";
+import type { ModelSelection } from "../generated/ModelSelection";
 import type { ReviewBatch } from "../generated/ReviewBatch";
 import type { RewriteRequest } from "../generated/RewriteRequest";
 import { errorMessage, SCHEMA_VERSION } from "../ipc";
@@ -100,11 +102,13 @@ function makeRequest(
   props: RewriteFormProps,
   instruction: string,
   reference: boolean,
+  model: ModelSelection,
 ): RewriteRequest {
   const active = props.review.state.batches.find(
     (batch) => batch.status === "ACTIVE",
   );
   return {
+    model,
     documentId: props.model.autosave.document.id,
     taskId: props.taskId,
     expectedHeadId: props.model.autosave.document.versionId,
@@ -158,7 +162,7 @@ async function prepareRequest(
   return props.model.gate.run(async () => {
     await props.model.autosave.flush();
     await props.flushTask();
-    return makeRequest(props, instruction, reference);
+    return makeRequest(props, instruction, reference, await readModel());
   });
 }
 async function generateCandidate(

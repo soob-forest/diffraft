@@ -9,6 +9,7 @@ use docreview_core::{
 
 pub fn request(world: &RewriteWorld) -> RewriteRequest {
     RewriteRequest {
+        model: Default::default(),
         document_id: world.head.id.clone(),
         task_id: world.task.clone(),
         expected_head_id: world.head.version_id.clone(),
@@ -60,6 +61,7 @@ fn patch_archive_requires_explicit_confirmation_and_transaction_success() {
     let world = ReviewWorld::new();
     let store = &world.world.store;
     let mut request = RewriteRequest {
+        model: Default::default(),
         document_id: world.head.id.clone(),
         task_id: world.task.clone(),
         expected_head_id: world.head.version_id.clone(),

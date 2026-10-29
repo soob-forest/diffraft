@@ -38,8 +38,9 @@ impl CliLauncher {
         let task = store.job_task(job)?;
         let binding = store.active_session(&task)?;
         let session = binding.map(|binding| binding.session_id);
+        let model = store.job_model(job)?;
         let connection::PreparedCli { spec, version } =
-            self.prepare_cli(store.directory(), &task, mode, session.as_deref())?;
+            self.prepare_cli(store.directory(), &task, (mode, model), session.as_deref())?;
         let cwd = spec
             .directory
             .to_str()
@@ -48,6 +49,7 @@ impl CliLauncher {
         Ok(PreparedExecution {
             spec,
             context: ExecutionContext {
+                requested_model: Some(model),
                 mode,
                 requested_session_id: session,
                 cwd,
@@ -61,17 +63,21 @@ impl CliLauncher {
         &self,
         directory: &std::path::Path,
         task: &str,
-        mode: ResponseMode,
+        selection: (ResponseMode, crate::domain::model::ModelSelection),
         session: Option<&str>,
     ) -> Result<connection::PreparedCli, AppError> {
         match self {
-            Self::Installed => connection::prepared(directory, task, mode, session),
+            Self::Installed => {
+                connection::prepared(directory, task, selection.0, session, selection.1)
+            }
             #[cfg(any(feature = "test-support", feature = "e2e"))]
             Self::Fixture(spec) => {
                 let mut spec = spec.clone();
-                if let Some(id) = session {
-                    spec.args.extend(["--resume".into(), id.into()]);
-                }
+                spec.args.extend(super::profile::model_arguments(
+                    selection.0,
+                    session,
+                    selection.1,
+                )?);
                 Ok(connection::PreparedCli {
                     spec,
                     version: "fixture".into(),

@@ -1,3 +1,4 @@
+import { readModel } from "../connection/model";
 import { draftError } from "../drafts/validation";
 import { editorCommand } from "../editor/api";
 import type { FlushRef } from "../editor/DocumentWorkspace";
@@ -53,7 +54,7 @@ export async function prepareRequest(
     await props.model.autosave.flush();
     await props.taskFlush.current?.();
     const head = props.model.autosave.document;
-    const [scope, review] = await Promise.all([
+    const [scope, review, model] = await Promise.all([
       editorCommand(
         {
           kind: "scope",
@@ -64,6 +65,7 @@ export async function prepareRequest(
         "scope",
       ),
       reviewCommand({ kind: "state", taskId: props.taskId }, "state"),
+      readModel(),
     ]);
     if (review.generating)
       throw new Error(
@@ -73,6 +75,7 @@ export async function prepareRequest(
     return {
       scope,
       request: {
+        model,
         documentId: head.id,
         taskId: props.taskId,
         expectedHeadId: head.versionId,

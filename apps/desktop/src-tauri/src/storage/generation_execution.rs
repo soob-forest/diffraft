@@ -35,9 +35,25 @@ impl Store {
         let task_id = task(&connection, job)?;
         verify_session(&connection, &task_id, execution)?;
         verify_retry(&connection, &task_id, execution.retry_of.as_deref())?;
+        let model = super::job_model::requested_model(&connection, &job.id)?;
+        if execution
+            .requested_model
+            .is_some_and(|selected| selected != model)
+        {
+            return Err(AppError::invalid("실행 모델이 저장된 요청과 다릅니다."));
+        }
+        if let Some(previous) = &execution.retry_of
+            && super::job_model::requested_model(&connection, previous)? != model
+        {
+            return Err(AppError::invalid(
+                "재시도는 이전 요청의 모델을 사용해야 합니다.",
+            ));
+        }
+        let model = serde_json::to_value(model)
+            .map_err(|_| AppError::invalid("모델을 기록할 수 없습니다."))?;
         let instruction = generation_messages::instruction(&connection, job)?;
         let transaction = connection.transaction().map_err(database_error)?;
-        transaction.execute("INSERT INTO job_executions(job_id,mode,requested_session_id,cwd,cli_version,retry_of) VALUES(?1,?2,?3,?4,?5,?6)", params![job.id,mode_name(execution.mode),execution.requested_session_id,execution.cwd,execution.cli_version,execution.retry_of]).map_err(database_error)?;
+        transaction.execute("INSERT INTO job_executions(job_id,mode,requested_session_id,cwd,cli_version,retry_of,requested_model) VALUES(?1,?2,?3,?4,?5,?6,?7)", params![job.id,mode_name(execution.mode),execution.requested_session_id,execution.cwd,execution.cli_version,execution.retry_of,model.as_str()]).map_err(database_error)?;
         self.insert_generation_message(&transaction, job, "USER", &instruction)?;
         transaction.commit().map_err(database_error)
     }

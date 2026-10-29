@@ -15,6 +15,7 @@ use docreview_core::{
 
 fn request(world: &World, task: &str, mode: ResponseMode) -> GenerateRequest {
     GenerateRequest {
+        model: Default::default(),
         document_id: world.document.id.clone(),
         task_id: task.into(),
         expected_head_id: world.document.version_id.clone(),
@@ -29,6 +30,7 @@ fn request(world: &World, task: &str, mode: ResponseMode) -> GenerateRequest {
 }
 fn execution(mode: ResponseMode) -> ExecutionContext {
     ExecutionContext {
+        requested_model: Some(Default::default()),
         mode,
         requested_session_id: None,
         cwd: "/private/test/task".into(),
