@@ -5,7 +5,7 @@
       "capabilities": [{
         "identifier": "e2e",
         "windows": ["main"],
-        "permissions": ["core:default", "core:window:allow-close", "core:window:allow-destroy", "core:window:allow-set-focus", "core:window:allow-show", "core:window:allow-unminimize", "core:window:allow-set-size", "core:webview:allow-set-webview-zoom", "wdio:default", "wdio-webdriver:default"]
+        "permissions": ["core:default", "core:window:allow-close", "core:window:allow-set-focus", "core:window:allow-show", "core:window:allow-unminimize", "core:window:allow-set-size", "core:webview:allow-set-webview-zoom", "wdio:default", "wdio-webdriver:default"]
       }]
     }
   }

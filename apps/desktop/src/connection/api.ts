@@ -20,8 +20,8 @@ export function cancelGeneration(operationId: string) {
     operationId,
   });
 }
-export function shutdownGeneration() {
-  return invoke<void>("shutdown_generation", {
+export function completeShutdown() {
+  return invoke<void>("complete_shutdown", {
     request: { schemaVersion: SCHEMA_VERSION },
   });
 }

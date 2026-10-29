@@ -28,6 +28,7 @@ if (
     "export",
     "export-restart",
     "shutdown",
+    "quit",
     "shutdown-restart",
     "performance",
     "startup-failure",
@@ -63,7 +64,9 @@ export const config = {
   },
   services: [
     [
-      "@wdio/tauri-service",
+      fileURLToPath(
+        new URL("./scripts/tauri-exit-service.mjs", import.meta.url),
+      ),
       {
         appBinaryPath: application,
         driverProvider: "embedded",

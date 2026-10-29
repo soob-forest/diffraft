@@ -1,10 +1,9 @@
-import { getCurrentWindow } from "@tauri-apps/api/window";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { shutdownGeneration } from "./connection/api";
 import { editorCommand, pickDocument } from "./editor/api";
 import type { AppSnapshot } from "./generated/AppSnapshot";
 import type { EditorState } from "./generated/EditorState";
 import { errorMessage, workspaceSnapshot } from "./ipc";
+import { useAppClose } from "./useAppClose";
 
 export function useWorkspace() {
   const [snapshot, setSnapshot] = useState<AppSnapshot | null>(null);
@@ -39,7 +38,7 @@ export function useWorkspace() {
       setBusy(false);
     }
   }, []);
-  useClose(flushRef, setError, lock, setClosing);
+  useAppClose(flushRef, setError, lock, setClosing);
   return {
     snapshot,
     editor,
@@ -49,52 +48,6 @@ export function useWorkspace() {
     flushRef,
     navigate,
   };
-}
-
-function useClose(
-  flushRef: React.RefObject<(() => Promise<void>) | null>,
-  setError: (message: string) => void,
-  lock: React.RefObject<boolean>,
-  setClosing: (closing: boolean) => void,
-) {
-  useEffect(() => {
-    let active = true;
-    let closing = false;
-    const window = getCurrentWindow();
-    const listener = window.onCloseRequested(async (event) => {
-      event.preventDefault();
-      if (closing) return;
-      if (lock.current) {
-        setError("문서 이동이 끝난 뒤 다시 종료해 주세요.");
-        return;
-      }
-      closing = true;
-      lock.current = true;
-      setClosing(true);
-      try {
-        await flushRef.current?.();
-        await shutdownGeneration();
-        await window.destroy();
-      } catch (error) {
-        setError(errorMessage(error));
-        closing = false;
-        lock.current = false;
-        setClosing(false);
-      }
-    });
-    void listener
-      .then((unlisten) => {
-        if (!active) unlisten();
-      })
-      .catch((error: unknown) => setError(errorMessage(error)));
-    return () => {
-      active = false;
-      void listener.then(
-        (unlisten) => unlisten(),
-        () => {},
-      );
-    };
-  }, [flushRef, setError, lock, setClosing]);
 }
 
 function useInitialWorkspace(

@@ -1,0 +1,94 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-29T02:55:39.509001+00:00",
+  "implementationBaseline": "b5def61",
+  "state": "installed; general-app visible check awaiting unlocked display",
+  "beforeRegression": {
+    "signal": "SIGSEGV",
+    "pid": 6866,
+    "report": "docreview-2026-10-29-113238.ips",
+    "reportSha256": "cf964eb24785d49b0524d5ea61470d6e1e78640f61a222ccec366986219c249e",
+    "topFrame": "WebKit::WebPageProxy::setObscuredContentInsets"
+  },
+  "sourceSha256": {
+    "apps/desktop/src/useAppClose.ts": "1554ae7e8f9fd299a950d702f70324548982883e3ba40f98e114cf61e121d7a2",
+    "apps/desktop/src/workspace.ts": "4a3b17d6ff6032989b10d939f911cfdd9b4f7c83073ddb0f96a3df55aac108c4",
+    "apps/desktop/src/connection/api.ts": "88a44365b7846ddc420eba0f879e6af7b669527cbeb663bfbc2f146746fe29eb",
+    "apps/desktop/src-tauri/src/app_shutdown.rs": "bf37602af9fe6d6e826ba2bbcf63e813c00f60ae7355d99e8e23f5f03f8ea6f4",
+    "apps/desktop/src-tauri/src/native_termination.rs": "bd3f83f034f31a8b191f1cd4b2ca1150f488c855f8a1ecd83a3cba78b241f0e6",
+    "apps/desktop/src-tauri/src/main.rs": "97a283ce3319ddad7875c48ba4e978e7cb98b5a90090a9c4bed8409fd4848ea8",
+    "apps/desktop/src-tauri/tauri.conf.json": "ab4a4df42645fe8d5a2c11b5a7e1ab68c758e328cba97d2aa0866d3bcb81e364"
+  },
+  "validation": {
+    "typecheck": true,
+    "lintWarnings": 0,
+    "frontendUnit": 79,
+    "exitObserverUnit": 4,
+    "rustPassed": 226,
+    "rustIgnoredExplicitAccountOrEnvironmentTests": 11,
+    "nativeE2ePassed": 88,
+    "nativeE2ePhases": 28,
+    "comparisonTests": 12,
+    "nativeQuitStressPassed": 24,
+    "nativeQuitStressMethods": {
+      "nativeTerminate": 6,
+      "windowClose": 6,
+      "nativeMenuQuit": 6,
+      "applicationQuitAppleEvent": 6
+    },
+    "quitStressAssertions": [
+      "parent child exit code 0 and signal null",
+      "ready and main WebView alive at application Exit",
+      "edited fixture file preserved"
+    ],
+    "finalRepeatInterrupted": {
+      "passedBeforeInterruption": 1,
+      "reason": "macOS screen locked; ensureVisibleWindow failed"
+    },
+    "generalAppVisibleQuitCheck": "pending: AX editor not ready while display locked",
+    "physicalCommandQAndDockUiClick": "unverified"
+  },
+  "build": {
+    "architecture": "arm64",
+    "signing": "ad-hoc",
+    "signatureValid": true,
+    "testMarkers": 0,
+    "generalDebugRestored": true,
+    "appSha256": "95f8a075122514df1798b6d2b26e8eb844b06a100b3ed90c522d86489f50cab1",
+    "dmgSha256": "b7b1dcee3d7b2cb6a1577ce9460b997f233d4de6bc18e1599f59ab80cbac5f97"
+  },
+  "installation": {
+    "installedAt": "2026-10-29T02:53:16.593575+00:00",
+    "installedAtKst": "2026-10-29T11:53:16.593575+09:00",
+    "paths": [
+      {
+        "path": "/Applications/DocReview.app",
+        "sha256": "95f8a075122514df1798b6d2b26e8eb844b06a100b3ed90c522d86489f50cab1",
+        "signatureValid": true,
+        "bundleFilesMatch": true
+      },
+      {
+        "path": "/Users/dltntnqo/Applications/DocReview.app",
+        "sha256": "95f8a075122514df1798b6d2b26e8eb844b06a100b3ed90c522d86489f50cab1",
+        "signatureValid": true,
+        "bundleFilesMatch": true
+      }
+    ],
+    "dataBackupCreated": true,
+    "dataUnchangedDuringInstall": true,
+    "originalFileCount": 7,
+    "originalFilesUnchanged": true,
+    "all18TablesExactlyUnchanged": true,
+    "newDocumentsOrEdits": 0,
+    "launchedPath": "/Applications/DocReview.app/Contents/MacOS/docreview",
+    "launchedPid": 29266
+  },
+  "localLogSha256": {
+    "quit-fix-contract-before.log": "5321ccd4ad9e18865e18bf018bf4443a8dcc1e6a34857c51dd7f85bc9a0d657b",
+    "quit-final-e2e.log": "7fcf611a739058c850abc118397fa766df4aa9cbb17e79ca37cafdca35c387fb",
+    "quit-fix-stress.log": "16bda001627631b9b54adb2430ea54764d49ddb202a91574a8b9a7bd94b40f3b",
+    "quit-final-stress.log": "277952adb59ff05613effe7a2d89b20a8ee8b5f073e6822d0e71f6b2665e448a",
+    "quit-fix-rust-test.log": "c0f3590a753d5ab6eba8169d6ddd18a205e35ec30e69bd846c7879df476962b9",
+    "quit-release.log": "b5b754b4ae5a2ddec7ed0b9dfead9edf297e3f1e2b7275271177c44a75e821c6"
+  }
+}

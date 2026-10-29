@@ -35,9 +35,14 @@ npm run test:e2e
 ```sh
 npm run test:e2e -- connection
 npm run test:e2e -- shutdown
+npm run test:e2e -- quit
 ```
 
-선택 실행: `design`, `design-resume`, `usability`, `connection`, `generation`, `review`, `recovery`, `conflict`, `layout`, `regeneration`, `history`, `rewrite`, `rewrite-cancel`, `navigation`, `export`, `shutdown`, `performance`, `startup-failure`. 재시작 검사가 필요한 흐름은 실행기가 별도 프로세스로 이어 실행한다.
+선택 실행: `tobe`, `design`, `design-resume`, `usability`, `connection`, `generation`, `review`, `recovery`, `conflict`, `layout`, `regeneration`, `history`, `rewrite`, `rewrite-cancel`, `navigation`, `export`, `shutdown`, `quit`, `performance`, `startup-failure`. 재시작 검사가 필요한 흐름은 실행기가 별도 프로세스로 이어 실행한다.
+
+`shutdown`과 `startup-failure`는 부모가 소유한 실제 앱 ChildProcess의 `exit` 결과가 code 0 / signal null인지 검사한다. 프로세스 소멸만으로 성공 처리하지 않는다. E2E 전용 수명 기록으로 앱 Exit 시 메인 WebView가 유지되고 종료 준비가 완료됐는지도 확인한다. `test:unit`에는 SIGSEGV·비정상 코드·누락 결과를 거부하는 관측기 검사도 포함한다.
+
+`quit`는 임시 문서에 입력하고 800×600/1440×900으로 크기를 바꾼 뒤 24회 종료한다. 네이티브 terminate·창 닫기·실제 앱 종료 메뉴·NSRunningApplication 종료 이벤트를 각각 6회 실행하며 매번 정상 종료 코드·창 수명·원문 보존을 검사한다. PID/실행 경로가 일치하는 테스트 앱만 조작한다. OS 메뉴 검사는 접근성 권한이 필요하며 VoiceOver 점검과는 별개다. 종료 상태 메타데이터는 `.artifacts/quit-stress.jsonl`에 남긴다. 일반 앱의 물리적 Cmd+Q 입력은 별도 확인한다.
 
 `usability`는 세션 초안·후보 변경·조건 저장 실패·실패 요청 수정·적용 전 비교·100개 변경을 검사한다. 창 크기 3개와 `Webview.setZoom(1/1.5/2)` 조합을 측정하며 버튼과 diff 본문 중앙의 실제 hit target도 확인한다. `design`은 영역 치수·배치·본문16px·그룹 선택·모드 왕복을, `design-resume`은 독립 SC07 v13/D03 r2 재시작을 검사한다. 테스트 빌드에만 창 표시·크기·확대 권한을 부여한다. `document.visibilityState`가 hidden이면 검사를 중단한다. 이를 통과나 제품 동작 실패로 오인하지 않는다.
 

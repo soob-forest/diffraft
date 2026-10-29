@@ -1,4 +1,5 @@
 use std::{io, sync::OnceLock};
+use tauri::Manager;
 
 static APP: OnceLock<tauri::AppHandle> = OnceLock::new();
 
@@ -19,7 +20,11 @@ pub fn install(app: &tauri::AppHandle) -> io::Result<()> {
 }
 
 extern "C" fn request_close() -> bool {
-    APP.get().is_none_or(super::request_close)
+    APP.get().is_none_or(|app| {
+        // Once completion is queued, repeated AppKit Quit events must not start a
+        // second termination path. The Tauri event loop owns the final exit.
+        app.state::<super::app_shutdown::ShutdownState>().ready() || super::request_close(app)
+    })
 }
 
 #[cfg(feature = "e2e")]

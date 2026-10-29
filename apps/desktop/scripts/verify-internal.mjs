@@ -42,6 +42,7 @@ const prohibited = [
   "docreview_request_native_exit",
   "e2e_register_ai",
   "DOCREVIEW_E2E_DATA",
+  "shutdown-lifecycle.json",
   "tauri_plugin_wdio",
   "export_testing",
 ];

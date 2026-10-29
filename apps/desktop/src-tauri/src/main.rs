@@ -2,11 +2,15 @@ use docreview_core::commands::{desktop, generation};
 use tauri::Manager;
 use tauri_plugin_dialog::DialogExt;
 
+mod app_shutdown;
 #[cfg(target_os = "macos")]
 mod native_termination;
+#[cfg(feature = "e2e")]
+mod shutdown_probe;
 
 fn main() {
     let builder = tauri::Builder::default()
+        .manage(app_shutdown::ShutdownState::default())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(
@@ -34,6 +38,10 @@ fn main() {
 }
 
 fn handle_exit(app: &tauri::AppHandle, event: tauri::RunEvent) {
+    #[cfg(feature = "e2e")]
+    if matches!(event, tauri::RunEvent::Exit) {
+        shutdown_probe::record(app);
+    }
     if let tauri::RunEvent::ExitRequested { api, .. } = event
         && request_close(app)
     {
@@ -42,6 +50,9 @@ fn handle_exit(app: &tauri::AppHandle, event: tauri::RunEvent) {
 }
 
 fn request_close(app: &tauri::AppHandle) -> bool {
+    if app.state::<app_shutdown::ShutdownState>().ready() {
+        return false;
+    }
     let Some(window) = app.get_webview_window("main") else {
         return false;
     };
@@ -75,6 +86,7 @@ fn commands(builder: tauri::Builder<tauri::Wry>) -> tauri::Builder<tauri::Wry> {
         generation::task_conversation,
         generation::cancel_generation,
         generation::shutdown_generation,
+        app_shutdown::complete_shutdown,
         docreview_core::commands::connection::connection_command,
         docreview_core::commands::regeneration::regenerate_proposal,
         docreview_core::commands::rewrite::generate_rewrite,
@@ -101,6 +113,7 @@ fn commands(builder: tauri::Builder<tauri::Wry>) -> tauri::Builder<tauri::Wry> {
         generation::task_conversation,
         generation::cancel_generation,
         generation::shutdown_generation,
+        app_shutdown::complete_shutdown,
         docreview_core::commands::connection::connection_command,
         docreview_core::commands::regeneration::regenerate_proposal,
         docreview_core::commands::rewrite::generate_rewrite,
