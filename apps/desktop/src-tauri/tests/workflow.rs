@@ -14,6 +14,8 @@ mod generation_completion;
 mod generation_jobs;
 #[path = "workflow_cases/generation_migration.rs"]
 mod generation_migration;
+#[path = "workflow_cases/generation_replay.rs"]
+mod generation_replay;
 #[path = "workflow_cases/migration.rs"]
 mod migration;
 #[path = "workflow_cases/model_modes.rs"]

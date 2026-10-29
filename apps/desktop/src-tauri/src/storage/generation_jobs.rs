@@ -67,6 +67,11 @@ fn replay(connection: &Connection, id: &str, request: &str) -> Result<Option<Rev
     let Some((previous, attempt_id, status)) = row else {
         return Ok(None);
     };
+    // Apply legacy defaults using the same request contract, without rewriting history.
+    let previous: GenerateRequest = serde_json::from_str(&previous)
+        .map_err(|_| AppError::invalid("생성 요청 기록을 읽을 수 없습니다."))?;
+    let previous = serde_json::to_string(&previous)
+        .map_err(|_| AppError::invalid("생성 요청 기록을 비교할 수 없습니다."))?;
     if previous != request {
         return Err(AppError::invalid(
             "같은 요청 ID로 내용을 변경할 수 없습니다.",
