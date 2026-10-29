@@ -1,0 +1,289 @@
+{
+  "schemaVersion": 1,
+  "baselineCommit": "6302b1c",
+  "installedBinarySha256": "40dba189b04a3e08abebae823c9d1025e8fc3b8f3ba9f5ef48a701b5c72e5dd3",
+  "installedBinaryUuid": "758caf45-fa27-33dd-afbd-d064a67308de",
+  "systemWebKitVersion": "21623.1.14.11.9",
+  "reports": [
+    {
+      "report": "docreview-2026-10-28-215353.ips",
+      "reportSha256": "001feea1f0ccc6b0146ced19a7b73c632ddb6276b364662ad0363fde9b7d1263",
+      "captureTime": "2026-10-28 21:53:49.1814 +0900",
+      "launchTime": "2026-10-28 21:53:38.7341 +0900",
+      "os": {
+        "train": "macOS 26.2",
+        "build": "25C56",
+        "releaseType": "User"
+      },
+      "appUuid": "0b035bdf-fd1b-3290-b6c0-3c28b4491b0a",
+      "installedBundle": true,
+      "exception": "EXC_BAD_ACCESS",
+      "signal": "SIGSEGV",
+      "invalidAddress": "KERN_INVALID_ADDRESS at 0x0000000000000640",
+      "faultingThread": 0,
+      "topFrames": [
+        {
+          "image": "WebKit",
+          "symbol": "WebKit::WebPageProxy::dispatchSetObscuredContentInsets()",
+          "symbolLocation": 324
+        },
+        {
+          "image": "JavaScriptCore",
+          "symbol": "WTF::RunLoop::performWork()",
+          "symbolLocation": 552
+        },
+        {
+          "image": "JavaScriptCore",
+          "symbol": "WTF::RunLoop::performWork(void*)",
+          "symbolLocation": 36
+        }
+      ]
+    },
+    {
+      "report": "docreview-2026-10-28-215806.ips",
+      "reportSha256": "1caf56c69d8a043533c8d3816f13c61b96da3aa3441bc3a5719dd74106ecb0cc",
+      "captureTime": "2026-10-28 21:58:01.7149 +0900",
+      "launchTime": "2026-10-28 21:57:55.1678 +0900",
+      "os": {
+        "train": "macOS 26.2",
+        "build": "25C56",
+        "releaseType": "User"
+      },
+      "appUuid": "b3def374-0959-37a3-bf69-3746d25e619c",
+      "installedBundle": true,
+      "exception": "EXC_BAD_ACCESS",
+      "signal": "SIGSEGV",
+      "invalidAddress": "KERN_INVALID_ADDRESS at 0x0000000000000640",
+      "faultingThread": 0,
+      "topFrames": [
+        {
+          "image": "WebKit",
+          "symbol": "WebKit::WebPageProxy::dispatchSetObscuredContentInsets()",
+          "symbolLocation": 324
+        },
+        {
+          "image": "JavaScriptCore",
+          "symbol": "WTF::RunLoop::performWork()",
+          "symbolLocation": 552
+        },
+        {
+          "image": "JavaScriptCore",
+          "symbol": "WTF::RunLoop::performWork(void*)",
+          "symbolLocation": 36
+        }
+      ]
+    },
+    {
+      "report": "docreview-2026-10-29-091250.ips",
+      "reportSha256": "8f6aeb7933ca30850ee4ad0347d1b9c9c3669d58d87147563bcfc055feea46ce",
+      "captureTime": "2026-10-29 09:12:44.9216 +0900",
+      "launchTime": "2026-10-29 08:57:48.4360 +0900",
+      "os": {
+        "train": "macOS 26.2",
+        "build": "25C56",
+        "releaseType": "User"
+      },
+      "appUuid": "a44fd28b-f32d-31f7-bfde-d077ff78d8d4",
+      "installedBundle": true,
+      "exception": "EXC_BAD_ACCESS",
+      "signal": "SIGSEGV",
+      "invalidAddress": "KERN_INVALID_ADDRESS at 0x0000000000000640",
+      "faultingThread": 0,
+      "topFrames": [
+        {
+          "image": "WebKit",
+          "symbol": "WebKit::WebPageProxy::dispatchSetObscuredContentInsets()",
+          "symbolLocation": 324
+        },
+        {
+          "image": "JavaScriptCore",
+          "symbol": "WTF::RunLoop::performWork()",
+          "symbolLocation": 552
+        },
+        {
+          "image": "JavaScriptCore",
+          "symbol": "WTF::RunLoop::performWork(void*)",
+          "symbolLocation": 36
+        }
+      ]
+    },
+    {
+      "report": "docreview-2026-10-29-094746.ips",
+      "reportSha256": "ec24870ceac2e81c01d6be9bd9f2734a6f8e814e230b4fedcbcbf24000332b52",
+      "captureTime": "2026-10-29 09:47:42.2073 +0900",
+      "launchTime": "2026-10-29 09:26:55.3936 +0900",
+      "os": {
+        "train": "macOS 26.2",
+        "build": "25C56",
+        "releaseType": "User"
+      },
+      "appUuid": "56dbf47d-481f-3cdc-8b44-8d4a44b4a611",
+      "installedBundle": true,
+      "exception": "EXC_BAD_ACCESS",
+      "signal": "SIGSEGV",
+      "invalidAddress": "KERN_INVALID_ADDRESS at 0x0000000000000640",
+      "faultingThread": 0,
+      "topFrames": [
+        {
+          "image": "WebKit",
+          "symbol": "WebKit::WebPageProxy::dispatchSetObscuredContentInsets()",
+          "symbolLocation": 324
+        },
+        {
+          "image": "JavaScriptCore",
+          "symbol": "WTF::RunLoop::performWork()",
+          "symbolLocation": 552
+        },
+        {
+          "image": "JavaScriptCore",
+          "symbol": "WTF::RunLoop::performWork(void*)",
+          "symbolLocation": 36
+        }
+      ]
+    },
+    {
+      "report": "docreview-2026-10-29-102411.ips",
+      "reportSha256": "682449b661bfed561fa2eecf43654ec05993d73fe462d71ec48477b4b8623dc9",
+      "captureTime": "2026-10-29 10:24:02.9452 +0900",
+      "launchTime": "2026-10-29 10:24:00.6092 +0900",
+      "os": {
+        "train": "macOS 26.2",
+        "build": "25C56",
+        "releaseType": "User"
+      },
+      "appUuid": "362a2b84-9c5b-3777-baa7-a5bb30ee255f",
+      "installedBundle": false,
+      "exception": "EXC_BAD_ACCESS",
+      "signal": "SIGSEGV",
+      "invalidAddress": "KERN_INVALID_ADDRESS at 0x0000000000000640",
+      "faultingThread": 0,
+      "topFrames": [
+        {
+          "image": "WebKit",
+          "symbol": "WebKit::WebPageProxy::dispatchSetObscuredContentInsets()",
+          "symbolLocation": 324
+        },
+        {
+          "image": "JavaScriptCore",
+          "symbol": "WTF::RunLoop::performWork()",
+          "symbolLocation": 552
+        },
+        {
+          "image": "JavaScriptCore",
+          "symbol": "WTF::RunLoop::performWork(void*)",
+          "symbolLocation": 36
+        }
+      ]
+    },
+    {
+      "report": "docreview-2026-10-29-103616.ips",
+      "reportSha256": "6b124d9525efe1826c4e97e9b6704c8375977c21c84d7f20448090cfd8af985d",
+      "captureTime": "2026-10-29 10:36:08.4429 +0900",
+      "launchTime": "2026-10-29 10:36:03.8769 +0900",
+      "os": {
+        "train": "macOS 26.2",
+        "build": "25C56",
+        "releaseType": "User"
+      },
+      "appUuid": "da5e6468-a964-35ce-85c0-dfdbf2e741c8",
+      "installedBundle": false,
+      "exception": "EXC_BAD_ACCESS",
+      "signal": "SIGSEGV",
+      "invalidAddress": "KERN_INVALID_ADDRESS at 0x0000000000000640",
+      "faultingThread": 0,
+      "topFrames": [
+        {
+          "image": "WebKit",
+          "symbol": "WebKit::WebPageProxy::dispatchSetObscuredContentInsets()",
+          "symbolLocation": 324
+        },
+        {
+          "image": "JavaScriptCore",
+          "symbol": "WTF::RunLoop::performWork()",
+          "symbolLocation": 552
+        },
+        {
+          "image": "JavaScriptCore",
+          "symbol": "WTF::RunLoop::performWork(void*)",
+          "symbolLocation": 36
+        }
+      ]
+    },
+    {
+      "report": "docreview-2026-10-29-103622.ips",
+      "reportSha256": "8c0e39ac64396e578d191a0ba7f2492d6783fabbd4efbff6ea6387bbaa766e91",
+      "captureTime": "2026-10-29 10:36:21.4913 +0900",
+      "launchTime": "2026-10-29 10:36:18.9284 +0900",
+      "os": {
+        "train": "macOS 26.2",
+        "build": "25C56",
+        "releaseType": "User"
+      },
+      "appUuid": "da5e6468-a964-35ce-85c0-dfdbf2e741c8",
+      "installedBundle": false,
+      "exception": "EXC_BAD_ACCESS",
+      "signal": "SIGSEGV",
+      "invalidAddress": "KERN_INVALID_ADDRESS at 0x0000000000000010",
+      "faultingThread": 0,
+      "topFrames": [
+        {
+          "image": "WebKit",
+          "symbol": "WebKit::WebPageProxy::setObscuredContentInsets(WebCore::RectEdges<float> const&)",
+          "symbolLocation": 508
+        },
+        {
+          "image": "WebKit",
+          "symbol": "WebKit::WebPageProxy::dispatchSetObscuredContentInsets()",
+          "symbolLocation": 320
+        },
+        {
+          "image": "JavaScriptCore",
+          "symbol": "WTF::RunLoop::performWork()",
+          "symbolLocation": 552
+        }
+      ]
+    },
+    {
+      "report": "docreview-2026-10-29-111014.ips",
+      "reportSha256": "06fa02cf40c0f1a8932698abc31bab0dd4d21b85cff355fc8c840d68f6f00bdd",
+      "captureTime": "2026-10-29 11:10:09.6460 +0900",
+      "launchTime": "2026-10-29 10:55:10.1638 +0900",
+      "os": {
+        "train": "macOS 26.2",
+        "build": "25C56",
+        "releaseType": "User"
+      },
+      "appUuid": "758caf45-fa27-33dd-afbd-d064a67308de",
+      "installedBundle": true,
+      "exception": "EXC_BAD_ACCESS",
+      "signal": "SIGSEGV",
+      "invalidAddress": "KERN_INVALID_ADDRESS at 0x0000000000000640",
+      "faultingThread": 0,
+      "topFrames": [
+        {
+          "image": "WebKit",
+          "symbol": "WebKit::WebPageProxy::dispatchSetObscuredContentInsets()",
+          "symbolLocation": 324
+        },
+        {
+          "image": "JavaScriptCore",
+          "symbol": "WTF::RunLoop::performWork()",
+          "symbolLocation": 552
+        },
+        {
+          "image": "JavaScriptCore",
+          "symbol": "WTF::RunLoop::performWork(void*)",
+          "symbolLocation": 36
+        }
+      ]
+    }
+  ],
+  "targetedShutdownRegression": {
+    "testsPassed": 3,
+    "phases": 2,
+    "crashReproduced": false,
+    "exitStatusAsserted": false
+  },
+  "upstreamReference": "https://github.com/WebKit/WebKit/commit/79f65b10f8d873bf68b0468c7bdca1d9d38de667",
+  "conclusion": "WebKit insets callback lifetime failure is the leading hypothesis; exact triggering sequence and OS patch availability are unverified."
+}
