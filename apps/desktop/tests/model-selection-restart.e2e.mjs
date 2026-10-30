@@ -16,6 +16,7 @@ describe("모델 저장·실패·재시도와 앱 재시작", () => {
     assert.equal(await $("#default-model").getValue(), "opus");
     await $("button=설정 닫기").click();
     await $("button=새 문서").click();
+    await $(".task-picker select").waitForExist();
     const task = await createTask("모델 계약 확인");
     const before = await currentDocument();
     await writeFile(join(root, "expected-model"), "opus");

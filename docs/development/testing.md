@@ -62,9 +62,13 @@ Rust `model_settings` 및 workflow의 `model_selection`/`model_modes`는 실제 
 
 ## 실제 계정 검사
 
-`src-tauri/tests/connection_native.rs`, `generation_native.rs`, `cli_compatibility_native.rs`의 실제 계정 검사는 기본적으로 ignored다. 사용자 계정과 구독 한도를 사용하므로 자동 CI에 넣지 않는다. 진단 검사는 메타데이터만 출력하고 모델 요청 검사는 합성 문서와 별도 DB에서 수행한다.
+`src-tauri/tests/connection_native.rs`, `generation_native.rs`, `cli_compatibility_native.rs`, `model_selection_native.rs`, `model_observation_native.rs`의 실제 계정 검사는 기본적으로 ignored다. 사용자 계정과 구독 한도를 사용하므로 자동 CI에 넣지 않는다. 진단 검사는 메타데이터만 출력하고 모델 요청 검사는 합성 문서와 별도 DB에서 수행한다.
 
 CLI 버전별 검사는 `DOCREVIEW_TEST_CLI`에 실행 파일의 절대 경로를 지정한다. 버전 간 재개 검사는 `DOCREVIEW_CURRENT_CLI`에도 현재 실행 파일 경로가 필요하다. 토큰·문서·응답 원문을 로그에 남기지 않는다.
+
+모델별 실계정 검사는 같은 `DOCREVIEW_TEST_CLI`를 사용한다. `src-tauri`에서 `cargo test --locked --test model_selection_native -- --ignored --test-threads=1 --nocapture`로 명시 실행한다. 네 선택값의 PATCH와 재시작 후 Sonnet→Opus 재개를 검사하며 최대 여섯 요청의 사용량이 발생한다. 오류가 발생해도 원문·요청 모델·프로세스 lease와 기존 후보/대화 보존을 확인한다. CLI 실행 전 실패 검사는 기본 자동 테스트에 포함된다. 버전·체크섬·소요 시간과 남은 제한은 [실계정 검증 기록](model-account-validation.md)을 참고한다.
+
+CLI 관측 검사는 같은 환경에서 `cargo test --locked --test model_observation_native -- --ignored --test-threads=1 --nocapture`로 실행한다. 과거 모델의 가용성 오류, 테스트에만 명시한 Haiku fallback, 네 선택값의 사용 메타데이터를 최대 여섯 합성 호출로 검사한다. 원시 응답·오류는 메모리에서만 처리하며 검증한 모델 식별자·출력 토큰 수·정적 상태 정보만 출력한다. 제품의 허용 모델·인자·오류 분류는 변경하지 않는다. 메타데이터 유출·형식·크기·성공 답변 오인 방지 검사는 기본 자동 테스트에 포함된다.
 
 ## 검증 범위와 한계
 

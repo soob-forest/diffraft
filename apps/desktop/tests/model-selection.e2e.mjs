@@ -6,6 +6,7 @@ import { invoke, root } from "./support/review-fixture.mjs";
 const request = { schemaVersion: 1 };
 describe("모델 설정은 설치·계정 없이 동작한다", () => {
   it("미설치 상태에서 모델을 저장하고 이전 테스트 표시를 무효화한다", async () => {
+    await verifyInitialDefaultAndPrepareSelection();
     await mkdir(".artifacts/models", { recursive: true });
     await $("button=AI 연결 설정").click();
     await $("#default-model").waitForEnabled();
@@ -128,6 +129,23 @@ describe("모델 설정은 설치·계정 없이 동작한다", () => {
     );
   });
 });
+
+async function verifyInitialDefaultAndPrepareSelection() {
+  assert.equal(
+    await invoke("model_settings_command", {
+      request: { ...request, action: { kind: "read" } },
+    }),
+    "opus",
+  );
+  await $("button=AI 연결 설정").click();
+  await $("#default-model").waitForEnabled();
+  assert.equal(await $("#default-model").getValue(), "opus");
+  await $("button=설정 닫기").click();
+  // Give the following UI save a distinct persisted value to replace.
+  await invoke("model_settings_command", {
+    request: { ...request, action: { kind: "save", model: "sonnet" } },
+  });
+}
 
 async function selectModel(value) {
   await browser.execute((value) => {

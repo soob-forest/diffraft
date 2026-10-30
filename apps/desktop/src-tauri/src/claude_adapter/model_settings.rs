@@ -16,6 +16,7 @@ use std::{
 
 const SETTINGS_FILE: &str = "model-settings.json";
 const MAX_SETTINGS_BYTES: usize = 1024;
+const DEFAULT_MODEL: ModelSelection = ModelSelection::Opus;
 // The Store owns the cross-process writer lease. Serialize settings within that process.
 static SETTINGS_LOCK: Mutex<()> = Mutex::new(());
 
@@ -38,7 +39,7 @@ fn read(directory: &Path) -> Result<ModelSelection, AppError> {
     {
         Ok(file) => file,
         Err(error) if error.kind() == std::io::ErrorKind::NotFound => {
-            return Ok(ModelSelection::default());
+            return Ok(DEFAULT_MODEL);
         }
         Err(_) => return Err(invalid()),
     };

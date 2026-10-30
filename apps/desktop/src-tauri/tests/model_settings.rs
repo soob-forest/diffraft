@@ -10,11 +10,22 @@ use std::{
 };
 
 #[test]
+fn new_settings_default_to_opus_while_legacy_requests_keep_the_cli_default() {
+    let root = tempfile::tempdir().unwrap();
+    assert_eq!(
+        model_settings::load(root.path()).unwrap(),
+        ModelSelection::Opus
+    );
+    assert!(!root.path().join("model-settings.json").exists());
+    assert_eq!(ModelSelection::default(), ModelSelection::CliDefault);
+}
+
+#[test]
 fn offline_settings_round_trip_without_cli_or_path_changes() {
     let root = tempfile::tempdir().unwrap();
     assert_eq!(
         model_settings::load(root.path()).unwrap(),
-        ModelSelection::CliDefault
+        ModelSelection::Opus
     );
     settings::save(root.path(), Path::new("/synthetic/claude")).unwrap();
     for model in [
