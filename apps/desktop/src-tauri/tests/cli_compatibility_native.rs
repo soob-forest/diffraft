@@ -55,6 +55,7 @@ fn explain(store: &Store, task: &str) {
         store,
         &CliLauncher::Installed,
         GenerateRequest {
+            model: Default::default(),
             document_id: head.id,
             task_id: task.into(),
             expected_head_id: head.version_id,

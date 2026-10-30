@@ -13,7 +13,14 @@ use crate::domain::{
 };
 use rusqlite::{Connection, OptionalExtension, params};
 
-type ExecutionRow = (String, Option<String>, String, String, Option<String>);
+type ExecutionRow = (
+    String,
+    Option<String>,
+    String,
+    String,
+    Option<String>,
+    Option<String>,
+);
 
 impl Store {
     pub(super) fn complete_generation(
@@ -90,24 +97,33 @@ fn execution(
     connection: &Connection,
     job: &ReviewJob,
 ) -> Result<Option<ExecutionContext>, AppError> {
-    let row: Option<ExecutionRow> = connection.query_row("SELECT mode,requested_session_id,cwd,cli_version,retry_of FROM job_executions WHERE job_id=?1", [&job.id], |row| Ok((row.get(0)?,row.get(1)?,row.get(2)?,row.get(3)?,row.get(4)?))).optional().map_err(database_error)?;
-    row.map(|(mode, requested_session_id, cwd, cli_version, retry_of)| {
-        let mode = [
-            ResponseMode::Patch,
-            ResponseMode::Rewrite,
-            ResponseMode::Explain,
-        ]
-        .into_iter()
-        .find(|candidate| mode_name(*candidate) == mode)
-        .ok_or_else(invalid_session)?;
-        Ok(ExecutionContext {
-            mode,
-            requested_session_id,
-            cwd,
-            cli_version,
-            retry_of,
-        })
-    })
+    let row: Option<ExecutionRow> = connection.query_row("SELECT mode,requested_session_id,cwd,cli_version,retry_of,requested_model FROM job_executions WHERE job_id=?1", [&job.id], |row| Ok((row.get(0)?,row.get(1)?,row.get(2)?,row.get(3)?,row.get(4)?,row.get(5)?))).optional().map_err(database_error)?;
+    row.map(
+        |(mode, requested_session_id, cwd, cli_version, retry_of, model)| {
+            let mode = [
+                ResponseMode::Patch,
+                ResponseMode::Rewrite,
+                ResponseMode::Explain,
+            ]
+            .into_iter()
+            .find(|candidate| mode_name(*candidate) == mode)
+            .ok_or_else(invalid_session)?;
+            let requested_model = model
+                .map(|value| {
+                    serde_json::from_value(serde_json::Value::String(value))
+                        .map_err(|_| invalid_session())
+                })
+                .transpose()?;
+            Ok(ExecutionContext {
+                requested_model,
+                mode,
+                requested_session_id,
+                cwd,
+                cli_version,
+                retry_of,
+            })
+        },
+    )
     .transpose()
 }
 

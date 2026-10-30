@@ -1,59 +1,7 @@
-import { invoke } from "@tauri-apps/api/core";
-import { useRef, useState } from "react";
-import type { Proposal } from "../generated/Proposal";
-import type { RegenerateRequest } from "../generated/RegenerateRequest";
-import type { ReviewProjection } from "../generated/ReviewProjection";
-import { errorMessage, SCHEMA_VERSION } from "../ipc";
+import { MODEL_LABELS } from "../connection/model";
+import { type RegenerationProps, useRegeneration } from "./useRegeneration";
 
-type Props = {
-  proposal: Proposal;
-  projection: ReviewProjection;
-  blocked: boolean;
-  onBusy: (busy: boolean) => void;
-  onSaved: () => void;
-  prepare: () => Promise<void>;
-};
-function useRegeneration(props: Props) {
-  const [instruction, setInstruction] = useState("");
-  const [busy, setBusy] = useState(false);
-  const [message, setMessage] = useState("");
-  const running = useRef(false);
-  const submit = async () => {
-    if (running.current || props.blocked || !instruction.trim()) return;
-    running.current = true;
-    setBusy(true);
-    props.onBusy(true);
-    setMessage("코멘트와 지시를 반영한 새 후보를 요청하고 있습니다.");
-    const revision: RegenerateRequest = {
-      documentId: props.projection.batch.documentId,
-      batchId: props.projection.batch.id,
-      proposalId: props.proposal.id,
-      expectedRevision: props.proposal.revision,
-      expectedHeadId: props.projection.currentHeadId,
-      operationId: crypto.randomUUID(),
-      instruction,
-      retryOf: null,
-    };
-    try {
-      await props.prepare();
-      await invoke("regenerate_proposal", {
-        request: { schemaVersion: SCHEMA_VERSION },
-        revision,
-      });
-      setMessage("새 후보를 저장했습니다. 비교 후 승인해 주세요.");
-    } catch (error) {
-      setMessage(errorMessage(error));
-    } finally {
-      running.current = false;
-      setBusy(false);
-      props.onBusy(false);
-      props.onSaved();
-    }
-  };
-  return { instruction, setInstruction, busy, message, submit };
-}
-
-export function RegenerateForm(props: Props) {
+export function RegenerateForm(props: RegenerationProps) {
   const form = useRegeneration(props);
   return (
     <details className="regenerate-form">
@@ -78,14 +26,43 @@ export function RegenerateForm(props: Props) {
             disabled={form.busy || props.blocked}
           />
         </label>
-        <button
-          type="submit"
-          disabled={form.busy || props.blocked || !form.instruction.trim()}
-        >
-          {form.busy ? "재제안 중…" : "재제안 요청"}
-        </button>
+        <RegenerationActions form={form} blocked={props.blocked} />
         <p role="status">{form.message}</p>
       </form>
     </details>
+  );
+}
+
+function RegenerationActions({
+  form,
+  blocked,
+}: {
+  form: ReturnType<typeof useRegeneration>;
+  blocked: boolean;
+}) {
+  return (
+    <>
+      {form.pending && (
+        <p className="request-model">
+          요청 모델: {MODEL_LABELS[form.pending.model]} · 사용 한도를 소비할 수
+          있습니다.
+        </p>
+      )}
+      <button
+        type="submit"
+        disabled={form.busy || blocked || !form.instruction.trim()}
+      >
+        {form.busy
+          ? "재제안 중…"
+          : form.pending
+            ? "확인 후 재제안"
+            : "재제안 요청"}
+      </button>
+      {form.pending && (
+        <button type="button" disabled={form.busy} onClick={form.cancel}>
+          요청 취소
+        </button>
+      )}
+    </>
   );
 }

@@ -38,7 +38,7 @@ npm run test:e2e -- shutdown
 npm run test:e2e -- quit
 ```
 
-선택 실행: `tobe`, `design`, `design-resume`, `usability`, `connection`, `generation`, `review`, `recovery`, `conflict`, `layout`, `regeneration`, `history`, `rewrite`, `rewrite-cancel`, `navigation`, `export`, `shutdown`, `quit`, `performance`, `startup-failure`. 재시작 검사가 필요한 흐름은 실행기가 별도 프로세스로 이어 실행한다.
+선택 실행: `tobe`, `design`, `design-resume`, `usability`, `connection`, `model-selection`, `generation`, `review`, `recovery`, `conflict`, `layout`, `regeneration`, `history`, `rewrite`, `rewrite-cancel`, `navigation`, `export`, `shutdown`, `quit`, `performance`, `startup-failure`. 재시작 검사가 필요한 흐름은 실행기가 별도 프로세스로 이어 실행한다.
 
 `shutdown`과 `startup-failure`는 부모가 소유한 실제 앱 ChildProcess의 `exit` 결과가 code 0 / signal null인지 검사한다. 프로세스 소멸만으로 성공 처리하지 않는다. E2E 전용 수명 기록으로 앱 Exit 시 메인 WebView가 유지되고 종료 준비가 완료됐는지도 확인한다. `test:unit`에는 SIGSEGV·비정상 코드·누락 결과를 거부하는 관측기 검사도 포함한다.
 
@@ -53,6 +53,12 @@ npm run native:build
 ```
 
 WDIO 플러그인·테스트 IPC·장애 주입·개발용 계약 생성기는 제품 번들에서 제외한다. 결과 화면과 로그는 Git에서 제외한 `.artifacts/`에 저장한다.
+
+## 모델 선택 검사
+
+`npm run test:e2e -- model-selection`은 미설치 저장·오류 복구·연결 테스트 무효화·앱 재시작 복원·합성 모델 제한·이전 모델 재시도·새 모델 요청을 검사한다. 1440×900/800×600과 100%/150%/200% 화면은 `.artifacts/models/`에 저장한다.
+
+Rust `model_settings` 및 workflow의 `model_selection`/`model_modes`는 실제 공통 인자 생성기로 가짜 자식 프로세스를 실행하여 네 선택값과 모든 생성 경로의 저장값·실행값을 확인한다. 모델 없는 과거 요청은 CLI 기본값이며, 과거 실행 기록의 NULL은 모델 미상이다. 이 결과는 실제 서비스 모델 권한·품질·응답 지연 검증을 대신하지 않는다. [검증 기록과 미검증 범위](model-selection.md)를 참고한다.
 
 ## 실제 계정 검사
 

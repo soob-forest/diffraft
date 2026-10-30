@@ -19,6 +19,7 @@ fn selected_patch(world: &World) -> ReviewBatch {
     let job = world
         .store
         .begin_generation(GenerateRequest {
+            model: Default::default(),
             document_id: world.document.id.clone(),
             task_id: task,
             expected_head_id: world.document.version_id.clone(),
@@ -78,6 +79,7 @@ fn scoped_world(repeats: usize) -> (World, ReviewBatch) {
 
 fn request(world: &World, batch: &ReviewBatch) -> RegenerateRequest {
     RegenerateRequest {
+        model: Default::default(),
         document_id: world.document.id.clone(),
         batch_id: batch.id.clone(),
         proposal_id: batch.proposals[0].id.clone(),
@@ -149,6 +151,7 @@ fn regeneration_after_partial_accept_uses_current_head_and_remaining_original() 
         .world
         .store
         .begin_regeneration(RegenerateRequest {
+            model: Default::default(),
             document_id: head.id.clone(),
             batch_id: world.batch.id.clone(),
             proposal_id: target.id.clone(),

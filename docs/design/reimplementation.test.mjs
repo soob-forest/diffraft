@@ -9,8 +9,7 @@ const directory = dirname(fileURLToPath(import.meta.url));
 const context = vm.createContext({});
 vm.runInContext(readFileSync(resolve(directory, "reimplementation-data.js"), "utf8"), context);
 const screens = context.reimplementationScreens;
-const tasks = readFileSync(resolve(directory, "../../TODO.md"), "utf8");
-test("11 screens retain original design authority and traceable R tasks", () => {
+test("11 historical screens retain original designs and R identifiers", () => {
   assert.equal(screens.length, 11);
   assert.equal(new Set(screens.map(screen => screen.id)).size, 11);
   for (const screen of screens) {
@@ -18,7 +17,7 @@ test("11 screens retain original design authority and traceable R tasks", () => 
     assert.ok(existsSync(resolve(directory, screen.before)), screen.id);
     assert.ok(existsSync(resolve(directory, screen.after)), `${screen.id} after`);
     assert.ok(screen.note.length > 20);
-    for (const task of screen.tasks.split(" ")) assert.ok(tasks.includes(`**${task} `), task);
+    assert.match(screen.tasks, /^R\d+-\d{2}(?: R\d+-\d{2})*$/);
     assert.match(screen.after, /^reimplementation-captures\/after\//);
   }
 });

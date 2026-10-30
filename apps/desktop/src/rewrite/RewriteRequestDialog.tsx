@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { MODEL_LABELS } from "../connection/model";
 import type { useRewriteGeneration } from "./useRewriteGeneration";
 
 type Props = { form: ReturnType<typeof useRewriteGeneration>; version: number };
@@ -35,6 +36,9 @@ function RequestContent({ form, version }: Props) {
       <p>
         v{version} 확정본 전체를 기준으로 새 후보를 요청합니다. 생성된 후보는
         전체 적용 전까지 확정본에 반영되지 않습니다.
+      </p>
+      <p className="request-model">
+        요청 모델: {MODEL_LABELS[form.pending?.model ?? "cli_default"]}
       </p>
       {form.pending?.archivePatch && (
         <p>

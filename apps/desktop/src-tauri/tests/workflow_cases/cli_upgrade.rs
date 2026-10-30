@@ -10,6 +10,7 @@ const UPDATED_VERSION: &str = "2.1.312";
 
 fn context(version: &str, resume: bool) -> ExecutionContext {
     ExecutionContext {
+        requested_model: Some(Default::default()),
         mode: ResponseMode::Rewrite,
         requested_session_id: resume.then(|| SESSION.into()),
         cwd: "/private/test/task".into(),

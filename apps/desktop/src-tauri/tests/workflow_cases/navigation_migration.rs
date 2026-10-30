@@ -2,7 +2,7 @@ use crate::{support::World, world::add_task};
 use docreview_core::storage::Store;
 
 pub fn remove_navigation_schema(world: &World) {
-    world.database().execute_batch("DROP TABLE document_selections; DROP TABLE workspace_selection; DROP INDEX task_document_identity;").unwrap();
+    world.database().execute_batch("ALTER TABLE job_executions DROP COLUMN requested_model; DROP TABLE document_selections; DROP TABLE workspace_selection; DROP INDEX task_document_identity;").unwrap();
 }
 
 #[test]
@@ -36,7 +36,7 @@ fn assert_migrated_messages(store: &Store) {
         .configure_database_for_test(|db| {
             assert_eq!(
                 db.pragma_query_value(None, "user_version", |row| row.get::<_, u32>(0))?,
-                6
+                7
             );
             assert_eq!(
                 db.query_row(

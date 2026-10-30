@@ -1,9 +1,23 @@
 import { createHash } from "node:crypto";
 import { readFile, writeFile } from "node:fs/promises";
 import { layoutResponse } from "./layout.mjs";
+import { selectedModel } from "./model-arguments.mjs";
 
 const examples = new URL("../../../../docs/examples/", import.meta.url);
 const mode = process.argv[2];
+const selected = selectedModel(process.argv.slice(3));
+let expected;
+try {
+  expected = await readFile("expected-model", "utf8");
+} catch (error) {
+  if (error.code !== "ENOENT") throw error;
+}
+if (expected !== undefined && expected !== selected) process.exit(2);
+if (expected !== undefined)
+  await writeFile(
+    "model-observation.json",
+    JSON.stringify({ model: selected }),
+  );
 const MAX_INPUT_BYTES = 200 * 1024;
 let input = "";
 for await (const chunk of process.stdin) {
@@ -21,6 +35,17 @@ let sessionId =
     ? process.argv[resumeIndex + 1]
     : (request.taskId ?? "00000000-0000-4000-8000-000000000001");
 if (request.schemaVersion !== 1) process.exit(2);
+if (mode === "MODEL_DENIED") {
+  process.stdout.write(
+    JSON.stringify({
+      type: "result",
+      subtype: "error_during_execution",
+      is_error: true,
+      errors: ["API Error: 403 synthetic model policy"],
+    }),
+  );
+  process.exit(1);
+}
 if (mode === "STRUCTURED_LIMIT") {
   process.stdout.write(
     JSON.stringify({

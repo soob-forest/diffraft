@@ -11,6 +11,7 @@ pub mod export;
 pub mod generation;
 pub mod history;
 pub mod ipc;
+pub mod model;
 pub mod regeneration;
 pub mod review;
 pub mod review_api;

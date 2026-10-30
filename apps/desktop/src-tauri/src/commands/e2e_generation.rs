@@ -27,6 +27,7 @@ pub fn spec() -> Result<ProcessSpec, AppError> {
             | "EXPLAIN_FRESH"
             | "SESSION_MISSING"
             | "STRUCTURED_LIMIT"
+            | "MODEL_DENIED"
             | "malformed"
     ) {
         return Err(AppError::invalid("등록된 가짜 응답만 사용할 수 있습니다."));

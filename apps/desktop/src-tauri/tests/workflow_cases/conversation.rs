@@ -62,6 +62,7 @@ fn failure_snapshot_restores_saved_instruction_and_original_request_after_restar
         .record_execution(
             &job,
             &ExecutionContext {
+                requested_model: Some(Default::default()),
                 mode: ResponseMode::Rewrite,
                 requested_session_id: None,
                 cwd: "/private/test/task".into(),

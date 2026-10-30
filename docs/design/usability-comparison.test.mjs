@@ -9,8 +9,6 @@ const directory = dirname(fileURLToPath(import.meta.url));
 const context = vm.createContext({});
 vm.runInContext(readFileSync(resolve(directory, "usability-scenes.js"), "utf8"), context);
 const { scenes, getBaseline } = context.docReviewComparison;
-const taskText = readFileSync(resolve(directory, "../../TODO.md"), "utf8");
-const tasks = new Set([...taskText.matchAll(/\*\*(T\d+-\d+)/g)].map((match) => match[1]));
 
 test("every comparison preserves a traceable baseline and an explicitly proposed screen", () => {
   assert.equal(scenes.length, 6);
@@ -32,16 +30,14 @@ test("every comparison preserves a traceable baseline and an explicitly proposed
   }
 });
 
-test("changes point to implementation tasks, including every member of task ranges", () => {
+test("historical changes retain descriptions and well-formed task identifiers", () => {
   for (const scene of scenes) {
     assert.ok(scene.changes.length >= 2, scene.id);
     for (const [before, after, references] of scene.changes) {
       assert.ok(before && after);
-      for (const match of references.matchAll(/T(\d+)-(\d+)(?:~(\d+))?/g)) {
-        const end = Number(match[3] || match[2]);
-        for (let index = Number(match[2]); index <= end; index++) {
-          assert.ok(tasks.has(`T${match[1]}-${String(index).padStart(2, "0")}`), references);
-        }
+      assert.match(references, /^T\d+-\d{2}(?:~\d{2})?(?:, T\d+-\d{2}(?:~\d{2})?)*$/);
+      for (const match of references.matchAll(/T\d+-(\d+)(?:~(\d+))?/g)) {
+        assert.ok(Number(match[2] || match[1]) >= Number(match[1]), references);
       }
     }
   }

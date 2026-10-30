@@ -22,6 +22,8 @@ async function reviewState(taskId) {
 async function start(mode) {
   await writeFile(join(root, "next-generation"), mode);
   await $("button=재제안 요청").click();
+  await $("button=확인 후 재제안").waitForDisplayed();
+  await $("button=확인 후 재제안").click();
 }
 describe("코멘트를 반영한 재제안", () => {
   it("삭제 쪽 선택과 코멘트 대상이 보기 전환 뒤에도 유지된다", async () => {

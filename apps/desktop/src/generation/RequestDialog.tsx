@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { MODEL_LABELS } from "../connection/model";
 import type { PendingRequest } from "./request";
 
 type Props = {
@@ -43,6 +44,9 @@ function RequestContent({ pending, busy, close, generate }: Props) {
       <p>
         v{pending.scope.version}의 아래 원문 범위와 이 작업의 목표·고정
         조건·대화·코멘트·최근 결정, 문서 공통 조건을 전달합니다.
+      </p>
+      <p className="request-model">
+        요청 모델: {MODEL_LABELS[pending.request.model]}
       </p>
       <details>
         <summary>

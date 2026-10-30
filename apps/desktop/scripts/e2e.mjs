@@ -19,6 +19,7 @@ const nativeQuitHelper = join(app, ".artifacts/native-quit");
 if (
   process.argv[2] &&
   ![
+    "model-selection",
     "tobe",
     "design",
     "design-resume",
@@ -54,25 +55,28 @@ const scenarios = process.argv[2]
   ? [
       process.argv[2] === "quit"
         ? Array.from({ length: QUIT_STRESS_RUNS }, () => "quit")
-        : process.argv[2] === "design-resume"
-          ? ["design-resume", "design-resume-restart"]
-          : process.argv[2] === "regeneration"
-            ? regeneration
-            : process.argv[2] === "generation"
-              ? generation
-              : process.argv[2] === "export"
-                ? exportPhases
-                : process.argv[2] === "shutdown"
-                  ? shutdown
-                  : process.argv[2] === "navigation"
-                    ? navigation
-                    : process.argv[2] === "recovery"
-                      ? recovery
-                      : [process.argv[2]],
+        : process.argv[2] === "model-selection"
+          ? ["model-selection", "model-selection-restart"]
+          : process.argv[2] === "design-resume"
+            ? ["design-resume", "design-resume-restart"]
+            : process.argv[2] === "regeneration"
+              ? regeneration
+              : process.argv[2] === "generation"
+                ? generation
+                : process.argv[2] === "export"
+                  ? exportPhases
+                  : process.argv[2] === "shutdown"
+                    ? shutdown
+                    : process.argv[2] === "navigation"
+                      ? navigation
+                      : process.argv[2] === "recovery"
+                        ? recovery
+                        : [process.argv[2]],
     ]
   : [
       ["editor", "restart"],
       ["connection"],
+      ["model-selection", "model-selection-restart"],
       generation,
       ["design"],
       ["tobe"],

@@ -5,6 +5,8 @@ const phase = process.env.DOCREVIEW_E2E_PHASE;
 if (
   !testRoot ||
   ![
+    "model-selection",
+    "model-selection-restart",
     "tobe",
     "editor",
     "connection",

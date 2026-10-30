@@ -74,7 +74,7 @@ fn v2_to_current_preserves_head_and_creates_a_backup_before_job_schemas() {
         .configure_database_for_test(|db| {
             assert_eq!(
                 db.pragma_query_value(None, "user_version", |row| row.get::<_, u32>(0))?,
-                6
+                7
             );
             db.prepare("SELECT request_json,context_json,response_json FROM revision_jobs")?;
             Ok(())

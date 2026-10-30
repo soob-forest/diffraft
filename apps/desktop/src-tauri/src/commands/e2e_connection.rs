@@ -53,7 +53,14 @@ pub fn dispatch(
         if status != ConnectionStatus::Ready {
             return Err(AppError::new(ErrorCode::AuthRequired, &report.message));
         }
-        let spec = super::e2e_generation::spec()?;
+        let model = crate::claude_adapter::model_settings::load(store.directory())?;
+        let mut spec = super::e2e_generation::spec()?;
+        spec.args.extend(profile::model_arguments(
+            crate::domain::ai::ResponseMode::Explain,
+            None,
+            model,
+        )?);
+        report.tested_model = Some(model);
         let output = guarded_process::run(
             &spec,
             br#"{"schemaVersion":1}"#,

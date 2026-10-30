@@ -1,3 +1,4 @@
+import { MODEL_LABELS } from "../connection/model";
 import type { GenerationAttempt } from "../generated/GenerationAttempt";
 import { QuotePreview } from "../review/QuotePreview";
 import { failureLabel } from "./failure-label";
@@ -21,6 +22,9 @@ export function AttemptRecovery(props: Props) {
         <p>{failureLabel(attempt.errorCode)}</p>
         <p>원문과 이전 제안은 유지했습니다.</p>
       </div>
+      <p className="request-model">
+        요청 모델: {MODEL_LABELS[attempt.request.value.model]}
+      </p>
       <p className="attempt-request-label">지난 요청</p>
       <QuotePreview
         text={attempt.request.value.instruction}

@@ -36,6 +36,8 @@ describe("SC07 독립 재개 분기 준비", () => {
     );
     await writeFile(join(root, "next-generation"), "REGENERATE");
     await $("button=재제안 요청").click();
+    await $("button=확인 후 재제안").waitForDisplayed();
+    await $("button=확인 후 재제안").click();
     await browser.waitUntil(async () =>
       (await $(".candidate-form summary").getProperty("textContent")).includes(
         "r2",

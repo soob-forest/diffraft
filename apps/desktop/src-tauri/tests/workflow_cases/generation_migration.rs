@@ -23,7 +23,7 @@ fn v4_migrates_after_backup_and_preserves_existing_messages() {
         .configure_database_for_test(|db| {
             assert_eq!(
                 db.pragma_query_value(None, "user_version", |row| row.get::<_, u32>(0))?,
-                6
+                7
             );
             assert_eq!(
                 db.query_row(

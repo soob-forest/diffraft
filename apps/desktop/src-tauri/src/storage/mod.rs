@@ -23,6 +23,7 @@ pub mod generation_models;
 mod generation_result;
 mod history;
 mod job_lifecycle;
+mod job_model;
 mod journal;
 mod local_documents;
 pub mod models;

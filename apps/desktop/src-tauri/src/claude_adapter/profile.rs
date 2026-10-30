@@ -1,3 +1,4 @@
+use crate::domain::model::ModelSelection;
 use crate::domain::{
     ai::ResponseMode,
     connection::{ConnectionReport, ConnectionStatus},
@@ -149,6 +150,18 @@ pub fn arguments(mode: ResponseMode, session: Option<&str>) -> Result<Vec<OsStri
     Ok(args)
 }
 
+pub fn model_arguments(
+    mode: ResponseMode,
+    session: Option<&str>,
+    model: ModelSelection,
+) -> Result<Vec<OsString>, AppError> {
+    let mut args = arguments(mode, session)?;
+    if let Some(alias) = model.alias() {
+        args.extend(["--model".into(), alias.into()]);
+    }
+    Ok(args)
+}
+
 pub fn report(
     status: ConnectionStatus,
     executable: Option<String>,
@@ -164,6 +177,7 @@ pub fn report(
         status_message(status).into()
     };
     ConnectionReport {
+        tested_model: None,
         status,
         executable,
         version,

@@ -7,7 +7,7 @@ use super::{
 };
 use crate::domain::error::{AppError, ErrorCode};
 
-const SCHEMA_VERSION: u32 = 6;
+const SCHEMA_VERSION: u32 = 7;
 const DATABASE_FILE: &str = "workspace.sqlite3";
 const BUSY_TIMEOUT_MS: u64 = 1000;
 const INITIAL_MIGRATION: &str = include_str!("../../migrations/001-initial.sql");
@@ -16,6 +16,7 @@ const REVISION_JOBS_MIGRATION: &str = include_str!("../../migrations/003-revisio
 const REWRITE_JOBS_MIGRATION: &str = include_str!("../../migrations/004-rewrite-jobs.sql");
 const GENERATION_MIGRATION: &str = include_str!("../../migrations/005-generation.sql");
 const NAVIGATION_MIGRATION: &str = include_str!("../../migrations/006-navigation.sql");
+const MODEL_MIGRATION: &str = include_str!("../../migrations/007-model-selection.sql");
 
 pub fn open(directory: &Path) -> Result<Connection, AppError> {
     let path = directory.join(DATABASE_FILE);
@@ -94,6 +95,11 @@ fn migrate(connection: &Connection, version: u32) -> Result<(), AppError> {
     if version < 6 {
         connection
             .execute_batch(NAVIGATION_MIGRATION)
+            .map_err(database_error)?;
+    }
+    if version < 7 {
+        connection
+            .execute_batch(MODEL_MIGRATION)
             .map_err(database_error)?;
     }
     Ok(())

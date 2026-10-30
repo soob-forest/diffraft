@@ -74,6 +74,8 @@ describe("확정본 내보내기와 작업 파일 저장", () => {
     await $(".regenerate-form textarea").setValue("코멘트를 반영해 주세요.");
     await writeFile(join(root, "next-generation"), "REGENERATE");
     await $("button=재제안 요청").click();
+    await $("button=확인 후 재제안").waitForDisplayed();
+    await $("button=확인 후 재제안").click();
     await browser.waitUntil(async () =>
       (await $(".candidate-form summary").getProperty("textContent")).includes(
         "r2",
