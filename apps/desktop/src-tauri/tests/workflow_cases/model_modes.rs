@@ -59,7 +59,7 @@ fn regeneration_child_and_record_use_each_saved_model() {
     for model in MODELS {
         let world = ReviewWorld::new();
         let mut req = crate::regeneration::request(&world);
-        req.model = model;
+        req.model = model.into();
         let job = req.operation_id.clone();
         expect_model(&world.world, model);
         regeneration::execute(
@@ -79,7 +79,7 @@ fn rewrite_and_another_direction_child_use_each_saved_model() {
         for reference in [true, false] {
             let world = RewriteWorld::new();
             let mut req = crate::rewrite_jobs::request(&world);
-            req.model = model;
+            req.model = model.into();
             if !reference {
                 req.reference_batch_id = None;
             }
@@ -109,13 +109,13 @@ fn legacy_revision_and_rewrite_models_default_and_invalid_values_fail() {
         serde_json::from_value::<RegenerateRequest>(a.clone())
             .unwrap()
             .model,
-        ModelSelection::CliDefault
+        ModelSelection::CliDefault.into()
     );
     assert_eq!(
         serde_json::from_value::<RewriteRequest>(b.clone())
             .unwrap()
             .model,
-        ModelSelection::CliDefault
+        ModelSelection::CliDefault.into()
     );
     a["model"] = "invalid".into();
     b["model"] = "invalid".into();
@@ -150,6 +150,6 @@ fn installed_cli_preparation_failure_preserves_requested_model() {
     let SavedGenerationRequest::Generate(saved) = failed.request else {
         panic!("generate")
     };
-    assert_eq!(saved.model, ModelSelection::Haiku);
+    assert_eq!(saved.model, ModelSelection::Haiku.into());
     assert_eq!(failed.status, "FAILED");
 }

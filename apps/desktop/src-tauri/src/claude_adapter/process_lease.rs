@@ -23,13 +23,13 @@ struct Record {
     boot: String,
     process: Option<ProcessIdentity>,
 }
-pub(super) struct ProcessLease {
+pub(crate) struct ProcessLease {
     path: PathBuf,
     record: Record,
 }
 
 impl ProcessLease {
-    pub(super) fn reserve(directory: &Path) -> Result<Self, AppError> {
+    pub(crate) fn reserve(directory: &Path) -> Result<Self, AppError> {
         let path = directory.join(RECORD_NAME);
         let record = Record {
             token: uuid::Uuid::new_v4().to_string(),
@@ -40,7 +40,7 @@ impl ProcessLease {
         Ok(Self { path, record })
     }
 
-    pub(super) fn attach(&mut self, pid: u32) -> Result<(), AppError> {
+    pub(crate) fn attach(&mut self, pid: u32) -> Result<(), AppError> {
         let identity = process_identity::process(pid)?.ok_or_else(uncertain)?;
         if !process_identity::owned_group(&identity) {
             return Err(uncertain());
@@ -50,7 +50,7 @@ impl ProcessLease {
         write_record(&self.path, &self.record, false)
     }
 
-    pub(super) fn release(self) -> Result<(), AppError> {
+    pub(crate) fn release(self) -> Result<(), AppError> {
         self.check_token()?;
         remove_record(&self.path)
     }

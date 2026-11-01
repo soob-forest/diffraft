@@ -66,6 +66,12 @@ fn export_generation(config: &Config) -> Result<(), Box<dyn Error>> {
     ConnectionReport::export_all(config)?;
     ConnectionRequest::export_all(config)?;
     docreview_core::domain::model::ModelSettingsRequest::export_all(config)?;
+    docreview_core::domain::provider::ProviderModel::export_all(config)?;
+    docreview_core::domain::provider::AiProvider::export_all(config)?;
+    docreview_core::domain::ai_settings::AiPreferences::export_all(config)?;
+    docreview_core::domain::ai_settings::AiSettingsRequest::export_all(config)?;
+    docreview_core::domain::codex::CodexReport::export_all(config)?;
+    docreview_core::domain::codex::CodexRequest::export_all(config)?;
     GenerationSnapshot::export_all(config)?;
     TaskConversation::export_all(config)?;
     GenerateRequest::export_all(config)?;

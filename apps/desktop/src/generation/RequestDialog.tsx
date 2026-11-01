@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { MODEL_LABELS } from "../connection/model";
+import { modelLabel } from "../connection/provider";
 import type { PendingRequest } from "./request";
 
 type Props = {
@@ -46,7 +46,7 @@ function RequestContent({ pending, busy, close, generate }: Props) {
         조건·대화·코멘트·최근 결정, 문서 공통 조건을 전달합니다.
       </p>
       <p className="request-model">
-        요청 모델: {MODEL_LABELS[pending.request.model]}
+        요청 공급자 / 모델: {modelLabel(pending.request.model)}
       </p>
       <details>
         <summary>

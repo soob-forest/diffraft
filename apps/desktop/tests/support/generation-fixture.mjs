@@ -18,6 +18,7 @@ export async function review(taskId) {
 }
 export async function chooseTask(id) {
   await showTaskPanel();
+  await $(".task-picker select").waitForExist();
   await browser.execute((id) => {
     const select = document.querySelector(".task-picker select");
     select.value = id;
@@ -62,15 +63,18 @@ export async function beginRequest(mode, fixture, instruction) {
   await writeFile(join(root, "next-generation"), fixture);
   await $("button=확인 후 요청").click();
 }
-export async function terminal(taskId, previousJob = null) {
-  await browser.waitUntil(async () => {
-    const last = (await conversation(taskId)).lastAttempt;
-    return (
-      last &&
-      last.jobId !== previousJob &&
-      ["SUCCEEDED", "FAILED", "CANCELLED"].includes(last.status)
-    );
-  });
+export async function terminal(taskId, previousJob = null, timeout = 10000) {
+  await browser.waitUntil(
+    async () => {
+      const last = (await conversation(taskId)).lastAttempt;
+      return (
+        last &&
+        last.jobId !== previousJob &&
+        ["SUCCEEDED", "FAILED", "CANCELLED"].includes(last.status)
+      );
+    },
+    { timeout },
+  );
   return conversation(taskId);
 }
 export async function currentDocument() {

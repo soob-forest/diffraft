@@ -13,8 +13,8 @@ pub struct GenerationSnapshot {
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, TS)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct GenerateRequest {
-    #[serde(default)]
-    pub model: super::model::ModelSelection,
+    #[serde(default, deserialize_with = "super::provider::request_model")]
+    pub model: super::provider::ProviderModel,
     pub document_id: String,
     pub task_id: String,
     pub expected_head_id: String,
@@ -29,6 +29,7 @@ pub struct GenerateRequest {
 
 impl GenerateRequest {
     pub fn validate(&self) -> Result<(), super::error::AppError> {
+        self.model.validate()?;
         for id in [
             &self.document_id,
             &self.task_id,

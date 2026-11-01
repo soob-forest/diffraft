@@ -77,7 +77,7 @@ pub async fn generate_document(
         let guard = coordinator.begin(&input.operation_id)?;
         crate::claude_adapter::generation::execute(
             &store,
-            &super::regeneration::launcher()?,
+            &super::regeneration::launcher(&store, &input.model, &input.task_id)?,
             input,
             guard.cancelled.clone(),
         )

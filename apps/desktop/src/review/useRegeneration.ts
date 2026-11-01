@@ -1,6 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
 import { useRef, useState } from "react";
-import { readModel } from "../connection/model";
+import { modelLabel, resolveModel } from "../connection/provider";
 import type { Proposal } from "../generated/Proposal";
 import type { RegenerateRequest } from "../generated/RegenerateRequest";
 import type { ReviewProjection } from "../generated/ReviewProjection";
@@ -32,7 +32,9 @@ export function useRegeneration(props: RegenerationProps) {
         return;
       }
       assertCurrentRevision(pending, props);
-      setMessage("코멘트와 지시를 반영한 새 후보를 요청하고 있습니다.");
+      setMessage(
+        `${modelLabel(pending.model)} · 코멘트와 지시를 반영한 새 후보를 요청하고 있습니다.`,
+      );
       setPending(null);
       await invoke("regenerate_proposal", {
         request: { schemaVersion: SCHEMA_VERSION },
@@ -95,7 +97,7 @@ async function prepareRevision(
   instruction: string,
 ): Promise<RegenerateRequest> {
   return {
-    model: await readModel(),
+    model: await resolveModel(),
     documentId: props.projection.batch.documentId,
     batchId: props.projection.batch.id,
     proposalId: props.proposal.id,

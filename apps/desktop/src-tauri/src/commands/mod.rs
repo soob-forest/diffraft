@@ -1,9 +1,13 @@
 #[cfg(feature = "desktop")]
+pub mod ai_settings;
+#[cfg(feature = "desktop")]
 pub mod connection;
 #[cfg(feature = "desktop")]
 pub mod desktop;
 #[cfg(feature = "e2e")]
 pub mod e2e;
+#[cfg(feature = "e2e")]
+pub mod e2e_codex;
 #[cfg(feature = "e2e")]
 pub mod e2e_connection;
 #[cfg(feature = "e2e")]

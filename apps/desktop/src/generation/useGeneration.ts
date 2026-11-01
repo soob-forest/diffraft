@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { modelLabel } from "../connection/provider";
 import type { GenerationAttempt } from "../generated/GenerationAttempt";
 import type { SavedGenerationRequest } from "../generated/SavedGenerationRequest";
 import { errorMessage } from "../ipc";
@@ -103,7 +104,9 @@ function useGenerationOperation(props: GenerationProps) {
   };
   const send = async (request: SavedGenerationRequest) => {
     if (!active.current) return;
-    setMessage("AI 응답을 기다리고 있습니다. 상단에서 중단할 수 있습니다.");
+    setMessage(
+      `${modelLabel(request.value.model)} · AI 응답을 기다리고 있습니다. 상단에서 중단할 수 있습니다.`,
+    );
     const result = await sendRequest(request);
     if (!active.current) return;
     setMessage(

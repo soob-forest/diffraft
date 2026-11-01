@@ -20,6 +20,8 @@ pub enum CliLauncher {
     Installed,
     #[cfg(any(feature = "test-support", feature = "e2e"))]
     Fixture(ProcessSpec),
+    #[cfg(any(feature = "test-support", feature = "e2e"))]
+    CodexFixture(ProcessSpec),
 }
 
 pub struct PreparedExecution {
@@ -83,6 +85,10 @@ impl CliLauncher {
                     version: "fixture".into(),
                 })
             }
+            #[cfg(any(feature = "test-support", feature = "e2e"))]
+            Self::CodexFixture(_) => Err(AppError::invalid(
+                "Claude 요청에 Codex fixture를 사용할 수 없습니다.",
+            )),
         }
     }
 }

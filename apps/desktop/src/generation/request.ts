@@ -1,4 +1,4 @@
-import { readModel } from "../connection/model";
+import { resolveModel } from "../connection/provider";
 import { draftError } from "../drafts/validation";
 import { editorCommand } from "../editor/api";
 import type { FlushRef } from "../editor/DocumentWorkspace";
@@ -65,7 +65,7 @@ export async function prepareRequest(
         "scope",
       ),
       reviewCommand({ kind: "state", taskId: props.taskId }, "state"),
-      readModel(),
+      resolveModel(),
     ]);
     if (review.generating)
       throw new Error(

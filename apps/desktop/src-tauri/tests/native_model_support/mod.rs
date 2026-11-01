@@ -91,7 +91,7 @@ impl World {
 
     pub fn request(&self, model: ModelSelection, mode: ResponseMode) -> GenerateRequest {
         GenerateRequest {
-            model,
+            model: model.into(),
             document_id: self.head.id.clone(),
             task_id: self.task.clone(),
             expected_head_id: self.head.version_id.clone(),
@@ -112,7 +112,7 @@ impl World {
 
     pub fn execute(&self, request: GenerateRequest) -> Result<GenerationOutcome, AppError> {
         let started = Instant::now();
-        let model = request.model;
+        let model = checked(request.model.claude());
         let operation = request.operation_id.clone();
         let result = generation::execute(
             &self.store,
@@ -186,7 +186,7 @@ impl World {
         let SavedGenerationRequest::Generate(request) = attempt.request else {
             panic!("expected saved generation request");
         };
-        assert_eq!(request.model, model);
+        assert_eq!(request.model, model.into());
     }
 
     fn execution_record(&self, operation: &str) -> Option<(String, String)> {

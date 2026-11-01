@@ -63,6 +63,7 @@ fn legacy_completed_request_replays_after_upgrade_without_cli() {
     )
     .unwrap();
     let saved = legacy_json(&world);
+    crate::codex_migration::remove_codex_schema(&world);
     world
         .database()
         .execute_batch(
@@ -106,7 +107,7 @@ fn legacy_and_current_replays_reject_changed_request_fields() {
             legacy_json(&world);
         }
         let mut model = input.clone();
-        model.model = ModelSelection::Sonnet;
+        model.model = ModelSelection::Sonnet.into();
         let mut instruction = input.clone();
         instruction.instruction = "다른 지시".into();
         let mut scope = input;

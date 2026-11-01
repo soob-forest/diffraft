@@ -3,7 +3,7 @@ use crate::domain::{
     error::AppError,
 };
 
-pub(super) fn for_mode(mode: ResponseMode) -> Result<String, AppError> {
+pub(crate) fn for_mode(mode: ResponseMode) -> Result<String, AppError> {
     let schema = schemars::generate::SchemaSettings::draft07()
         .into_generator()
         .into_root_schema_for::<AiResponse>();

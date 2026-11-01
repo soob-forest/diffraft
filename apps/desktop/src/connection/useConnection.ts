@@ -18,7 +18,7 @@ export function useConnection() {
     model,
     tested,
     busy: state.busy || model.saving,
-    next: connectionNextAction(state.report?.status, tested, state.error),
+    next: connectionNextAction(state.report?.status, state.error),
   };
 }
 
@@ -59,7 +59,16 @@ function useConnectionRequest(model: ReturnType<typeof useModelSettings>) {
       }
     }
   }
-  return { report, tested, error, busy, ...cancellation, run };
+  return {
+    report,
+    tested,
+    error,
+    busy,
+    operation: cancellation.operation,
+    cancelling: cancellation.cancelling,
+    cancel: cancellation.cancel,
+    run,
+  };
 }
 
 function useMounted() {

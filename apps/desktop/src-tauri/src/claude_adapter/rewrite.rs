@@ -1,4 +1,5 @@
-use super::execution::{self, CliLauncher};
+use super::execution::CliLauncher;
+use crate::providers::{self, ExecutionInput};
 use crate::{
     domain::{ai::ResponseMode, error::AppError, review::ReviewBatch, rewrite::RewriteRequest},
     storage::Store,
@@ -18,8 +19,17 @@ pub fn execute(
     }
     let result = (|| {
         let context = store.rewrite_context(&job)?;
-        let prepared = launcher.prepare(store, &job, ResponseMode::Rewrite, retry_of)?;
-        let completion = execution::run(store, &job, &context, prepared, cancelled)?;
+        let completion = providers::run(
+            store,
+            launcher,
+            &job,
+            ExecutionInput {
+                mode: ResponseMode::Rewrite,
+                retry_of,
+                context: &context,
+            },
+            cancelled,
+        )?;
         store.complete_rewrite(&job, &completion.response, &completion.session_id)
     })();
     if let Err(error) = &result {

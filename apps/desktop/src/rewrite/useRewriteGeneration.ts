@@ -1,8 +1,8 @@
 import { invoke } from "@tauri-apps/api/core";
 import { useEffect, useRef, useState } from "react";
-import { readModel } from "../connection/model";
+import { modelLabel, resolveModel } from "../connection/provider";
 import type { DocumentModel } from "../editor/useDocument";
-import type { ModelSelection } from "../generated/ModelSelection";
+import type { ProviderModel } from "../generated/ProviderModel";
 import type { ReviewBatch } from "../generated/ReviewBatch";
 import type { RewriteRequest } from "../generated/RewriteRequest";
 import { errorMessage, SCHEMA_VERSION } from "../ipc";
@@ -37,7 +37,7 @@ export function useRewriteGeneration(props: RewriteFormProps) {
       const request = pending;
       setPending(null);
       operation.setMessage(
-        "재작성 중입니다. 상단에서 생성을 중단할 수 있습니다.",
+        `${modelLabel(request.model)} · 재작성 중입니다. 상단에서 생성을 중단할 수 있습니다.`,
       );
       const batch = await generateCandidate(props, request, operation.active);
       if (!operation.active.current) return;
@@ -102,7 +102,7 @@ function makeRequest(
   props: RewriteFormProps,
   instruction: string,
   reference: boolean,
-  model: ModelSelection,
+  model: ProviderModel,
 ): RewriteRequest {
   const active = props.review.state.batches.find(
     (batch) => batch.status === "ACTIVE",
@@ -162,7 +162,7 @@ async function prepareRequest(
   return props.model.gate.run(async () => {
     await props.model.autosave.flush();
     await props.flushTask();
-    return makeRequest(props, instruction, reference, await readModel());
+    return makeRequest(props, instruction, reference, await resolveModel());
   });
 }
 async function generateCandidate(

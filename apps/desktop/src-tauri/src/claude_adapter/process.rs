@@ -107,7 +107,7 @@ fn finish_output(
     })
 }
 
-pub(super) fn validate(
+pub(crate) fn validate(
     spec: &ProcessSpec,
     input: &[u8],
     cancelled: &AtomicBool,
@@ -129,7 +129,7 @@ pub(super) fn validate(
     Ok(())
 }
 
-pub(super) fn spawn(spec: &ProcessSpec) -> Result<Child, AppError> {
+pub(crate) fn spawn(spec: &ProcessSpec) -> Result<Child, AppError> {
     Command::new(&spec.program)
         .args(&spec.args)
         .current_dir(&spec.directory)
@@ -148,7 +148,7 @@ pub(super) fn spawn(spec: &ProcessSpec) -> Result<Child, AppError> {
         })
 }
 
-pub(super) fn stop(child: &mut Child) -> Result<(), AppError> {
+pub(crate) fn stop(child: &mut Child) -> Result<(), AppError> {
     let signalled = process_group::terminate(child.id());
     let deadline = Instant::now() + REAP_LIMIT;
     while child.try_wait().map_err(|_| wait_error())?.is_none() {

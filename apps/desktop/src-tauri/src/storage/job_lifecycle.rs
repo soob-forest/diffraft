@@ -53,7 +53,7 @@ impl Store {
             params![status,code.as_str(),job.id,job.attempt_id],
         ).map_err(database_error)?;
         if changed == 1 && error == ErrorCode::SessionMissing {
-            transaction.execute("UPDATE session_bindings SET status='MISSING' WHERE status='ACTIVE' AND task_id=(SELECT task_id FROM jobs WHERE id=?1) AND cli_session_id=(SELECT requested_session_id FROM job_executions WHERE job_id=?1)", [&job.id]).map_err(database_error)?;
+            mark_session_missing(&transaction, job)?;
         }
         transaction.commit().map_err(database_error)
     }
@@ -64,4 +64,26 @@ impl Store {
         ).map_err(database_error)?;
         Ok(())
     }
+}
+
+fn mark_session_missing(connection: &Connection, job: &ReviewJob) -> Result<(), AppError> {
+    connection
+        .execute(
+            "UPDATE codex_sessions SET status='MISSING' WHERE status='ACTIVE'
+         AND task_id=(SELECT task_id FROM jobs WHERE id=?1)
+         AND account_scope=(SELECT account_scope FROM codex_execution_scopes WHERE job_id=?1)
+         AND thread_id=(SELECT requested_session_id FROM job_executions WHERE job_id=?1)",
+            [&job.id],
+        )
+        .map_err(database_error)?;
+    connection
+        .execute(
+            "UPDATE session_bindings SET status='MISSING' WHERE status='ACTIVE'
+         AND NOT EXISTS(SELECT 1 FROM codex_execution_scopes WHERE job_id=?1)
+         AND task_id=(SELECT task_id FROM jobs WHERE id=?1)
+         AND cli_session_id=(SELECT requested_session_id FROM job_executions WHERE job_id=?1)",
+            [&job.id],
+        )
+        .map_err(database_error)?;
+    Ok(())
 }

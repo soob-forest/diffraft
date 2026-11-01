@@ -2,6 +2,20 @@
 mod buffer_copies;
 #[path = "workflow_cases/cli_upgrade.rs"]
 mod cli_upgrade;
+#[path = "workflow_cases/codex_cancel.rs"]
+mod codex_cancel;
+#[path = "workflow_cases/codex_migration.rs"]
+mod codex_migration;
+#[path = "workflow_cases/codex_preferences.rs"]
+mod codex_preferences;
+#[path = "workflow_cases/codex_process.rs"]
+mod codex_process;
+#[path = "workflow_cases/codex_recovery.rs"]
+mod codex_recovery;
+#[path = "workflow_cases/codex_session_state.rs"]
+mod codex_session_state;
+#[path = "workflow_cases/codex_sessions.rs"]
+mod codex_sessions;
 #[path = "workflow_cases/comments.rs"]
 mod comments;
 #[path = "workflow_cases/conflicts.rs"]

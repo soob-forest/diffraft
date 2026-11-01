@@ -6,6 +6,12 @@ if (
   !testRoot ||
   ![
     "model-selection",
+    "codex",
+    "codex-restart",
+    "codex-native",
+    "codex-keyboard",
+    "codex-stale",
+    "codex-recovery",
     "model-selection-restart",
     "tobe",
     "editor",
@@ -43,7 +49,7 @@ if (
 const application = fileURLToPath(
   new URL("./src-tauri/target/debug/docreview", import.meta.url),
 );
-const TEST_TIMEOUT_MS = 30_000;
+const TEST_TIMEOUT_MS = phase === "codex-native" ? 120_000 : 30_000;
 
 export const config = {
   runner: "local",
@@ -93,4 +99,14 @@ async function ensureVisibleWindow() {
       }),
     { timeoutMsg: "테스트 창이 표시되어야 화면 배치를 검증할 수 있습니다." },
   );
+  if (!phase.startsWith("codex") && phase !== "startup-failure") {
+    await browser.execute(async () => {
+      await globalThis.__TAURI__.core.invoke("ai_settings_command", {
+        request: {
+          schemaVersion: 1,
+          action: { kind: "provider", provider: "claude" },
+        },
+      });
+    });
+  }
 }

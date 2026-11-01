@@ -1,4 +1,5 @@
-use super::execution::{self, CliLauncher};
+use super::execution::CliLauncher;
+use crate::providers::{self, ExecutionInput};
 use crate::{
     domain::{
         ai::ResponseMode,
@@ -23,8 +24,17 @@ pub fn execute(
     }
     let result = (|| {
         let input = store.generation_context(&job)?;
-        let prepared = launcher.prepare(store, &job, mode, retry_of)?;
-        let completion = execution::run(store, &job, &input, prepared, cancelled)?;
+        let completion = providers::run(
+            store,
+            launcher,
+            &job,
+            ExecutionInput {
+                mode,
+                retry_of,
+                context: &input,
+            },
+            cancelled,
+        )?;
         if mode == ResponseMode::Explain {
             store.complete_explanation(&job, &completion.response, &completion.session_id)
         } else {

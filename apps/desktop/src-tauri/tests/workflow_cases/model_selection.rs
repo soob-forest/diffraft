@@ -16,7 +16,7 @@ use std::{
 
 pub(super) fn request(world: &World, task: &str, model: ModelSelection) -> GenerateRequest {
     GenerateRequest {
-        model,
+        model: model.into(),
         document_id: world.document.id.clone(),
         task_id: task.into(),
         expected_head_id: world.document.version_id.clone(),
@@ -146,7 +146,7 @@ fn setup_failure_preserves_model_after_restart_and_manual_retry_ignores_new_defa
     let SavedGenerationRequest::Generate(mut retry) = failed.request else {
         panic!("generate")
     };
-    assert_eq!(retry.model, ModelSelection::Opus);
+    assert_eq!(retry.model, ModelSelection::Opus.into());
     retry.operation_id = uuid::Uuid::new_v4().to_string();
     retry.retry_of = Some(failed.job_id);
     generation::execute(&store, &fixture, *retry, flag()).unwrap();
@@ -224,6 +224,7 @@ fn v6_upgrade_preserves_history_and_marks_old_execution_model_unknown() {
         flag(),
     )
     .unwrap();
+    crate::codex_migration::remove_codex_schema(&world);
     world.database().execute_batch("ALTER TABLE job_executions DROP COLUMN requested_model; UPDATE generation_jobs SET request_json=json_remove(request_json,'$.model'); PRAGMA user_version=6;").unwrap();
     let data = world.store.directory().to_owned();
     drop(world.store);
@@ -233,12 +234,12 @@ fn v6_upgrade_preserves_history_and_marks_old_execution_model_unknown() {
     let SavedGenerationRequest::Generate(request) = page.last_attempt.unwrap().request else {
         panic!("generate")
     };
-    assert_eq!(request.model, ModelSelection::CliDefault);
+    assert_eq!(request.model, ModelSelection::CliDefault.into());
     store
         .configure_database_for_test(|db| {
             assert_eq!(
                 db.pragma_query_value(None, "user_version", |row| row.get::<_, u32>(0))?,
-                7
+                8
             );
             assert_eq!(
                 db.query_row("SELECT requested_model FROM job_executions", [], |row| {
@@ -268,7 +269,7 @@ fn legacy_requests_default_but_unknown_models_fail_deserialization() {
         serde_json::from_value::<GenerateRequest>(json.clone())
             .unwrap()
             .model,
-        ModelSelection::CliDefault
+        ModelSelection::CliDefault.into()
     );
     json["model"] = "arbitrary".into();
     assert!(serde_json::from_value::<GenerateRequest>(json).is_err());

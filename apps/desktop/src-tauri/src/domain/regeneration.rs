@@ -8,8 +8,8 @@ pub const MAX_INSTRUCTION_BYTES: usize = 16 * 1024;
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema, TS)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct RegenerateRequest {
-    #[serde(default)]
-    pub model: super::model::ModelSelection,
+    #[serde(default, deserialize_with = "super::provider::request_model")]
+    pub model: super::provider::ProviderModel,
     pub document_id: String,
     pub batch_id: String,
     pub proposal_id: String,
@@ -23,6 +23,7 @@ pub struct RegenerateRequest {
 
 impl RegenerateRequest {
     pub fn validate(&self) -> Result<(), AppError> {
+        self.model.validate()?;
         for id in [
             &self.document_id,
             &self.batch_id,

@@ -9,7 +9,7 @@ mod failure;
 pub mod generation;
 pub mod guarded_process;
 pub mod model_settings;
-mod output_schema;
+pub(crate) mod output_schema;
 mod pipes;
 pub mod process;
 mod process_group;

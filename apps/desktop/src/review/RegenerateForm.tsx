@@ -1,4 +1,4 @@
-import { MODEL_LABELS } from "../connection/model";
+import { modelLabel } from "../connection/provider";
 import { type RegenerationProps, useRegeneration } from "./useRegeneration";
 
 export function RegenerateForm(props: RegenerationProps) {
@@ -44,8 +44,8 @@ function RegenerationActions({
     <>
       {form.pending && (
         <p className="request-model">
-          요청 모델: {MODEL_LABELS[form.pending.model]} · 사용 한도를 소비할 수
-          있습니다.
+          요청 공급자 / 모델: {modelLabel(form.pending.model)} · 사용 한도를
+          소비할 수 있습니다.
         </p>
       )}
       <button

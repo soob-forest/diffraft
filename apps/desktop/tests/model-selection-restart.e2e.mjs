@@ -19,36 +19,16 @@ describe("모델 저장·실패·재시도와 앱 재시작", () => {
     await $(".task-picker select").waitForExist();
     const task = await createTask("모델 계약 확인");
     const before = await currentDocument();
-    await writeFile(join(root, "expected-model"), "opus");
-    await beginRequest("EXPLAIN", "MODEL_DENIED", "모델 접근 제한 검사");
-    const failed = await terminal(task);
-    assert.equal((await currentDocument()).content, before.content);
-    assert.equal(failed.messages.length, 1);
-    assert.equal(failed.lastAttempt.errorCode, "RATE_OR_POLICY");
-    assert.equal(failed.lastAttempt.request.value.model, "opus");
-    await $(".attempt-recovery").waitForDisplayed();
-    await $(".attempt-recovery .request-model").scrollIntoView();
-    assert.match(await $(".attempt-recovery").getText(), /요청 모델: Opus/);
-    await browser.saveScreenshot(".artifacts/models/model-denied.png");
-    await invoke("model_settings_command", {
-      request: { schemaVersion: 1, action: { kind: "save", model: "haiku" } },
-    });
-    await writeFile(join(root, "next-generation"), "EXPLAIN");
-    await $("button=마지막 요청 다시 실행").waitForEnabled();
-    await $("button=마지막 요청 다시 실행").click();
-    const retried = await terminal(task, failed.lastAttempt.jobId);
-    assert.equal(retried.lastAttempt.status, "SUCCEEDED");
-    assert.equal(retried.lastAttempt.request.value.model, "opus");
-    assert.equal(
-      JSON.parse(await readFile(join(root, "model-observation.json"), "utf8"))
-        .model,
-      "opus",
-    );
+    const failed = await failedRequest(task, before);
+    const retried = await retryAfterDefaultChange(task, failed);
     await writeFile(join(root, "expected-model"), "haiku");
     await beginRequest("EXPLAIN", "EXPLAIN", "새 요청의 모델 확인");
     const fresh = await terminal(task, retried.lastAttempt.jobId);
     assert.equal(fresh.lastAttempt.status, "SUCCEEDED");
-    assert.equal(fresh.lastAttempt.request.value.model, "haiku");
+    assert.deepEqual(fresh.lastAttempt.request.value.model, {
+      provider: "claude",
+      model: "haiku",
+    });
     assert.equal(fresh.messages.length, 5);
     await $(".attempt-recovery").waitForExist({ reverse: true });
     await $("button=생성 중단").waitForExist({ reverse: true });
@@ -62,7 +42,10 @@ describe("모델 저장·실패·재시도와 앱 재시작", () => {
     await $(".request-form textarea").setValue("모델 고정 확인");
     await $("button=요청 내용 확인").click();
     await $(".generation-dialog").waitForDisplayed();
-    assert.match(await $(".generation-dialog").getText(), /요청 모델: Haiku/);
+    assert.match(
+      await $(".generation-dialog").getText(),
+      /요청 공급자 \/ 모델: Claude Code · Haiku/,
+    );
     await browser.saveScreenshot(".artifacts/models/request-confirmation.png");
     await saveModel("sonnet");
     await writeFile(join(root, "expected-model"), "haiku");
@@ -82,7 +65,10 @@ describe("모델 저장·실패·재시도와 앱 재시작", () => {
     await $("button=생성 중단").click();
     const cancelled = await terminal(task);
     assert.equal(cancelled.lastAttempt.status, "CANCELLED");
-    assert.equal(cancelled.lastAttempt.request.value.model, "haiku");
+    assert.deepEqual(cancelled.lastAttempt.request.value.model, {
+      provider: "claude",
+      model: "haiku",
+    });
     assert.equal(cancelled.messages.length, 1);
     assert.equal((await currentDocument()).content, before.content);
   });
@@ -92,4 +78,48 @@ async function saveModel(model) {
   await invoke("model_settings_command", {
     request: { schemaVersion: 1, action: { kind: "save", model } },
   });
+}
+
+async function failedRequest(task, before) {
+  await writeFile(join(root, "expected-model"), "opus");
+  await beginRequest("EXPLAIN", "MODEL_DENIED", "모델 접근 제한 검사");
+  const failed = await terminal(task);
+  assert.equal((await currentDocument()).content, before.content);
+  assert.equal(failed.messages.length, 1);
+  assert.equal(failed.lastAttempt.errorCode, "RATE_OR_POLICY");
+  assert.deepEqual(failed.lastAttempt.request.value.model, {
+    provider: "claude",
+    model: "opus",
+  });
+  await $(".attempt-recovery").waitForDisplayed();
+  await browser.execute(() =>
+    document
+      .querySelector(".attempt-recovery .request-model")
+      .scrollIntoView({ block: "nearest" }),
+  );
+  assert.match(
+    await $(".attempt-recovery").getText(),
+    /요청 공급자 \/ 모델: Claude Code · Opus/,
+  );
+  await browser.saveScreenshot(".artifacts/models/model-denied.png");
+  return failed;
+}
+
+async function retryAfterDefaultChange(task, failed) {
+  await saveModel("haiku");
+  await writeFile(join(root, "next-generation"), "EXPLAIN");
+  await $("button=마지막 요청 다시 실행").waitForEnabled();
+  await $("button=마지막 요청 다시 실행").click();
+  const retried = await terminal(task, failed.lastAttempt.jobId);
+  assert.equal(retried.lastAttempt.status, "SUCCEEDED");
+  assert.deepEqual(retried.lastAttempt.request.value.model, {
+    provider: "claude",
+    model: "opus",
+  });
+  assert.equal(
+    JSON.parse(await readFile(join(root, "model-observation.json"), "utf8"))
+      .model,
+    "opus",
+  );
+  return retried;
 }

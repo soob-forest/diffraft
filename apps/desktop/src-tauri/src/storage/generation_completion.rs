@@ -32,7 +32,9 @@ impl Store {
     ) -> Result<(), AppError> {
         require_running(connection, job)?;
         response.validate()?;
-        if let Some(execution) = execution(connection, job)? {
+        if self.complete_codex_session(connection, job, response, session)? {
+            // Codex records use a separate account-scoped session binding.
+        } else if let Some(execution) = execution(connection, job)? {
             let id = session.ok_or_else(invalid_session)?;
             validate_id(id).map_err(|_| invalid_session())?;
             if response_mode(response) != execution.mode
@@ -127,7 +129,7 @@ fn execution(
     .transpose()
 }
 
-fn response_mode(response: &AiResponse) -> ResponseMode {
+pub(super) fn response_mode(response: &AiResponse) -> ResponseMode {
     match response {
         AiResponse::Patch { .. } => ResponseMode::Patch,
         AiResponse::Rewrite { .. } => ResponseMode::Rewrite,
@@ -135,7 +137,7 @@ fn response_mode(response: &AiResponse) -> ResponseMode {
     }
 }
 
-fn response_text(response: &AiResponse) -> &str {
+pub(super) fn response_text(response: &AiResponse) -> &str {
     match response {
         AiResponse::Patch { summary, .. } | AiResponse::Rewrite { summary, .. } => summary,
         AiResponse::Explain { answer, .. } => answer,

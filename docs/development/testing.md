@@ -38,7 +38,7 @@ npm run test:e2e -- shutdown
 npm run test:e2e -- quit
 ```
 
-선택 실행: `tobe`, `design`, `design-resume`, `usability`, `connection`, `model-selection`, `generation`, `review`, `recovery`, `conflict`, `layout`, `regeneration`, `history`, `rewrite`, `rewrite-cancel`, `navigation`, `export`, `shutdown`, `quit`, `performance`, `startup-failure`. 재시작 검사가 필요한 흐름은 실행기가 별도 프로세스로 이어 실행한다.
+선택 실행: `tobe`, `design`, `design-resume`, `usability`, `connection`, `model-selection`, `codex`, `codex-recovery`, `codex-keyboard`, `codex-native`, `generation`, `review`, `recovery`, `conflict`, `layout`, `regeneration`, `history`, `rewrite`, `rewrite-cancel`, `navigation`, `export`, `shutdown`, `quit`, `performance`, `startup-failure`. 재시작 검사가 필요한 흐름은 실행기가 별도 프로세스로 이어 실행한다.
 
 `shutdown`과 `startup-failure`는 부모가 소유한 실제 앱 ChildProcess의 `exit` 결과가 code 0 / signal null인지 검사한다. 프로세스 소멸만으로 성공 처리하지 않는다. E2E 전용 수명 기록으로 앱 Exit 시 메인 WebView가 유지되고 종료 준비가 완료됐는지도 확인한다. `test:unit`에는 SIGSEGV·비정상 코드·누락 결과를 거부하는 관측기 검사도 포함한다.
 
@@ -59,6 +59,30 @@ WDIO 플러그인·테스트 IPC·장애 주입·개발용 계약 생성기는 �
 `npm run test:e2e -- model-selection`은 미설치 저장·오류 복구·연결 테스트 무효화·앱 재시작 복원·합성 모델 제한·이전 모델 재시도·새 모델 요청을 검사한다. 1440×900/800×600과 100%/150%/200% 화면은 `.artifacts/models/`에 저장한다.
 
 Rust `model_settings` 및 workflow의 `model_selection`/`model_modes`는 실제 공통 인자 생성기로 가짜 자식 프로세스를 실행하여 네 선택값과 모든 생성 경로의 저장값·실행값을 확인한다. 모델 없는 과거 요청은 CLI 기본값이며, 과거 실행 기록의 NULL은 모델 미상이다. 이 결과는 실제 서비스 모델 권한·품질·응답 지연 검증을 대신하지 않는다. [검증 기록과 미검증 범위](model-selection.md)를 참고한다.
+
+## Codex 검사
+
+`npm run test:e2e -- codex`는 가짜 App Server로 모든 생성 모드·연결·인증/저장 오류·중단·재시도·재시작·늦은 응답 경합을 검사한다. 실제 OS 키보드는 `codex-keyboard`로 별도 선택한다. PID와 실행 경로를 검증한 Swift 검사기가 Tab·방향키·Space·Enter·Escape를 테스트 앱에 전달한다. 이 검사는 macOS 접근성 권한이 필요하다. 1440×900/800×600·100%/150%/200% 설정/확인 캡처는 `.artifacts/codex/`에 둔다. OS select 팝업은 별도 레이어라 앱 캡처에 포함되지 않는다.
+
+`codex`에는 `codex-recovery`도 포함한다. 별도 선택 시 제거된 저장 모델·지원하지 않는 reasoning에서도 목록 조회와 대체 선택이 가능한지, 유실 thread의 수동 재시도가 새 연결에 로컬 대화를 전달하는지 검사한다. Rust workflow의 `codex_recovery`는 계정·작업·공급자 경계, 재시작, 늦은 실패와 DB 롤백을 추가로 검사한다. [보완 계획과 결과](codex-recovery-fixes.md)를 참고한다.
+
+같은 모델의 미지원 추론 수준은 명시적 저장으로 복구하고, 기본값과 달라도 지원되는 저장값은 유지하는지 검사한다. 변경 안내·저장 버튼의 설명 연결과 6개 화면/배율 조합도 확인한다. `codex_session_state`는 연결 없는 새 계정·유실·이전 계정 재선택·다른 작업의 상태를 구분한다. [추가 보완 기록](codex-isolation-settings-fixes.md)을 따른다.
+
+`codex-native`는 명시적으로 선택할 때만 현재 ChatGPT 인증으로 연결 테스트·전 생성 모드·승인/저장·중단·고정 모델 재시도·재시작을 실행한다. 합성 문서와 임시 DB만 사용하지만 실제 사용 한도를 소비한다. 기본 전체 E2E·CI에는 포함하지 않는다.
+
+설치 Codex 계약은 아래 ignored 테스트를 명시적으로 실행한다. `codex_isolation`과 `codex_tools`는 합성 홈·로컬 수신기만 사용하며 계정이 필요 없다. `codex_contract_native`의 생성 사례와 `codex_managed_native`는 현재 계정 사용량을 소비한다. 실행 전 `DOCREVIEW_CODEX_BIN`에 공식 실행 파일의 절대 경로를 지정한다. 버전·도구 제공/부수효과·지침 격리·중단 증거와 한계는 [Codex 실행 기록](codex-integration.md)을 따른다.
+
+```sh
+DOCREVIEW_CODEX_BIN=/opt/homebrew/bin/codex cargo test --locked --features test-support --test codex_isolation --test codex_tools --test codex_instructions_native -- --ignored
+DOCREVIEW_CODEX_BIN=/opt/homebrew/bin/codex cargo test --locked --features test-support --test codex_contract_native --test codex_managed_native -- --ignored
+DOCREVIEW_CODEX_BIN=/opt/homebrew/bin/codex cargo test --locked --no-default-features --features test-support --test codex_missing_native -- --ignored
+```
+
+`codex_missing_native`는 빈 임시 홈과 합성 미존재 thread만 사용한다. 실제 계정·인증 파일·생성 턴 없이 설치 버전의 유실 오류 계약을 검증한다.
+
+`codex_instructions_native`는 빈 임시 홈과 로컬 추론 수신기로 새 thread와 예전 지침이 저장된 thread의 재개를 검사한다. model_instructions_file 및 이전 별칭의 외부 표식이 전송되지 않고 앱 소유 기본 지침이 전송되어야 한다. 실제 계정과 외부 추론 서비스는 사용하지 않는다.
+
+위 Cargo 명령은 프로젝트 Rust 도구 환경의 `src-tauri`에서 실행한다. 네이티브 E2E를 시작하기 전에 다시 `native:build:e2e`를 실행한다. Cargo 테스트도 공통 debug 실행 파일을 일반 앱으로 바꿀 수 있다.
 
 ## 실제 계정 검사
 

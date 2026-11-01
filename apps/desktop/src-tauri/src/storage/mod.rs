@@ -1,4 +1,7 @@
+mod ai_preferences;
 mod batch_decisions;
+mod codex_completion;
+pub mod codex_execution;
 mod comment_links;
 mod comments;
 mod common_rules;

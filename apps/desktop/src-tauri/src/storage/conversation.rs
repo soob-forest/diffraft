@@ -31,12 +31,18 @@ impl Store {
             None
         };
         messages.reverse();
+        let last_attempt = last_attempt(&connection, task)?;
+        let provider = last_attempt.as_ref().map(|attempt| match &attempt.request {
+            SavedGenerationRequest::Generate(request) => request.model.provider(),
+            SavedGenerationRequest::Regenerate(request) => request.model.provider(),
+            SavedGenerationRequest::Rewrite(request) => request.model.provider(),
+        });
         Ok(TaskConversation {
             task_id: task.into(),
             messages,
             earlier_before,
-            session: session(&connection, task)?,
-            last_attempt: last_attempt(&connection, task)?,
+            session: session(&connection, task, provider)?,
+            last_attempt,
             common_rules,
         })
     }
@@ -64,8 +70,22 @@ fn messages(
         .map_err(database_error)
 }
 
-fn session(connection: &Connection, task: &str) -> Result<TaskSessionState, AppError> {
-    let status:Option<String>=connection.query_row("SELECT status FROM session_bindings WHERE task_id=?1 ORDER BY CASE status WHEN 'ACTIVE' THEN 0 ELSE 1 END,created_at DESC,rowid DESC LIMIT 1",[task],|row|row.get(0)).optional().map_err(database_error)?;
+fn session(
+    connection: &Connection,
+    task: &str,
+    provider: Option<crate::domain::provider::AiProvider>,
+) -> Result<TaskSessionState, AppError> {
+    let query = if provider == Some(crate::domain::provider::AiProvider::Codex) {
+        "SELECT status FROM codex_sessions WHERE task_id=?1 AND account_scope=(
+            SELECT e.account_scope FROM codex_execution_scopes e JOIN jobs j ON j.id=e.job_id
+            WHERE j.task_id=?1 ORDER BY j.created_at DESC,j.rowid DESC LIMIT 1)"
+    } else {
+        "SELECT status FROM session_bindings WHERE task_id=?1 ORDER BY CASE status WHEN 'ACTIVE' THEN 0 ELSE 1 END,created_at DESC,rowid DESC LIMIT 1"
+    };
+    let status: Option<String> = connection
+        .query_row(query, [task], |row| row.get(0))
+        .optional()
+        .map_err(database_error)?;
     Ok(match status.as_deref() {
         Some("ACTIVE") => TaskSessionState::Connected,
         Some("MISSING") => TaskSessionState::Missing,

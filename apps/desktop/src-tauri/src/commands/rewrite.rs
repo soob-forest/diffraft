@@ -22,7 +22,12 @@ pub async fn generate_rewrite(
     let coordinator = generation.0.clone()?;
     blocking(move || {
         let guard = coordinator.begin(&rewrite.operation_id)?;
-        rewrite::execute(&store, &launcher()?, rewrite, guard.cancelled.clone())
+        rewrite::execute(
+            &store,
+            &launcher(&store, &rewrite.model, &rewrite.task_id)?,
+            rewrite,
+            guard.cancelled.clone(),
+        )
     })
     .await
 }

@@ -1,4 +1,5 @@
-use super::execution::{self, CliLauncher};
+use super::execution::CliLauncher;
+use crate::providers::{self, ExecutionInput};
 use crate::{
     domain::{
         ai::ResponseMode, error::AppError, regeneration::RegenerateRequest, review::ReviewBatch,
@@ -20,8 +21,17 @@ pub fn execute(
     }
     let result = (|| {
         let context = store.regeneration_context(&job)?;
-        let prepared = launcher.prepare(store, &job, ResponseMode::Patch, retry_of)?;
-        let completion = execution::run(store, &job, &context, prepared, cancelled)?;
+        let completion = providers::run(
+            store,
+            launcher,
+            &job,
+            ExecutionInput {
+                mode: ResponseMode::Patch,
+                retry_of,
+                context: &context,
+            },
+            cancelled,
+        )?;
         store.complete_regeneration(&job, &completion.response, &completion.session_id)
     })();
     if let Err(error) = &result {

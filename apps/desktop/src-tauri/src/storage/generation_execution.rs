@@ -119,7 +119,7 @@ fn validate(execution: &ExecutionContext) -> Result<(), AppError> {
     Ok(())
 }
 
-fn verify_retry(
+pub(super) fn verify_retry(
     connection: &Connection,
     task: &str,
     previous: Option<&str>,

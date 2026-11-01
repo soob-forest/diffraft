@@ -6,8 +6,9 @@ DocReview는 macOS용 로컬 Markdown 편집·검토 앱이다. 사용 방법은
 
 - 대상 환경은 macOS 14 이상·Apple Silicon이며 Windows·Intel Mac은 지원 범위에 포함하지 않는다.
 - 최소 기준은 M1·8 GB·로컬 SSD다. 해당 최소 장치의 실측은 없으며 현재 검증 환경은 macOS 26.2·Apple Silicon·36 GiB다.
-- 로컬 편집·비교·저장·복원·내보내기는 AI 로그인 없이 사용할 수 있다. AI 요청에는 인터넷과 별도로 설치한 공식 native Claude Code가 필요하다.
-- CLI는 2.1.295 이상 정식 버전과 필수 실행 옵션·공식 서명을 확인한다. 공식 claude.ai·firstParty 인증의 Pro·Max·Team·Enterprise 식별자를 허용하며 실제 접근 권한과 한도는 CLI가 판정한다. 별도 API 과금 경로로 자동 전환하지 않는다.
+- 로컬 편집·비교·저장·복원·내보내기는 AI 로그인 없이 사용할 수 있다. AI 요청에는 인터넷과 별도로 설치한 공식 Codex 또는 Claude Code가 필요하다.
+- Claude Code는 2.1.295 이상 정식 버전과 필수 실행 옵션·공식 서명을 확인한다. 공식 claude.ai·firstParty 인증의 Pro·Max·Team·Enterprise 식별자를 허용하며 실제 접근 권한과 한도는 CLI가 판정한다. 별도 API 과금 경로로 자동 전환하지 않는다.
+- Codex는 0.165.0 이상과 기존 ChatGPT 인증을 사용한다. 새 데이터의 기본 공급자이며 기존 데이터는 Claude를 유지한다. 토큰 복사·API 키·사용자 지정 과금 경로는 지원하지 않는다. 검증한 버전과 실제 계정 범위는 [실행 기록](development/codex-integration.md)을 따른다.
 - 앱 내부 버전은 백업을 대신하지 않는다. 로컬 디스크를 사용하며 네트워크 드라이브의 저장 보장은 제공하지 않는다.
 
 GitHub 설치 파일은 아직 게시하지 않았다. 설치 파일은 [Releases](https://github.com/soob-forest/diffraft/releases)에 별도로 제공하며, 소스를 받은 경우 아래 방법으로 직접 만든다.
@@ -32,7 +33,7 @@ npm run native:bundle:internal
 
 1. 생성한 DMG를 열고 `DocReview.app`을 사용할 Applications 폴더로 복사한다.
 2. 앱을 실행하고 `새 문서` 또는 `문서 열기`로 시작한다.
-3. AI가 필요하면 공식 Claude Code에서 로그인한 뒤 앱의 `AI 연결 설정 → 상태 다시 확인 → 연결 테스트`를 실행한다.
+3. AI가 필요하면 `AI 연결 설정`에서 공급자를 저장한다. Codex는 `상태·모델 목록 조회 → ChatGPT 로그인 열기 → 연결 테스트`, Claude는 기존 로그인·상태 확인을 사용한다. 이미 로그인했다면 로그인 단계는 생략한다.
 
 운영체제의 보안·파일 접근 확인창은 해당 앱과 선택한 문서 범위에서 처리한다. [Tauri macOS 서명 안내](https://v2.tauri.app/distribute/sign/macos/#ad-hoc-signing)를 참고한다.
 
@@ -55,6 +56,6 @@ npm run native:bundle:internal
 3. 기존 앱을 새 `DocReview.app`으로 교체한다.
 4. 다시 실행해 문서·작업·버전 기록을 확인한다. macOS가 문서 폴더 접근을 다시 물으면 확인 후 진행한다.
 
-DB schema는 6이며 schema 5에서 변환할 때 먼저 `workspace.schema-*.backup.sqlite3`를 만든다. 더 최신 schema를 이전 앱으로 열면 쓰기를 차단한다. 복구는 앱이 종료된 상태에서 일치하는 앱·DB·문서 백업을 함께 사용한다.
+DB schema는 8이며 이전 schema에서 변환할 때 먼저 `workspace.schema-*.backup.sqlite3`를 만든다. 더 최신 schema를 이전 앱으로 열면 쓰기를 차단한다. 복구는 앱이 종료된 상태에서 일치하는 앱·DB·문서 백업을 함께 사용한다.
 
 저장 오류·외부 파일 변경이 있으면 앱의 `파일 비교·복구`를 사용한다. 작업 파일이나 DB를 직접 덮어써 복구 상태를 지우지 않는다. 강제 종료 전 아직 저장되지 않은 마지막 입력까지 보존한다고 보장하지 않는다.

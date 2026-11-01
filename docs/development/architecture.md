@@ -34,14 +34,14 @@ flowchart TD
   UI["WebView · 편집 / diff / 코멘트"] -->|"제한된 IPC"| Core["Rust · 검증 / 승인 / 맥락"]
   Core --> Store["SQLite · 버전 / 제안 / 대화"]
   Core --> File["로컬 .md 확정본"]
-  Core --> CLI["공식 Claude Code CLI"]
-  CLI --> Remote["Anthropic 서비스"]
+  Core --> CLI["저장 요청의 공급자 · Codex / Claude Code"]
+  CLI --> Remote["ChatGPT / Anthropic 서비스"]
   CLI -->|"검증 전 AI 출력"| Core
 ```
 
 Tauri는 Rust 코어와 WebView의 UI가 통신하는 구조를 제공한다. 이 설계에서는 문서 작업에 필요한 명령만 IPC로 공개한다. 화면에서 임의 파일 경로나 셸 명령을 실행할 수 없게 한다. [D4, D5]
 
-**별도 서버가 필요하지 않은 이유:** 단일 사용자의 파일, 버전, 코멘트와 대화는 PC 안에서 관리할 수 있다. 공식 CLI도 같은 PC에서 실행한다. UI와 코어 사이에는 Tauri IPC를 사용하므로 localhost HTTP 서버도 필수가 아니다. AI 처리 자체는 Anthropic의 원격 서비스에 의존한다.
+**별도 서버가 필요하지 않은 이유:** 단일 사용자의 파일, 버전, 코멘트와 대화는 PC 안에서 관리할 수 있다. 공식 CLI도 같은 PC에서 실행한다. UI와 코어 사이에는 Tauri IPC를 사용하므로 localhost HTTP 서버도 필수가 아니다. AI 처리는 선택한 공급자의 원격 서비스에 의존한다.
 
 서버는 다중 사용자 공동 편집, 중앙 문서 저장, 다중 사용자 권한, 중앙 실행 큐 같은 요구가 생길 때 다시 검토한다. 이는 현재 MVP의 요구가 아니다. 설치 파일 배포와 업데이트를 위한 정적 배포 위치가 필요할 수 있으나 문서 처리용 서버와는 별개다.
 
@@ -77,6 +77,12 @@ stdout와 stderr는 동시에 소비하고 크기를 제한한다. stdin 기록�
 요청 확인 전에 읽은 선택값을 생성·재제안·재작성 요청 JSON에 고정하고 공통 launcher가 저장된 요청에서 읽는다. 재시도는 이전 요청의 모델과 일치해야 한다. schema 7은 `job_executions.requested_model`을 추가한다. 과거 요청의 필드 누락은 `cli_default`, 과거 실행의 NULL은 미상으로 구분한다. 새 실행은 선택값을 기록하며 실제 응답 모델이라고 주장하지 않는다. 대안·마이그레이션·검증 근거는 [실행 기록](model-selection.md)을 따른다.
 
 ## 5 AI 입력과 응답 계약
+
+2026-10-31 Codex 확장: `providers.rs`는 저장 요청의 `ProviderModel`로 실행을 분기한다. 신규 데이터는 Codex, 업그레이드 데이터는 Claude다. Codex는 공식 App Server stdio와 기존 ChatGPT 인증을 사용한다. 앱이 인증 토큰을 읽거나 복제하지 않으며 API 키·사용자 지정 엔드포인트를 거부한다.
+
+Codex 기본 모델은 확인 전에 카탈로그의 구체적 ID·effort로 확정한다. schema 8은 공급자 설정, 계정 범위별 Codex 세션·실행 연결을 추가한다. 과거 Claude 문자열과 누락 모델의 읽기 의미는 유지한다. thread ID는 검증된 불투명 문자열이며 Claude의 UUID 제약을 적용하지 않는다.
+
+시작부터 훅·플러그인·셸·웹과 서버별 MCP를 비활성화하고 적용 설정을 다시 검사한다. 임의 이름의 권한 프로필은 전용 cwd 읽기와 네트워크 차단을 지정한다. macOS 프로세스별 정책은 전역 지침·스킬 읽기를 거부하며 지침 출처·활성 스킬 부재도 검사한다. 완료된 해당 thread/turn의 최종 JSON만 검증·저장한다. 전체 연결 제한은 120초, 취소 RPC 정리는 최대 3초다. [계약·대안·검증과 제한](codex-integration.md)을 참고한다.
 
 **입력 계약 PromptEnvelope v1**은 요청 ID, 작업 ID, 기준 버전과 해시, 의도, 범위, 문서 블록, 고정 조건, 최근 결정, 작업 요약과 코멘트로 구성한다. 모델에 문서를 명령이 아닌 편집 대상 데이터로 구분해서 제공한다. 변경 범위를 벗어난 요청은 응답 검증에서 차단한다.
 
@@ -135,6 +141,8 @@ SQLite는 도메인 메타데이터, 불변 버전, 제안, 코멘트, 대화와
 | versions | id, document_id, parent_id, content_utf8, content_hash, reason, operation_id |
 | tasks | id, document_id, goal, pinned_rules, summary, summary_version, summary_event_seq |
 | session_bindings | id, task_id, cli_session_id, cwd, cli_version, status |
+| ai_preferences | 공급자, Codex 모델·effort·실행 경로. 기존 Claude 모델 파일은 독립 유지 |
+| codex_sessions / codex_execution_scopes | 작업·계정 범위 해시·thread, 실행별 계정 연결. 인증 원문 저장 없음 |
 | jobs | id, task_id, attempt_id, base_version_id, scope_json, status, error_code |
 | proposal_batches | id, job_id, mode, base_version_id, apply_head_id, status |
 | proposals | id, batch_id, revision, group_id, block_anchor, before, after, decision, validity |
@@ -143,7 +151,7 @@ SQLite는 도메인 메타데이터, 불변 버전, 제안, 코멘트, 대화와
 | decision_events | id, document_id, task_id, seq, kind, payload, version_id |
 | save_operations | id, document_id, old_hash, new_hash, temp_path, phase, recovery_payload |
 
-식별자는 UUID를 사용한다. 실제 파일 경로는 UI가 임의로 지정한 문자열 대신 documents에서 조회한다. 경로 변경은 별도 명령에서 검증한다. content_hash는 정확한 UTF-8 바이트의 SHA-256으로 정의한다. 같은 내용이어도 복원 이벤트와 버전 ID는 구분한다.
+앱 식별자는 UUID를 사용한다. 실제 파일 경로는 UI가 임의로 지정한 문자열 대신 documents에서 조회한다. 경로 변경은 별도 명령에서 검증한다. content_hash는 정확한 UTF-8 바이트의 SHA-256으로 정의한다. 같은 내용이어도 복원 이벤트와 버전 ID는 구분한다.
 
 versions는 처음에는 전체 본문 스냅샷으로 저장한다. 구현 복잡도가 낮고 1 MiB 문서 범위에서는 복구 검증이 쉽다는 설계 판단이다. 용량 증가를 측정한 뒤 압축과 보존 정책을 별도로 추가한다. 자동 정리로 사용자가 기대한 버전을 지우지 않는다.
 
@@ -251,7 +259,8 @@ CodeMirror는 원문 편집과 변경 표시의 기반으로 사용한다. 변�
 | apps/desktop/src/generated | Rust에서 생성된 IPC 타입·응답 스키마 |
 | apps/desktop/src-tauri/src/domain | 승인·상태 전이·범위 검증 |
 | apps/desktop/src-tauri/src/storage | SQLite·버전·저장 저널·복구 |
-| apps/desktop/src-tauri/src/claude_adapter | 인증·프로세스·출력 계약·호환성·중단 |
+| apps/desktop/src-tauri/src/claude_adapter | Claude 인증·출력 계약·공통 프로세스 소유권·중단 |
+| apps/desktop/src-tauri/src/codex_adapter | ChatGPT 인증·모델·제한된 App Server·turn 이벤트 |
 | apps/desktop/src-tauri/src/document | Markdown 범위·diff·Unicode 변환 |
 | apps/desktop/src-tauri/src/commands | 비동기 IPC 경계와 Store 연결 |
 | apps/desktop/tests/fixtures | 가짜 CLI·프로세스·한글·표·비정상 출력 사례 |

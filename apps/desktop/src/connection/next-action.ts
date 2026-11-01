@@ -2,7 +2,6 @@ import type { ConnectionStatus } from "../generated/ConnectionStatus";
 
 export function connectionNextAction(
   status: ConnectionStatus | undefined,
-  _tested: boolean,
   error: string,
 ) {
   if (error) return "inspect";

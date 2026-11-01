@@ -116,3 +116,25 @@
 .connection-dialog:has(.connection-success) {
   min-height: min(436.8px, calc(100vh - 48px));
 }
+
+.connection-provider {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+}
+.connection-dialog select,
+.connection-dialog input {
+  max-width: 100%;
+  min-width: 0;
+}
+.connection-dialog h3 {
+  margin: 24px 0 8px;
+  font-size: 18px;
+}
+.connection-dialog #codex-path {
+  display: block;
+  width: 100%;
+  margin: 8px 0;
+}

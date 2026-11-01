@@ -1,5 +1,7 @@
 pub mod ai;
+pub mod ai_settings;
 pub mod annotations;
+pub mod codex;
 pub mod conflict;
 pub mod conflict_api;
 pub mod connection;
@@ -12,6 +14,7 @@ pub mod generation;
 pub mod history;
 pub mod ipc;
 pub mod model;
+pub mod provider;
 pub mod regeneration;
 pub mod review;
 pub mod review_api;

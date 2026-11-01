@@ -53,17 +53,19 @@ npm run native:build
 
 [고정 TO-BE·변경 전·새 실제 비교](../../docs/design/tobe-implementation.html)와 [TO-BE 실행·검증 기록](../../docs/development/tobe-implementation.md)에서 캡처 시점 및 남은 검증을 확인한다.
 
-## Claude 모델 선택
+## Codex와 Claude 선택
 
-`AI 연결 설정 → 기본 모델`에서 CLI 기본값·Sonnet·Opus·Haiku를 저장한다. 설치·인증 없이 설정 가능하며, 새 요청 준비 때 선택을 고정한다. `CLI 기본값`은 `--model`을 생략한다. 계정의 이용 가능 모델을 자동 조회하거나 실제 응답 모델을 추정하지 않는다.
+`AI 연결 설정`에서 공급자를 선택해 저장한다. 새 데이터는 Codex, 기존 데이터는 Claude를 유지한다. 공식 Codex 0.165.0 이상과 기존 ChatGPT 인증으로 사용할 수 있으며 Claude 계정은 필요하지 않다. `상태·모델 목록 조회 → 모델 설정 저장 → 연결 테스트`로 확인한다. 미로그인 상태는 `ChatGPT 로그인 열기` 또는 `codex login`, 실행 경로는 진단 정보에서 설정한다.
 
-모델 설정이 없는 환경에서는 **Opus**를 기본으로 사용한다. 이미 저장한 선택값은 유지하며, 기존 사용자는 기본 모델에서 Opus를 선택해 저장할 수 있다. 모델 필드 없는 과거 요청은 계속 CLI 기본값으로 읽는다.
+Codex의 기본 모델은 요청 확인 전 구체적인 ID·effort로 확정한다. Claude는 CLI 기본값·Sonnet·Opus·Haiku를 제공한다. 선택 저장은 오프라인이며 실제 요청과 연결 테스트만 사용량을 소비할 수 있다. 설정 변경은 준비된 요청·진행 중 요청·명시적 재시도의 공급자와 모델을 바꾸지 않는다. 다른 선택을 사용하려면 새 요청을 작성한다.
 
-설정 변경은 진행 중 요청과 기존 요청 재시도에 영향을 주지 않는다. 다른 모델로 실행하려면 새 요청을 작성한다. 재제안도 `재제안 요청 → 요청 모델 확인 → 확인 후 재제안` 순서로 실행한다. [구현·검증 기록](../../docs/development/model-selection.md)을 참고한다.
+Claude 모델 설정이 없는 환경에서는 **Opus**를 기본으로 사용한다. 이미 저장한 선택값은 유지하며, 기존 사용자는 기본 모델에서 Opus를 선택해 저장할 수 있다. 모델 필드 없는 과거 요청은 계속 Claude CLI 기본값으로 읽는다. 재제안도 `재제안 요청 → 요청 모델 확인 → 확인 후 재제안` 순서로 실행한다. [Claude 구현·검증 기록](../../docs/development/model-selection.md)을 참고한다.
+
+Codex는 공식 App Server의 표준 입출력 프로토콜과 관리형 ChatGPT 인증을 사용한다. API 키·토큰 복제·웹 자동화 경로는 제공하지 않는다. 계정·모델·권한 제한을 확인하지 못하면 생성을 시작하지 않는다. 구현 결정과 검증 결과는 [Codex 실행 기록](../../docs/development/codex-integration.md)을 따른다.
 
 ## 검사
 
-실행 명령과 실제 OS·계정 검증의 경계는 [테스트 안내](../../docs/development/testing.md)를 따른다. 기본 자동 검사는 Claude 계정에 접근하지 않으며 네이티브 검사는 실제 WKWebView와 Rust IPC를 사용한다.
+실행 명령과 실제 OS·계정 검증의 경계는 [테스트 안내](../../docs/development/testing.md)를 따른다. 기본 자동 검사는 실제 AI 계정에 접근하지 않으며 네이티브 검사는 실제 WKWebView와 Rust IPC를 사용한다.
 
 ```sh
 npm run typecheck
@@ -95,8 +97,10 @@ npm run native:bundle:internal
 | `src-tauri/src/domain/` | 직렬화 계약과 순수 검증 |
 | `src-tauri/src/document/` | 원문·범위·diff 처리 |
 | `src-tauri/src/storage/` | 파일·SQLite·저장 저널 |
-| `src-tauri/src/claude_adapter/` | 인증·제한된 CLI 프로세스·세션 경계 |
+| `src-tauri/src/claude_adapter/` | Claude 인증·공통 프로세스 소유권·세션 경계 |
+| `src-tauri/src/codex_adapter/` | ChatGPT 인증·제한된 App Server·모델·turn 이벤트 |
+| `src-tauri/src/providers.rs` | 저장 요청을 기준으로 공급자 실행 분기 |
 | `src-tauri/src/commands/` | 검증된 IPC 명령 |
 | `tests/`, `src-tauri/tests/` | 단위·계약·네이티브 검사와 fixture |
 
-공식 CLI 설치·로그인·업데이트는 앱과 별개다. 앱의 AI 연결은 공식 native CLI 2.1.295 이상 정식 버전·서명·필수 옵션·공식 구독 firstParty 인증을 진단한다. 실패한 요청은 사용자가 직접 재시도하며 사용 한도를 다시 소비할 수 있다.
+공식 CLI 설치·로그인·업데이트는 앱과 별개다. Claude는 2.1.295 이상 정식 native CLI·서명·필수 옵션·firstParty 인증을, Codex는 0.165.0 이상·필수 App Server 계약·ChatGPT 인증을 진단한다. 실패한 요청은 사용자가 직접 재시도하며 사용 한도를 다시 소비할 수 있다.

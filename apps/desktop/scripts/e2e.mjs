@@ -20,6 +20,11 @@ if (
   process.argv[2] &&
   ![
     "model-selection",
+    "codex",
+    "codex-native",
+    "codex-keyboard",
+    "codex-stale",
+    "codex-recovery",
     "tobe",
     "design",
     "design-resume",
@@ -55,28 +60,33 @@ const scenarios = process.argv[2]
   ? [
       process.argv[2] === "quit"
         ? Array.from({ length: QUIT_STRESS_RUNS }, () => "quit")
-        : process.argv[2] === "model-selection"
-          ? ["model-selection", "model-selection-restart"]
-          : process.argv[2] === "design-resume"
-            ? ["design-resume", "design-resume-restart"]
-            : process.argv[2] === "regeneration"
-              ? regeneration
-              : process.argv[2] === "generation"
-                ? generation
-                : process.argv[2] === "export"
-                  ? exportPhases
-                  : process.argv[2] === "shutdown"
-                    ? shutdown
-                    : process.argv[2] === "navigation"
-                      ? navigation
-                      : process.argv[2] === "recovery"
-                        ? recovery
-                        : [process.argv[2]],
+        : process.argv[2] === "codex-native"
+          ? ["codex-native", "codex-restart"]
+          : process.argv[2] === "codex"
+            ? ["codex", "codex-restart", "codex-stale", "codex-recovery"]
+            : process.argv[2] === "model-selection"
+              ? ["model-selection", "model-selection-restart"]
+              : process.argv[2] === "design-resume"
+                ? ["design-resume", "design-resume-restart"]
+                : process.argv[2] === "regeneration"
+                  ? regeneration
+                  : process.argv[2] === "generation"
+                    ? generation
+                    : process.argv[2] === "export"
+                      ? exportPhases
+                      : process.argv[2] === "shutdown"
+                        ? shutdown
+                        : process.argv[2] === "navigation"
+                          ? navigation
+                          : process.argv[2] === "recovery"
+                            ? recovery
+                            : [process.argv[2]],
     ]
   : [
       ["editor", "restart"],
       ["connection"],
       ["model-selection", "model-selection-restart"],
+      ["codex", "codex-restart", "codex-stale", "codex-recovery"],
       generation,
       ["design"],
       ["tobe"],
@@ -97,10 +107,27 @@ const scenarios = process.argv[2]
       ["startup-failure"],
     ];
 if (process.argv[2] === "quit") await prepareNativeQuit();
+if (scenarios.some((phases) => phases.includes("codex-keyboard"))) {
+  await mkdir(join(app, ".artifacts"), { recursive: true });
+  execFileSync(
+    "/usr/bin/swiftc",
+    [
+      join(app, "scripts/native-keyboard.swift"),
+      "-o",
+      join(app, ".artifacts/native-keyboard"),
+    ],
+    { stdio: "inherit" },
+  );
+}
 for (const phases of scenarios) {
   const root = await mkdtemp(join(tmpdir(), "docreview-e2e-"));
   try {
     await prepare(root);
+    if (phases[0] === "codex-native")
+      await writeFile(
+        join(root, "use-real-codex"),
+        "explicit synthetic account verification",
+      );
     await prepareStartupFailure(root, phases[0]);
     for (const [iteration, phase] of phases.entries()) {
       const code = await run(phase, root, iteration);

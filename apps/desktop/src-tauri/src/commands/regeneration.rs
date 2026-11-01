@@ -23,14 +23,27 @@ pub async fn regenerate_proposal(
     let coordinator = generation.0.clone()?;
     blocking(move || {
         let guard = coordinator.begin(&revision.operation_id)?;
-        regeneration::execute(&store, &launcher()?, revision, guard.cancelled.clone())
+        let task = store.review_batch(&revision.batch_id)?.task_id;
+        regeneration::execute(
+            &store,
+            &launcher(&store, &revision.model, &task)?,
+            revision,
+            guard.cancelled.clone(),
+        )
     })
     .await
 }
 
-pub(super) fn launcher() -> Result<CliLauncher, AppError> {
+pub(super) fn launcher(
+    _store: &crate::storage::Store,
+    _model: &crate::domain::provider::ProviderModel,
+    _task: &str,
+) -> Result<CliLauncher, AppError> {
     #[cfg(feature = "e2e")]
     if std::env::var_os("DOCREVIEW_E2E_DATA").is_some() {
+        if matches!(_model, crate::domain::provider::ProviderModel::Codex { .. }) {
+            return super::e2e_codex::generation(_store, _task);
+        }
         return super::e2e_generation::spec().map(CliLauncher::Fixture);
     }
     Ok(CliLauncher::Installed)

@@ -7,7 +7,7 @@ use super::{
 };
 use crate::domain::error::{AppError, ErrorCode};
 
-const SCHEMA_VERSION: u32 = 7;
+const SCHEMA_VERSION: u32 = 8;
 const DATABASE_FILE: &str = "workspace.sqlite3";
 const BUSY_TIMEOUT_MS: u64 = 1000;
 const INITIAL_MIGRATION: &str = include_str!("../../migrations/001-initial.sql");
@@ -17,6 +17,7 @@ const REWRITE_JOBS_MIGRATION: &str = include_str!("../../migrations/004-rewrite-
 const GENERATION_MIGRATION: &str = include_str!("../../migrations/005-generation.sql");
 const NAVIGATION_MIGRATION: &str = include_str!("../../migrations/006-navigation.sql");
 const MODEL_MIGRATION: &str = include_str!("../../migrations/007-model-selection.sql");
+const CODEX_MIGRATION: &str = include_str!("../../migrations/008-codex.sql");
 
 pub fn open(directory: &Path) -> Result<Connection, AppError> {
     let path = directory.join(DATABASE_FILE);
@@ -67,41 +68,27 @@ pub fn open(directory: &Path) -> Result<Connection, AppError> {
 }
 
 fn migrate(connection: &Connection, version: u32) -> Result<(), AppError> {
-    if version < 1 {
+    let migrations = [
+        INITIAL_MIGRATION,
+        REVIEW_MIGRATION,
+        REVISION_JOBS_MIGRATION,
+        REWRITE_JOBS_MIGRATION,
+        GENERATION_MIGRATION,
+        NAVIGATION_MIGRATION,
+        MODEL_MIGRATION,
+        CODEX_MIGRATION,
+    ];
+    for migration in migrations.iter().skip(version as usize) {
         connection
-            .execute_batch(INITIAL_MIGRATION)
+            .execute_batch(migration)
             .map_err(database_error)?;
     }
-    if version < 2 {
-        connection
-            .execute_batch(REVIEW_MIGRATION)
-            .map_err(database_error)?;
-    }
-    if version < 3 {
-        connection
-            .execute_batch(REVISION_JOBS_MIGRATION)
-            .map_err(database_error)?;
-    }
-    if version < 4 {
-        connection
-            .execute_batch(REWRITE_JOBS_MIGRATION)
-            .map_err(database_error)?;
-    }
-    if version < 5 {
-        connection
-            .execute_batch(GENERATION_MIGRATION)
-            .map_err(database_error)?;
-    }
-    if version < 6 {
-        connection
-            .execute_batch(NAVIGATION_MIGRATION)
-            .map_err(database_error)?;
-    }
-    if version < 7 {
-        connection
-            .execute_batch(MODEL_MIGRATION)
-            .map_err(database_error)?;
-    }
+    connection
+        .execute(
+            "INSERT INTO ai_preferences(id,provider) VALUES(1,?1)",
+            [if version == 0 { "codex" } else { "claude" }],
+        )
+        .map_err(database_error)?;
     Ok(())
 }
 

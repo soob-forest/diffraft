@@ -67,7 +67,8 @@ function setup() {
   };
   vi.mocked(invoke).mockImplementation(async (name) => {
     order.push(name);
-    if (name === "model_settings_command") return "sonnet";
+    if (name === "resolve_request_model")
+      return { provider: "claude", model: "sonnet" };
     if (name === "editor_command")
       return { kind: "scope", value: { text: "최신 원문", version: 2 } };
     if (name === "review_command")
@@ -107,11 +108,14 @@ it("saves source and conditions before scope confirmation, and sends only after 
     "conditions",
     "editor_command",
     "review_command",
-    "model_settings_command",
+    "resolve_request_model",
   ]);
   expect(pending.request.expectedHeadId).toBe("v2");
   expect(pending.request.archivePrevious).toBe(false);
-  expect(pending.request.model).toBe("sonnet");
+  expect(pending.request.model).toEqual({
+    provider: "claude",
+    model: "sonnet",
+  });
   expect(await sendRequest({ kind: "generate", value: pending.request })).toBe(
     "explanation",
   );
