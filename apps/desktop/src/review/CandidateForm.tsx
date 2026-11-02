@@ -1,4 +1,6 @@
 import { useRef, useState } from "react";
+import { DraftLocked } from "../drafts/DraftRecovery";
+import { useSessionDraft } from "../drafts/SessionDrafts";
 import type { Proposal } from "../generated/Proposal";
 import type { ReviewProjection } from "../generated/ReviewProjection";
 import type { RevisionRequest } from "../generated/RevisionRequest";
@@ -12,26 +14,31 @@ type Props = {
   onSaved: () => void;
 };
 function useCandidate(props: Props) {
-  const [after, setAfter] = useState(props.proposal.operation.after);
+  const draft = useSessionDraft(
+    JSON.stringify([
+      "candidate",
+      props.projection.batch.documentId,
+      props.projection.batch.taskId,
+      props.projection.batch.id,
+      props.proposal.id,
+      String(props.proposal.revision),
+    ]),
+    { after: props.proposal.operation.after },
+  );
+  const after = draft.value.after;
+  const setAfter = (after: string) => draft.set({ after });
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   const pending = useRef<RevisionRequest | null>(null);
   const saving = useRef(false);
   const save = async () => {
-    if (saving.current || props.blocked) return;
+    if (saving.current || props.blocked || draft.locked) return;
     saving.current = true;
     setBusy(true);
     try {
+      await draft.flush();
       if (!pending.current || pending.current.after !== after)
-        pending.current = {
-          documentId: props.projection.batch.documentId,
-          batchId: props.projection.batch.id,
-          proposalId: props.proposal.id,
-          expectedRevision: props.proposal.revision,
-          expectedHeadId: props.projection.currentHeadId,
-          operationId: crypto.randomUUID(),
-          after,
-        };
+        pending.current = candidateRevision(props, after);
       await reviewCommand(
         { kind: "revise", revision: pending.current },
         "batch",
@@ -46,7 +53,18 @@ function useCandidate(props: Props) {
       setBusy(false);
     }
   };
-  return { after, setAfter, busy, message, save };
+  return { after, setAfter, busy, message, save, locked: draft.locked };
+}
+function candidateRevision(props: Props, after: string): RevisionRequest {
+  return {
+    documentId: props.projection.batch.documentId,
+    batchId: props.projection.batch.id,
+    proposalId: props.proposal.id,
+    expectedRevision: props.proposal.revision,
+    expectedHeadId: props.projection.currentHeadId,
+    operationId: crypto.randomUUID(),
+    after,
+  };
 }
 export function CandidateForm(props: Props) {
   const form = useCandidate(props);
@@ -54,7 +72,9 @@ export function CandidateForm(props: Props) {
     <details className="candidate-form">
       <summary>후보 직접 수정 · r{props.proposal.revision}</summary>
       <p className="muted">후보를 저장해도 확정본은 바뀌지 않습니다.</p>
+      <DraftLocked locked={form.locked} />
       <form
+        inert={form.locked}
         onSubmit={(event) => {
           event.preventDefault();
           void form.save();

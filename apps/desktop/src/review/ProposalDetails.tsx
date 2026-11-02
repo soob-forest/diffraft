@@ -91,8 +91,9 @@ function ProposalSummary({
         {panel.selected?.proposals.length === 1
           ? "독립 승인 그룹 1개"
           : `함께 승인하는 제안 ${panel.selected?.proposals.length}개`}{" "}
-        · {proposal.operation.reason} · r{proposal.revision}
+        · {proposal.operation.reason}
       </p>
+      <CandidateState proposal={proposal} />
       <div className="review-conditions">
         <strong>유지할 조건</strong>
         <p>{conditions || "고정 조건 없음"}</p>
@@ -113,21 +114,27 @@ function ProposalSummary({
       >
         코멘트 작성
       </button>
-      <div className="proposal-secondary">
-        <button
-          type="button"
-          onClick={() => panel.openDetail("candidate", proposal.id)}
-        >
-          직접 후보 수정
-        </button>
-        <button
-          type="button"
-          onClick={() => panel.openDetail("regenerate", proposal.id)}
-        >
-          이 변경 다시 제안
-        </button>
-      </div>
+      <ProposalSecondary panel={panel} proposal={proposal} />
     </div>
+  );
+}
+
+function CandidateState({ proposal }: { proposal: Proposal }) {
+  if (proposal.decision !== "PENDING" || proposal.validity !== "VALID")
+    return null;
+  return (
+    <>
+      <p className="selected-scope-badge">
+        {proposal.revision > 1 ? "새 후보" : "제안 내용"} · r{proposal.revision}{" "}
+        · 미승인
+      </p>
+      {proposal.revision > 1 && (
+        <p>
+          이전 후보와 비교하거나 다시 다듬을 수 있습니다. 확정본 반영은 별도
+          승인으로 진행합니다.
+        </p>
+      )}
+    </>
   );
 }
 
@@ -175,4 +182,41 @@ function useDetailReturn({ panel }: Props) {
     });
     return () => cancelAnimationFrame(frame);
   }, [panel.detail.kind, panel.detail.proposalId]);
+}
+
+function ProposalSecondary({
+  panel,
+  proposal,
+}: Pick<Props, "panel"> & { proposal: Proposal }) {
+  return (
+    <div className="proposal-secondary">
+      {proposal.revision > 1 && (
+        <button
+          type="button"
+          onClick={() =>
+            panel.history.open({
+              batchId: panel.review.projection?.batch.id ?? "",
+              proposalId: proposal.id,
+              revision: proposal.revision,
+              previousRevision: proposal.revision - 1,
+            })
+          }
+        >
+          이전 후보와 비교
+        </button>
+      )}
+      <button
+        type="button"
+        onClick={() => panel.openDetail("candidate", proposal.id)}
+      >
+        직접 후보 수정
+      </button>
+      <button
+        type="button"
+        onClick={() => panel.openDetail("regenerate", proposal.id)}
+      >
+        이 변경 다시 제안
+      </button>
+    </div>
+  );
 }

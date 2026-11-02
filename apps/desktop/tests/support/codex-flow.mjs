@@ -105,7 +105,7 @@ async function initialGeneration(state, fixture) {
   await $(".source-editor .cm-content").waitForExist();
   state.document = await currentDocument();
   state.task = await createTask("합성 문서의 Codex 연결 검증");
-  await $("button=설명만").click();
+  await $("button=설명").click();
   await $(".request-form textarea").setValue(
     "합성 검증입니다. EXPLAIN으로 짧게 연결 확인을 답해 주세요. 도구를 사용하지 마세요.",
   );

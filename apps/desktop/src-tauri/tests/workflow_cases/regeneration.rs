@@ -17,6 +17,7 @@ const REVISED: &str = "여행자는 준비물과 다음 여행 계획을 여행 
 
 pub(super) fn request(world: &ReviewWorld) -> RegenerateRequest {
     RegenerateRequest {
+        options: None,
         model: Default::default(),
         document_id: world.head.id.clone(),
         batch_id: world.batch.id.clone(),

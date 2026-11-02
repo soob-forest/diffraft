@@ -14,9 +14,19 @@ describe("지원하지 않는 DB로 시작한 앱", () => {
     );
     assert.equal(await $('[data-testid="source-editor"]').isExisting(), false);
     const pid = await invoke("e2e_process_id", {});
-    await browser.execute(() => {
-      void window.__TAURI__.core.invoke("e2e_request_native_exit");
-    });
+    try {
+      await browser.execute(() => {
+        void window.__TAURI__.core.invoke("e2e_request_native_exit");
+      });
+    } catch (error) {
+      // A fast normal exit can close the driver before this response arrives.
+      // The owned child exit code and window lifetime below remain mandatory.
+      if (
+        !(error instanceof Error) ||
+        !/UND_ERR_SOCKET|ECONNREFUSED/.test(error.message)
+      )
+        throw error;
+    }
     await waitForNormalExit(pid);
     await assertWindowAliveAtExit(pid);
     assert.deepEqual(

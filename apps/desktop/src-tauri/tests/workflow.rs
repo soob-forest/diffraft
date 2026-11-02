@@ -22,6 +22,8 @@ mod comments;
 mod conflicts;
 #[path = "workflow_cases/conversation.rs"]
 mod conversation;
+#[path = "workflow_cases/drafts.rs"]
+mod drafts;
 #[path = "workflow_cases/generation_completion.rs"]
 mod generation_completion;
 #[path = "workflow_cases/generation_jobs.rs"]
@@ -70,8 +72,17 @@ mod rewrite_recovery;
 mod rewrite_world;
 #[path = "workflow_cases/rewrites.rs"]
 mod rewrites;
+#[path = "workflow_cases/selection_extensions.rs"]
+mod selection_extensions;
+#[path = "workflow_cases/selection_revision.rs"]
+mod selection_revision;
 mod support;
 #[path = "workflow_cases/task_context.rs"]
 mod task_context;
+#[path = "workflow_cases/ux_reads.rs"]
+mod ux_reads;
 #[path = "review_cases/world.rs"]
 mod world;
+
+#[path = "workflow_cases/selection_extension_failures.rs"]
+mod selection_extension_failures;

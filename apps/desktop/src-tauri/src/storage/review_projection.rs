@@ -31,6 +31,9 @@ impl Store {
             let base = review_queries::base(&connection, &batch)?;
             (batch, head, base)
         };
+        if batch.status != "ACTIVE" {
+            return historical_projection(self.runtime.id(), batch, head, &base);
+        }
         let valid = valid_head(&base, &batch, &head).is_ok();
         if !valid {
             for proposal in &mut batch.proposals {
@@ -80,4 +83,36 @@ fn projection_head(
         return queries::snapshot(connection, document);
     }
     Ok(head)
+}
+
+fn historical_projection(
+    id: String,
+    batch: crate::domain::review::ReviewBatch,
+    head: DocumentSnapshot,
+    base: &str,
+) -> Result<ReviewProjection, AppError> {
+    let after = if batch.mode == "REWRITE" {
+        batch
+            .candidate_markdown
+            .clone()
+            .ok_or_else(|| AppError::invalid("재작성 후보 본문이 없습니다."))?
+    } else {
+        let operations = batch
+            .proposals
+            .iter()
+            .map(|proposal| proposal.operation.clone())
+            .collect::<Vec<_>>();
+        crate::document::patch::apply(base, &operations)?
+    };
+    let (hunks, stats) = compare(base, &after, &[]);
+    Ok(ReviewProjection {
+        id,
+        batch,
+        current_head_id: head.version_id,
+        before: base.into(),
+        after,
+        groups: vec![],
+        hunks,
+        stats,
+    })
 }

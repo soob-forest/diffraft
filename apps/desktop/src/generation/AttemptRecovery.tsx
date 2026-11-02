@@ -43,7 +43,11 @@ export function AttemptRecovery(props: Props) {
         disabled={props.blocked}
         onClick={() => props.edit(attempt)}
       >
-        내용을 수정해 새로 요청
+        {attempt.request.kind === "selection" ||
+        (attempt.request.kind === "regenerate" &&
+          attempt.request.value.options?.target.kind === "candidate_selection")
+          ? "선택 수정 초안 열기"
+          : "내용을 수정해 새로 요청"}
       </button>
       <p>
         새 요청은 최신 원문과 범위를 다시 확인합니다. 기존 초안이 있으면

@@ -38,7 +38,7 @@ describe("모델 저장·실패·재시도와 앱 재시작", () => {
   it("확인·실행 중 설정이 바뀌어도 요청 모델을 유지하고 중단 결과는 등록하지 않는다", async () => {
     const task = await createTask("모델 고정과 중단 경합");
     const before = await currentDocument();
-    await $("button=설명만").click();
+    await $("button=설명").click();
     await $(".request-form textarea").setValue("모델 고정 확인");
     await $("button=요청 내용 확인").click();
     await $(".generation-dialog").waitForDisplayed();

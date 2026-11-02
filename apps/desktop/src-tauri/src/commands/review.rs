@@ -13,7 +13,34 @@ pub fn dispatch(store: &Store, request: ReviewRequest) -> Result<ReviewReply, Ap
         schema_version: request.schema_version,
     }
     .validate()?;
-    match request.action {
+    dispatch_action(store, request.action)
+}
+
+fn dispatch_action(store: &Store, action: ReviewAction) -> Result<ReviewReply, AppError> {
+    match action {
+        ReviewAction::PrepareSelection { request } => store
+            .prepare_selection_request(request)
+            .map(ReviewReply::PreparedSelection),
+        ReviewAction::ReviseSelection {
+            revision,
+            selection,
+        } => store
+            .save_selection_revision(revision, selection)
+            .map(ReviewReply::Batch),
+        ReviewAction::PrepareRegeneration { request } => store
+            .prepare_regeneration(request)
+            .map(ReviewReply::PreparedRegeneration),
+        ReviewAction::Historical {
+            batch_id,
+            proposal_id,
+            revision,
+            previous_revision,
+        } => store
+            .historical_proposal(&batch_id, &proposal_id, revision, previous_revision)
+            .map(ReviewReply::Historical),
+        ReviewAction::Impact { document_id } => {
+            store.review_impact(&document_id).map(ReviewReply::Impact)
+        }
         ReviewAction::BatchDecision { decision, request } => decide_batch(store, decision, request),
         ReviewAction::State { task_id } => store.task_review(&task_id).map(ReviewReply::State),
         ReviewAction::Projection {
@@ -22,6 +49,12 @@ pub fn dispatch(store: &Store, request: ReviewRequest) -> Result<ReviewReply, Ap
         } => store
             .review_projection(&batch_id, &expected_head_id)
             .map(ReviewReply::Projection),
+        action => dispatch_mutation(store, action),
+    }
+}
+
+fn dispatch_mutation(store: &Store, action: ReviewAction) -> Result<ReviewReply, AppError> {
+    match action {
         ReviewAction::Accept { decision } => {
             store.accept_proposals(decision).map(ReviewReply::Document)
         }
@@ -48,6 +81,7 @@ pub fn dispatch(store: &Store, request: ReviewRequest) -> Result<ReviewReply, Ap
         } => store
             .proposal_revision(&batch_id, &proposal_id, revision)
             .map(ReviewReply::Proposal),
+        _ => Err(AppError::invalid("검토 명령을 확인해 주세요.")),
     }
 }
 

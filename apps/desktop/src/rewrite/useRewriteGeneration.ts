@@ -1,6 +1,7 @@
 import { invoke } from "@tauri-apps/api/core";
 import { useEffect, useRef, useState } from "react";
 import { modelLabel, resolveModel } from "../connection/provider";
+import { useSessionDraft } from "../drafts/SessionDrafts";
 import type { DocumentModel } from "../editor/useDocument";
 import type { ProviderModel } from "../generated/ProviderModel";
 import type { ReviewBatch } from "../generated/ReviewBatch";
@@ -16,11 +17,12 @@ export type RewriteFormProps = {
   onBusy: (value: boolean) => void;
 };
 export function useRewriteGeneration(props: RewriteFormProps) {
-  const [instruction, setInstruction] = useState("");
-  const [pending, setPending] = useState<RewriteRequest | null>(null);
+  const { draft, instruction, pending, setInstruction, setPending } =
+    useRewriteDraft(props);
   const operation = useGenerationOperation(props);
   const blocked = Boolean(
-    props.review.state.generating ||
+    draft.locked ||
+      props.review.state.generating ||
       props.review.loading ||
       props.review.error ||
       props.model.status.error,
@@ -28,26 +30,16 @@ export function useRewriteGeneration(props: RewriteFormProps) {
   usePendingValidity(props, pending, operation, setPending);
   const prepare = (reference: boolean) =>
     operation.run(async () => {
+      if (draft.locked) return;
+      await draft.flush();
       const request = await prepareRequest(props, instruction, reference);
       if (operation.active.current) setPending(request);
     });
   const generate = () =>
-    operation.run(async () => {
-      if (!pending) return;
-      const request = pending;
-      setPending(null);
-      operation.setMessage(
-        `${modelLabel(request.model)} · 재작성 중입니다. 상단에서 생성을 중단할 수 있습니다.`,
-      );
-      const batch = await generateCandidate(props, request, operation.active);
-      if (!operation.active.current) return;
-      props.review.setBatchId(batch.id);
-      operation.setMessage(
-        "새 재작성 후보를 저장했습니다. 비교 후 전체 적용해 주세요.",
-      );
-    });
+    operation.run(() => submitRewrite({ props, draft, pending, operation }));
   return {
     instruction,
+    locked: draft.locked,
     setInstruction,
     pending,
     prepare,
@@ -180,4 +172,48 @@ async function generateCandidate(
     request: { schemaVersion: SCHEMA_VERSION },
     rewrite: pending,
   });
+}
+
+function useRewriteDraft(props: RewriteFormProps) {
+  const draft = useSessionDraft<{
+    instruction: string;
+    pending: RewriteRequest | null;
+  }>(JSON.stringify(["rewrite", props.model.state.document.id, props.taskId]), {
+    instruction: "",
+    pending: null,
+  });
+  const { instruction, pending } = draft.value;
+  const setInstruction = (instruction: string) =>
+    draft.set({ instruction, pending: null });
+  const setPending = (pending: RewriteRequest | null) =>
+    draft.set({ ...draft.value, pending });
+  return { draft, instruction, pending, setInstruction, setPending };
+}
+
+async function submitRewrite({
+  props,
+  draft,
+  pending,
+  operation,
+}: {
+  props: RewriteFormProps;
+  draft: ReturnType<typeof useRewriteDraft>["draft"];
+  pending: RewriteRequest | null;
+  operation: ReturnType<typeof useGenerationOperation>;
+}) {
+  if (draft.locked || !pending) return;
+  const request = pending;
+  const submitted = { ...draft.value, pending: null };
+  draft.replace(draft.value, submitted);
+  await draft.flush();
+  operation.setMessage(
+    `${modelLabel(request.model)} · 재작성 중입니다. 상단에서 생성을 중단할 수 있습니다.`,
+  );
+  const batch = await generateCandidate(props, request, operation.active);
+  draft.replace(submitted, { instruction: "", pending: null });
+  if (!operation.active.current) return;
+  props.review.setBatchId(batch.id);
+  operation.setMessage(
+    "새 재작성 후보를 저장했습니다. 비교 후 전체 적용해 주세요.",
+  );
 }

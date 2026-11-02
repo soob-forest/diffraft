@@ -7,6 +7,39 @@ pub const MAX_INSTRUCTION_BYTES: usize = 16 * 1024;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema, TS)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct CandidateSelection {
+    pub task_id: String,
+    pub from_utf16: u32,
+    pub to_utf16: u32,
+    pub quote: String,
+}
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema, TS)]
+#[serde(
+    tag = "kind",
+    content = "value",
+    rename_all = "snake_case",
+    deny_unknown_fields
+)]
+pub enum RegenerationTarget {
+    Whole,
+    CandidateSelection(CandidateSelection),
+}
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema, TS)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct RegenerationOptions {
+    pub target: RegenerationTarget,
+    pub comment_ids: Option<Vec<String>>,
+    pub context_hash: Option<String>,
+}
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, TS)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct PreparedRegeneration {
+    pub request: RegenerateRequest,
+    pub context: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema, TS)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct RegenerateRequest {
     #[serde(default, deserialize_with = "super::provider::request_model")]
     pub model: super::provider::ProviderModel,
@@ -19,11 +52,17 @@ pub struct RegenerateRequest {
     pub instruction: String,
     #[serde(default)]
     pub retry_of: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[ts(optional)]
+    pub options: Option<RegenerationOptions>,
 }
 
 impl RegenerateRequest {
     pub fn validate(&self) -> Result<(), AppError> {
         self.model.validate()?;
+        if let Some(options) = &self.options {
+            options.validate()?;
+        }
         for id in [
             &self.document_id,
             &self.batch_id,
@@ -56,5 +95,37 @@ impl RegenerateRequest {
             operation_id: self.operation_id.clone(),
             after,
         }
+    }
+}
+
+impl RegenerationOptions {
+    fn validate(&self) -> Result<(), AppError> {
+        if let RegenerationTarget::CandidateSelection(selection) = &self.target {
+            validate_id(&selection.task_id)?;
+            if selection.from_utf16 >= selection.to_utf16
+                || selection.quote.is_empty()
+                || selection.quote.len() > super::MAX_DOCUMENT_BYTES
+                || selection.quote.contains('\0')
+            {
+                return Err(AppError::invalid("후보의 선택 범위를 다시 지정해 주세요."));
+            }
+        }
+        if let Some(ids) = &self.comment_ids {
+            let unique: std::collections::HashSet<_> = ids.iter().collect();
+            if ids.len() > 1024 || unique.len() != ids.len() {
+                return Err(AppError::invalid("전달할 코멘트 목록을 확인해 주세요."));
+            }
+            for id in ids {
+                validate_id(id)?;
+            }
+        }
+        if self
+            .context_hash
+            .as_ref()
+            .is_some_and(|hash| hash.len() != 64 || !hash.bytes().all(|b| b.is_ascii_hexdigit()))
+        {
+            return Err(AppError::invalid("요청 내용을 다시 확인해 주세요."));
+        }
+        Ok(())
     }
 }

@@ -1,4 +1,5 @@
 import { fileURLToPath } from "node:url";
+import { assertE2EBuild, assertOwnedRoot } from "./scripts/e2e-preflight.mjs";
 
 const testRoot = process.env.DOCREVIEW_E2E_DATA;
 const phase = process.env.DOCREVIEW_E2E_PHASE;
@@ -23,6 +24,20 @@ if (
     "design-resume",
     "design-resume-restart",
     "usability",
+    "ux",
+    "ux-restart",
+    "ux-extensions",
+    "ux-local",
+    "ux-recovery",
+    "ux-reliability",
+    "ux-reliability-restart",
+    "selection-popover",
+    "selection-popover-layout",
+    "selection-popover-restart",
+    "selection-transitions",
+    "selection-transitions-restart",
+    "source-lifecycle",
+    "ux-native",
     "review",
     "recovery",
     "recovery-restart",
@@ -47,9 +62,23 @@ if (
   throw new Error("npm run test:e2e로 실행해 주세요.");
 
 const application = fileURLToPath(
-  new URL("./src-tauri/target/debug/docreview", import.meta.url),
+  new URL(
+    phase === "ux-native"
+      ? "./.artifacts/ux-native/DocReview UX.app/Contents/MacOS/docreview"
+      : "./src-tauri/target/debug/docreview",
+    import.meta.url,
+  ),
 );
-const TEST_TIMEOUT_MS = phase === "codex-native" ? 120_000 : 30_000;
+const TEST_TIMEOUT_MS =
+  phase === "ux-native"
+    ? 650_000
+    : phase === "codex-native"
+      ? 120_000
+      : phase === "ux-recovery"
+        ? 75_000
+        : 30_000;
+await assertE2EBuild(application);
+await assertOwnedRoot(testRoot);
 
 export const config = {
   runner: "local",

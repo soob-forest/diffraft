@@ -77,7 +77,7 @@ impl Store {
 fn require_rewrite_job(connection: &rusqlite::Connection, job: &ReviewJob) -> Result<(), AppError> {
     let general: bool = connection
         .query_row(
-            "SELECT EXISTS(SELECT 1 FROM generation_jobs WHERE job_id=?1)",
+            "SELECT EXISTS(SELECT 1 FROM generation_jobs WHERE job_id=?1 UNION ALL SELECT 1 FROM selection_jobs WHERE job_id=?1)",
             [&job.id],
             |row| row.get(0),
         )

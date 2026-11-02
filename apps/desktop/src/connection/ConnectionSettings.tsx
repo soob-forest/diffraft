@@ -3,11 +3,18 @@ import { createPortal } from "react-dom";
 import { ProviderSettings } from "./ProviderSettings";
 import "./connection.css";
 
-export function ConnectionSettings() {
+export function ConnectionSettings({
+  label = "AI 연결 설정",
+  onClose,
+}: {
+  label?: string;
+  onClose?: () => void;
+} = {}) {
   const [open, setOpen] = useState(false);
   const trigger = useRef<HTMLButtonElement>(null);
   function close() {
     setOpen(false);
+    onClose?.();
     requestAnimationFrame(() => {
       const target = trigger.current?.getClientRects().length
         ? trigger.current
@@ -27,7 +34,7 @@ export function ConnectionSettings() {
           setOpen(true);
         }}
       >
-        AI 연결 설정
+        {label}
       </button>
       {open && createPortal(<ConnectionDialog close={close} />, document.body)}
     </>

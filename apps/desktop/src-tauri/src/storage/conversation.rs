@@ -31,11 +31,22 @@ impl Store {
             None
         };
         messages.reverse();
+        for message in &mut messages {
+            if message.role == "ASSISTANT" {
+                message.result = message
+                    .job_id
+                    .as_deref()
+                    .map(|job| super::conversation_results::result_ref(&connection, job))
+                    .transpose()?
+                    .flatten();
+            }
+        }
         let last_attempt = last_attempt(&connection, task)?;
         let provider = last_attempt.as_ref().map(|attempt| match &attempt.request {
             SavedGenerationRequest::Generate(request) => request.model.provider(),
             SavedGenerationRequest::Regenerate(request) => request.model.provider(),
             SavedGenerationRequest::Rewrite(request) => request.model.provider(),
+            SavedGenerationRequest::Selection(request) => request.model.provider(),
         });
         Ok(TaskConversation {
             task_id: task.into(),
@@ -63,6 +74,7 @@ fn messages(
                 content: row.get(3)?,
                 created_at: row.get(4)?,
                 job_id: row.get(5)?,
+                result: None,
             })
         })
         .map_err(database_error)?
@@ -97,7 +109,7 @@ fn last_attempt(
     connection: &Connection,
     task: &str,
 ) -> Result<Option<GenerationAttempt>, AppError> {
-    let row:Option<AttemptRow>=connection.query_row("SELECT j.id,j.attempt_id,j.status,j.error_code,CASE WHEN g.job_id IS NOT NULL THEN 'generate' WHEN r.job_id IS NOT NULL THEN 'regenerate' ELSE 'rewrite' END,COALESCE(g.request_json,r.request_json,w.request_json) FROM jobs j LEFT JOIN generation_jobs g ON g.job_id=j.id LEFT JOIN revision_jobs r ON r.job_id=j.id LEFT JOIN rewrite_jobs w ON w.job_id=j.id WHERE j.task_id=?1 AND COALESCE(g.request_json,r.request_json,w.request_json) IS NOT NULL ORDER BY j.created_at DESC,j.rowid DESC LIMIT 1",[task],|row|Ok((row.get(0)?,row.get(1)?,row.get(2)?,row.get(3)?,row.get(4)?,row.get(5)?))).optional().map_err(database_error)?;
+    let row:Option<AttemptRow>=connection.query_row("SELECT j.id,j.attempt_id,j.status,j.error_code,CASE WHEN s.job_id IS NOT NULL THEN 'selection' WHEN g.job_id IS NOT NULL THEN 'generate' WHEN r.job_id IS NOT NULL THEN 'regenerate' ELSE 'rewrite' END,COALESCE(s.request_json,g.request_json,r.request_json,w.request_json) FROM jobs j LEFT JOIN generation_jobs g ON g.job_id=j.id LEFT JOIN revision_jobs r ON r.job_id=j.id LEFT JOIN rewrite_jobs w ON w.job_id=j.id LEFT JOIN selection_jobs s ON s.job_id=j.id WHERE j.task_id=?1 AND COALESCE(s.request_json,g.request_json,r.request_json,w.request_json) IS NOT NULL ORDER BY j.created_at DESC,j.rowid DESC LIMIT 1",[task],|row|Ok((row.get(0)?,row.get(1)?,row.get(2)?,row.get(3)?,row.get(4)?,row.get(5)?))).optional().map_err(database_error)?;
     row.map(|(job_id, attempt_id, status, error_code, kind, request)| {
         let error_code = error_code
             .map(|code| {

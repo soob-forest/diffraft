@@ -23,11 +23,13 @@ export function useReviewSurface() {
 export function WorkspacePanels({
   children,
   tasks,
+  source,
   mode,
   open,
 }: {
   children: ReactNode;
   tasks: ReactNode;
+  source?: ReactNode;
   mode: DocumentMode;
   open: { value: boolean; set: (value: boolean) => void };
 }) {
@@ -55,15 +57,13 @@ export function WorkspacePanels({
         <button type="button" className="panel-return" onClick={close}>
           본문으로 돌아가기
         </button>
-        <div
-          id="review-detail"
-          className="review-detail"
-          ref={setDetail}
-          hidden={mode !== "review" || tab !== "detail"}
+        <PanelContents
+          mode={mode}
+          tab={tab}
+          source={source}
+          tasks={tasks}
+          setDetail={setDetail}
         />
-        <div id="task-content" hidden={mode === "review" && tab !== "task"}>
-          {tasks}
-        </div>
       </aside>
     </ReviewSurface>
   );
@@ -110,10 +110,17 @@ function PanelTabs({
   setTab: (tab: string) => void;
 }) {
   return (
-    <div className="panel-tabs" role="tablist" aria-label="검토 보조 영역">
+    <div
+      className="panel-tabs"
+      role="tablist"
+      aria-label="검토 보조 영역"
+      onKeyDown={(event) => movePanelTab(event, tab, setTab)}
+    >
       <button
         type="button"
         role="tab"
+        id="review-detail-tab"
+        tabIndex={tab === "detail" ? 0 : -1}
         aria-selected={tab === "detail"}
         aria-controls="review-detail"
         onClick={() => setTab("detail")}
@@ -123,6 +130,8 @@ function PanelTabs({
       <button
         type="button"
         role="tab"
+        id="task-content-tab"
+        tabIndex={tab === "task" ? 0 : -1}
         aria-selected={tab === "task"}
         aria-controls="task-content"
         onClick={() => setTab("task")}
@@ -130,5 +139,70 @@ function PanelTabs({
         작업·대화
       </button>
     </div>
+  );
+}
+
+function movePanelTab(
+  event: React.KeyboardEvent,
+  tab: string,
+  setTab: (value: string) => void,
+) {
+  if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+  event.preventDefault();
+  const next =
+    event.key === "Home"
+      ? "detail"
+      : event.key === "End"
+        ? "task"
+        : tab === "detail"
+          ? "task"
+          : "detail";
+  setTab(next);
+  requestAnimationFrame(() =>
+    document
+      .getElementById(
+        next === "detail" ? "review-detail-tab" : "task-content-tab",
+      )
+      ?.focus(),
+  );
+}
+
+function PanelContents({
+  mode,
+  tab,
+  source,
+  tasks,
+  setDetail,
+}: {
+  mode: DocumentMode;
+  tab: string;
+  source?: ReactNode;
+  tasks: ReactNode;
+  setDetail: (value: HTMLDivElement | null) => void;
+}) {
+  return (
+    <>
+      <div
+        id="review-detail"
+        className="review-detail"
+        role="tabpanel"
+        aria-labelledby="review-detail-tab"
+        ref={setDetail}
+        hidden={mode !== "review" || tab !== "detail"}
+      />
+      {mode === "source" && source}
+      <section
+        aria-label="작업과 대화"
+        id="task-content"
+        role={mode === "review" ? "tabpanel" : undefined}
+        aria-labelledby={mode === "review" ? "task-content-tab" : undefined}
+        hidden={
+          (mode === "review" && tab !== "task") ||
+          (mode === "source" && Boolean(source))
+        }
+      >
+        {tasks}
+      </section>
+    </>
   );
 }

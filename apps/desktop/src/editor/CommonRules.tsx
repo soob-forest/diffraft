@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { errorMessage } from "../ipc";
 import { editorCommand } from "./api";
 import type { FlushRef } from "./DocumentWorkspace";
@@ -11,8 +11,7 @@ function useCommonRules({ documentId, flushRef }: Props) {
   const pending = useRef<Promise<void> | null>(null);
   const save = async () => {
     if (pending.current) return pending.current;
-    if (saved === null)
-      throw new Error("문서 공통 조건을 아직 불러오지 못했습니다.");
+    if (saved === null) return state.restore();
     if (value === saved) return;
     setBusy(true);
     pending.current = editorCommand(
@@ -55,9 +54,20 @@ function useRulesState(documentId: string) {
   const [value, setValue] = useState("");
   const [saved, setSaved] = useState<string | null>(null);
   const [message, setMessage] = useState("");
+  const loading = useRef<Promise<string> | null>(null);
+  const load = useCallback(() => {
+    loading.current ??= editorCommand(
+      { kind: "common_rules", documentId, rules: null },
+      "rules",
+    ).catch((reason: unknown) => {
+      loading.current = null;
+      throw reason;
+    });
+    return loading.current;
+  }, [documentId]);
   useEffect(() => {
     let active = true;
-    editorCommand({ kind: "common_rules", documentId, rules: null }, "rules")
+    load()
       .then((rules) => {
         if (active) {
           setValue(rules);
@@ -70,8 +80,21 @@ function useRulesState(documentId: string) {
     return () => {
       active = false;
     };
-  }, [documentId]);
-  return { value, setValue, saved, setSaved, message, setMessage };
+  }, [load]);
+  return {
+    value,
+    setValue,
+    saved,
+    setSaved,
+    message,
+    setMessage,
+    restore: async () => {
+      const rules = await load();
+      setValue(rules);
+      setSaved(rules);
+      setMessage("");
+    },
+  };
 }
 
 export function CommonRules(props: Props) {

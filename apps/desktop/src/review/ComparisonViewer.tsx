@@ -6,18 +6,35 @@ import { DiffViewer } from "./DiffViewer";
 import type { DiffComparison } from "./rows";
 
 type Props = {
+  active?: boolean;
   comparison: DiffComparison & { stats: DiffStats };
   header?: ReactNode;
   labels?: [string, string];
+  selection?: {
+    onSelection: (value: LogicalSelection | null) => void;
+    onSelectionIssue: (value: string) => void;
+    onEditSelection: () => void;
+    tools: ReactNode;
+  };
 };
-export function ComparisonViewer({ comparison, header, labels }: Props) {
+export function ComparisonViewer({
+  active,
+  comparison,
+  header,
+  labels,
+  selection,
+}: Props) {
   const { move, jump } = useComparisonNavigation(comparison);
   return (
     <DiffViewer
+      active={active}
       projection={comparison}
       labels={labels}
       onMove={move}
-      onSelection={() => {}}
+      onSelection={selection?.onSelection ?? (() => {})}
+      onSelectionIssue={selection?.onSelectionIssue}
+      onEditSelection={selection?.onEditSelection}
+      selectionTools={selection?.tools}
       jump={jump}
       tools={{
         header: (
@@ -42,7 +59,7 @@ export function ComparisonViewer({ comparison, header, labels }: Props) {
             </button>
           </>
         ),
-        selection: null,
+        selection: selection?.tools,
       }}
     />
   );

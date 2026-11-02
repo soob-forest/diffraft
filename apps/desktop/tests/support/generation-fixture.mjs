@@ -56,7 +56,7 @@ export async function beginRequest(mode, fixture, instruction) {
   await browser.waitUntil(
     async () => await $(".request-kind button").isEnabled(),
   );
-  await $(mode === "EXPLAIN" ? "button=설명만" : "button=수정 제안").click();
+  await $(mode === "EXPLAIN" ? "button=설명" : "button=부분 수정").click();
   await $(".request-form textarea").setValue(instruction);
   await $("button=요청 내용 확인").click();
   await $(".generation-dialog").waitForDisplayed();

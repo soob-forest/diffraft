@@ -16,6 +16,7 @@ use serde_json::Value;
 fn request(world: &ReviewWorld) -> RegenerateRequest {
     let target = &world.batch.proposals[0];
     RegenerateRequest {
+        options: None,
         model: Default::default(),
         document_id: world.head.id.clone(),
         batch_id: world.batch.id.clone(),

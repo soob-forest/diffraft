@@ -1,20 +1,20 @@
 import { useEffect, useRef, useState } from "react";
 import { ConflictDialog } from "../conflict/ConflictDialog";
 import type { EditorState } from "../generated/EditorState";
-import { GenerationPanel } from "../generation/GenerationPanel";
-import { errorMessage } from "../ipc";
-import { DocumentMain } from "./DocumentMain";
 import {
   type DocumentListControl,
   type DocumentMode,
   DocumentToolbar,
   ViewToggle,
 } from "./DocumentToolbar";
-import { type RequestScope, useRequestScope } from "./request-scope";
-import { TaskPanel } from "./TaskPanel";
+import { useRequestScope } from "./request-scope";
+import { useConflict } from "./useConflict";
 import { useDocument } from "./useDocument";
+import { useSourceRequest } from "./useSourceRequest";
 import { VersionHistory } from "./VersionHistory";
-import { WorkspacePanels } from "./WorkspacePanels";
+import { WorkspaceBody } from "./WorkspaceBody";
+import { useReviewEntry, WorkspaceControls } from "./WorkspaceControls";
+import { workspaceNavigation } from "./workspace-navigation";
 
 export type FlushRef = React.RefObject<(() => Promise<void>) | null>;
 type Props = {
@@ -26,7 +26,7 @@ const SINGLE_PANEL_WIDTH = 720;
 export function DocumentWorkspace({ initial, flushRef, documents }: Props) {
   return <WorkspaceLayout state={useWorkspace(initial, flushRef, documents)} />;
 }
-type WorkspaceState = ReturnType<typeof useWorkspace>;
+export type WorkspaceState = ReturnType<typeof useWorkspace>;
 function WorkspaceLayout({ state }: { state: WorkspaceState }) {
   const { model, tasksOpen, setTasksOpen, mode, setMode, conflict, goal } =
     state;
@@ -60,147 +60,61 @@ function WorkspaceLayout({ state }: { state: WorkspaceState }) {
   );
 }
 
-function WorkspaceBody({ state }: { state: WorkspaceState }) {
-  const {
-    model,
-    mode,
-    setMode,
-    tasksOpen,
-    setTasksOpen,
-    taskFlush,
-    taskId,
-    setTaskId,
-    scope,
-    entry,
-  } = state;
-  return (
-    <WorkspacePanels
-      mode={mode}
-      open={{ value: tasksOpen, set: setTasksOpen }}
-      tasks={
-        <DocumentTasks
-          model={model}
-          taskFlush={taskFlush}
-          taskId={taskId}
-          onSelect={setTaskId}
-          scope={scope}
-          onProposal={entry.show}
-          onRewrite={entry.rewrite}
-        />
-      }
-    >
-      <DocumentMain
-        model={model}
-        mode={mode}
-        setMode={setMode}
-        taskId={taskId}
-        rewriteRequest={entry.rewriteRequest}
-        scope={scope}
-        flushTask={async () => {
-          await taskFlush.current?.();
-        }}
-      />
-    </WorkspacePanels>
-  );
-}
-
 function useWorkspace(
   initial: EditorState,
   flushRef: FlushRef,
   documents: DocumentListControl,
 ) {
   const model = useDocument(initial);
-  const [tasksOpen, setTasksOpen] = useState(
-    () => window.innerWidth > SINGLE_PANEL_WIDTH,
-  );
-  const scope = useRequestScope(model.editorEpoch);
+  const [tasksOpen, setTasksOpen] = useState(widePanel);
   const taskFlush = useRef<(() => Promise<void>) | null>(null);
   const [mode, setMode] = useState<DocumentMode>("source");
   const entry = useReviewEntry(setMode, setTasksOpen);
   const conflict = useConflict(model);
   const [taskId, setTaskId] = useState(initial.selectedTaskId ?? "");
+  const scope = useRequestScope(model.editorEpoch, initial.document.id, taskId);
+  const sourceRequest = useSourceRequest({
+    model,
+    taskId,
+    taskFlush,
+    onResult: entry.openResult,
+    onTask: (task) => {
+      model.taskSaved(task);
+      setTaskId(task.id);
+    },
+    show: () => {
+      setMode("source");
+      setTasksOpen(true);
+    },
+  });
   useFlush(flushRef, taskFlush, model);
   return {
+    ...workspaceNavigation({
+      model,
+      taskFlush,
+      setTaskId,
+      entry,
+      sourceRequest,
+    }),
     documents,
     model,
     tasksOpen,
     setTasksOpen,
     scope,
+    sourceRequest,
     taskFlush,
     mode,
     setMode,
     entry,
     conflict,
     taskId,
-    setTaskId,
+    setTaskId: (value: string) => {
+      if (value !== taskId) entry.clearResult();
+      setTaskId(value);
+    },
     goal:
       model.state.tasks.find((task) => task.id === taskId)?.goal || "새 작업",
   };
-}
-
-function useReviewEntry(
-  setMode: (mode: DocumentMode) => void,
-  setTasksOpen: (open: boolean) => void,
-) {
-  const [rewriteRequest, setRewriteRequest] = useState(0);
-  const show = () => {
-    setMode("review");
-    if (window.innerWidth <= SINGLE_PANEL_WIDTH) setTasksOpen(false);
-  };
-  return {
-    rewriteRequest,
-    show,
-    rewrite: () => {
-      setRewriteRequest((value) => value + 1);
-      show();
-    },
-  };
-}
-
-function DocumentTasks({
-  model,
-  taskFlush,
-  taskId,
-  onSelect,
-  scope,
-  onProposal,
-  onRewrite,
-}: {
-  model: ReturnType<typeof useDocument>;
-  taskFlush: FlushRef;
-  taskId: string;
-  onSelect: (value: string) => void;
-  scope: RequestScope;
-  onProposal: () => void;
-  onRewrite: () => void;
-}) {
-  return (
-    <TaskPanel
-      gate={model.gate}
-      disabled={model.mutating}
-      flushRef={taskFlush}
-      selected={taskId}
-      onSelect={onSelect}
-      documentId={model.state.document.id}
-      tasks={model.state.tasks}
-      flush={() => model.autosave.flush()}
-      onSaved={model.taskSaved}
-    >
-      {(conditions) => (
-        <GenerationPanel
-          key={taskId}
-          model={model}
-          taskId={taskId}
-          taskFlush={taskFlush}
-          scope={scope}
-          onProposal={onProposal}
-          onRewrite={onRewrite}
-        >
-          {conditions}
-        </GenerationPanel>
-      )}
-    </TaskPanel>
-  );
 }
 
 function useFlush(
@@ -222,40 +136,6 @@ function useFlush(
   }, [flushRef, taskFlush, autosave, gate]);
 }
 
-function WorkspaceControls({
-  goal,
-  tasksOpen,
-  setTasksOpen,
-}: {
-  goal: string;
-  tasksOpen: boolean;
-  setTasksOpen: React.Dispatch<React.SetStateAction<boolean>>;
-}) {
-  return (
-    <div className="workspace-controls">
-      <span title={goal}>현재 작업 · {goal}</span>
-      <button
-        type="button"
-        aria-expanded={tasksOpen}
-        aria-controls="task-panel"
-        onClick={() => setTasksOpen((value) => !value)}
-      >
-        {tasksOpen ? "작업 패널 접기" : "작업·AI 요청 열기"}
-      </button>
-    </div>
-  );
-}
-
-function useConflict(model: ReturnType<typeof useDocument>) {
-  const [conflict, setConflict] = useState(false);
-  const compare = async () => {
-    model.gate.assertIdle();
-    try {
-      await model.autosave.flush();
-    } catch (error) {
-      model.setError(errorMessage(error));
-    }
-    setConflict(true);
-  };
-  return { open: conflict, close: () => setConflict(false), compare };
+function widePanel() {
+  return window.innerWidth > SINGLE_PANEL_WIDTH;
 }

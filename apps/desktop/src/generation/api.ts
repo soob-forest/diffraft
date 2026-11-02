@@ -1,5 +1,7 @@
 import { invoke } from "@tauri-apps/api/core";
+import type { ConversationResult } from "../generated/ConversationResult";
 import type { GenerationOutcome } from "../generated/GenerationOutcome";
+import type { ReviewBatch } from "../generated/ReviewBatch";
 import type { SavedGenerationRequest } from "../generated/SavedGenerationRequest";
 import type { TaskConversation } from "../generated/TaskConversation";
 import { SCHEMA_VERSION } from "../ipc";
@@ -14,6 +16,7 @@ export function taskConversation(taskId: string, before: number | null = null) {
 
 export async function sendRequest(
   saved: SavedGenerationRequest,
+  onResult?: (result: ConversationResult) => void,
 ): Promise<"proposal" | "explanation"> {
   const request = { schemaVersion: SCHEMA_VERSION };
   if (saved.kind === "generate") {
@@ -21,10 +24,36 @@ export async function sendRequest(
       request,
       input: saved.value,
     });
+    if (result.kind === "patch")
+      onResult?.({
+        batchId: result.value.id,
+        proposalId: null,
+        revision: null,
+        status: result.value.proposals.length ? "PENDING" : "UNCHANGED",
+      });
     return result.kind === "patch" ? "proposal" : "explanation";
   }
-  if (saved.kind === "regenerate")
-    await invoke("regenerate_proposal", { request, revision: saved.value });
-  else await invoke("generate_rewrite", { request, rewrite: saved.value });
+  const batch =
+    saved.kind === "regenerate"
+      ? await invoke<ReviewBatch>("regenerate_proposal", {
+          request,
+          revision: saved.value,
+        })
+      : saved.kind === "selection"
+        ? await invoke<ReviewBatch>("generate_selection", {
+            request,
+            input: saved.value,
+          })
+        : await invoke<ReviewBatch>("generate_rewrite", {
+            request,
+            rewrite: saved.value,
+          });
+  onResult?.({
+    batchId: batch.id,
+    proposalId: saved.kind === "regenerate" ? saved.value.proposalId : null,
+    revision:
+      saved.kind === "regenerate" ? saved.value.expectedRevision + 1 : null,
+    status: "PENDING",
+  });
   return "proposal";
 }

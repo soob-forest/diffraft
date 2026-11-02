@@ -8,14 +8,16 @@ import { mergeConversation } from "./state";
 
 const REFRESH_MS = 1000;
 export function useConversation(taskId: string) {
-  const { page, setPage, generation, error, setError, active } =
+  const { page, setPage, generation, error, setError, active, cursors } =
     useConversationPolling(taskId);
   const [olderBusy, setOlderBusy] = useState(false);
   const older = async () => {
     if (!page?.earlierBefore || olderBusy) return;
     setOlderBusy(true);
     try {
-      const next = await taskConversation(taskId, page.earlierBefore);
+      const cursor = page.earlierBefore;
+      const next = await taskConversation(taskId, cursor);
+      cursors.current.add(cursor);
       if (active.current)
         setPage((current) =>
           current
@@ -39,6 +41,7 @@ function useConversationPolling(taskId: string) {
   const [generation, setGeneration] = useState<GenerationSnapshot | null>(null);
   const [error, setError] = useState("");
   const active = useRef(true);
+  const cursors = useRef(new Set<number>());
   useEffect(() => {
     active.current = true;
     let current = true;
@@ -48,7 +51,7 @@ function useConversationPolling(taskId: string) {
       running = true;
       try {
         const [next, status] = await Promise.all([
-          taskConversation(taskId),
+          refreshPages(taskId, [...cursors.current]),
           generationSnapshot(),
         ]);
         if (current) {
@@ -70,5 +73,21 @@ function useConversationPolling(taskId: string) {
       clearInterval(timer);
     };
   }, [taskId]);
-  return { page, setPage, generation, error, setError, active };
+  return { page, setPage, generation, error, setError, active, cursors };
+}
+
+async function refreshPages(taskId: string, cursors: number[]) {
+  const [latest, ...earlier] = await Promise.all([
+    taskConversation(taskId),
+    ...cursors.map((cursor) => taskConversation(taskId, cursor)),
+  ]);
+  const messages = new Map(
+    latest.messages.map((message) => [message.id, message]),
+  );
+  for (const page of earlier)
+    for (const message of page.messages) messages.set(message.id, message);
+  return {
+    ...latest,
+    messages: [...messages.values()].sort((a, b) => a.sequence - b.sequence),
+  };
 }

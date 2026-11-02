@@ -32,6 +32,7 @@ export function useCommentForm(props: CommentFormProps) {
   const operation = useCommentSave({ props, side, draft, empty });
   return {
     side,
+    locked: draft.locked || sideDraft.locked,
     setSide: sideDraft.set,
     text: value.text,
     setText,
@@ -47,7 +48,12 @@ export function useCommentForm(props: CommentFormProps) {
       }),
     ...operation,
     save: () =>
-      props.blocked || stale || !target.quote || !value.text.trim()
+      draft.locked ||
+      sideDraft.locked ||
+      props.blocked ||
+      stale ||
+      !target.quote ||
+      !value.text.trim()
         ? Promise.resolve()
         : operation.save(),
   };
@@ -68,13 +74,14 @@ function useCommentSave({
   const [busy, setBusy] = useState(false);
   const lock = useRef(false);
   const save = async () => {
-    if (lock.current || props.blocked) return;
+    if (lock.current || props.blocked || draft.locked) return;
     lock.current = true;
     setBusy(true);
     const submitted = draft.value;
     try {
       const error = draftError(submitted.text);
       if (error) throw new Error(error);
+      await draft.flush();
       await persistComment(props, side, submitted);
       draft.replace(submitted, empty);
       setMessage(

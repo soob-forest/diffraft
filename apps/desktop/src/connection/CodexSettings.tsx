@@ -25,17 +25,7 @@ export function CodexSettings(props: CodexSettingsProps) {
 
 function CodexStatus({ form }: { form: Form }) {
   const { state, dirty } = form;
-  const status = state.operation
-    ? state.cancelling
-      ? "Codex 종료를 확인하는 중…"
-      : "Codex에 연결하는 중…"
-    : form.repairEffort
-      ? "모델 설정을 저장한 뒤 연결을 테스트해 주세요."
-      : state.tested && !dirty
-        ? `연결 테스트 완료 · ${modelLabel(state.report?.testedModel ?? undefined)}`
-        : state.report
-          ? "ChatGPT 인증과 모델 목록을 확인했습니다. 실제 호출은 연결 테스트로 확인하세요."
-          : "상태·모델 목록 조회로 Codex 설치와 인증을 확인하세요.";
+  const status = codexStatusLabel(form);
   return (
     <>
       <p
@@ -53,26 +43,15 @@ function CodexStatus({ form }: { form: Form }) {
 }
 
 function CodexActions({ form, close }: { form: Form; close: () => void }) {
-  const { busy, dirty, state } = form;
-  const actions = [
-    {
-      label: "상태·모델 목록 조회",
-      action: "inspect",
-      disabled: busy || dirty,
-    },
-    { label: "ChatGPT 로그인 열기", action: "login", disabled: busy || dirty },
-    {
-      label: "연결 테스트",
-      action: "test",
-      disabled: busy || dirty || !state.report,
-    },
-  ] as const;
+  const { busy, state } = form;
+  const { next, actions } = codexActionChoices(form);
   return (
     <>
       <div className="connection-primary">
         {actions.map(({ label, action, disabled }) => (
           <button
             key={action}
+            className={next === action ? "primary" : undefined}
             type="button"
             disabled={disabled}
             onClick={() => void state.run(action)}
@@ -80,7 +59,12 @@ function CodexActions({ form, close }: { form: Form; close: () => void }) {
             {label}
           </button>
         ))}
-        <button type="button" disabled={busy} onClick={close}>
+        <button
+          type="button"
+          className={next === "close" ? "primary" : undefined}
+          disabled={busy}
+          onClick={close}
+        >
           설정 닫기
         </button>
       </div>
@@ -116,6 +100,7 @@ function CodexModel({
             form.repairEffort ? "codex-effort-repair" : undefined
           }
           onClick={() => void form.saveModel()}
+          className={form.modelDirty ? "primary" : undefined}
         >
           모델 설정 저장
         </button>
@@ -208,4 +193,44 @@ function CodexPath({ form }: { form: Form }) {
       </p>
     </details>
   );
+}
+
+function codexActionChoices({ busy, dirty, state }: Form) {
+  const next = dirty
+    ? "save"
+    : state.needsLogin
+      ? "login"
+      : state.tested
+        ? "close"
+        : state.report
+          ? "test"
+          : "inspect";
+  const actions = [
+    {
+      label: "상태·모델 목록 조회",
+      action: "inspect",
+      disabled: busy || dirty,
+    },
+    { label: "ChatGPT 로그인 열기", action: "login", disabled: busy || dirty },
+    {
+      label: "연결 테스트",
+      action: "test",
+      disabled: busy || dirty || !state.report || state.needsLogin,
+    },
+  ] as const;
+  return { next, actions };
+}
+
+function codexStatusLabel({ state, dirty, repairEffort }: Form) {
+  return state.operation
+    ? state.cancelling
+      ? "Codex 종료를 확인하는 중…"
+      : "Codex에 연결하는 중…"
+    : repairEffort
+      ? "모델 설정을 저장한 뒤 연결을 테스트해 주세요."
+      : state.tested && !dirty
+        ? `연결 테스트 완료 · ${modelLabel(state.report?.testedModel ?? undefined)}`
+        : state.report
+          ? "ChatGPT 인증과 모델 목록을 확인했습니다. 실제 호출은 연결 테스트로 확인하세요."
+          : "상태·모델 목록 조회로 Codex 설치와 인증을 확인하세요.";
 }

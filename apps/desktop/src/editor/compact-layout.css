@@ -67,7 +67,10 @@
     display: flex;
   }
   .document-workspace[data-mode="review"] .review-panel,
-  .document-workspace[data-mode="review"] .review-panel > .diff-viewer {
+  .document-workspace[data-mode="review"] .review-current,
+  .document-workspace[data-mode="review"] .historical-diff,
+  .document-workspace[data-mode="review"] .review-current > .diff-viewer,
+  .document-workspace[data-mode="review"] .historical-diff > .diff-viewer {
     flex: none;
     min-height: 0;
     overflow: visible;
@@ -98,5 +101,27 @@
   }
   .task-panel .request-draft-note > span {
     white-space: nowrap;
+  }
+}
+
+@media (max-height: 700px) {
+  .document-workspace[data-mode="source"] {
+    overflow: auto;
+    grid-template-rows: max-content max-content max-content max-content;
+  }
+  .document-workspace[data-mode="source"] .document-main {
+    height: auto;
+    min-height: 0;
+    overflow: visible;
+  }
+  .document-workspace[data-mode="source"] .editor-region {
+    flex: none;
+    display: flex;
+    flex-direction: column;
+  }
+  .document-workspace[data-mode="source"] .editing-area {
+    flex: none;
+    min-height: 240px;
+    height: 240px;
   }
 }

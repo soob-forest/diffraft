@@ -1,4 +1,6 @@
 import { useEffect, useRef } from "react";
+import { DraftLocked } from "../drafts/DraftRecovery";
+import { DraftStatus } from "../drafts/SessionDrafts";
 import { useReviewSurface } from "../editor/WorkspacePanels";
 import { QuotePreview } from "./QuotePreview";
 import { quotePreviewOffset } from "./quote-context";
@@ -21,7 +23,9 @@ export function CommentForm(props: Props) {
           변경 상세
         </button>
       </div>
+      <DraftLocked locked={form.locked} />
       <form
+        inert={form.locked}
         onSubmit={(event) => {
           event.preventDefault();
           void form.save();
@@ -29,7 +33,7 @@ export function CommentForm(props: Props) {
       >
         <CommentFields form={form} proposal={props.proposal} />
         <div className="comment-draft-note">
-          <span>미저장 초안 · 이 세션에서 보존</span>
+          <DraftStatus />
           <CommentTools form={form} />
         </div>
         <button
@@ -45,7 +49,12 @@ export function CommentForm(props: Props) {
           코멘트 저장
         </button>
         <CommentStatus form={form} blocked={props.blocked} />
-        <CommentNextStep blocked={props.blocked} onNext={props.onNext} />
+        <CommentNextStep
+          blocked={props.blocked}
+          busy={form.busy}
+          text={form.text}
+          onNext={props.onNext}
+        />
       </form>
     </section>
   );
@@ -150,7 +159,9 @@ function CommentTools({ form }: { form: Form }) {
           현재 선택으로 대상 재확인
         </button>
       )}
-      <p>미등록 초안은 앱을 닫기 전까지 보관됩니다.</p>
+      <p>
+        미등록 초안은 이 Mac에 보관됩니다. 코멘트 등록과 초안 보관은 별개입니다.
+      </p>
     </details>
   );
 }
@@ -172,13 +183,18 @@ function CommentStatus({ form, blocked }: { form: Form; blocked: boolean }) {
   );
 }
 
-function CommentNextStep({
+export function CommentNextStep({
   blocked,
+  busy,
+  text,
   onNext,
 }: {
   blocked: boolean;
+  busy: boolean;
+  text: string;
   onNext: () => void;
 }) {
+  const disabled = blocked || busy || Boolean(text);
   return (
     <div className="comment-next-step">
       <h4>저장 후 다음 행동</h4>
@@ -186,9 +202,21 @@ function CommentNextStep({
         이 변경의 저장된 코멘트를 반영해 다시 제안받을 수 있습니다. 새 후보도
         승인 전에는 원문을 바꾸지 않습니다.
       </p>
-      <button type="button" disabled={blocked} onClick={onNext}>
+      <button
+        type="button"
+        disabled={disabled}
+        onClick={() => {
+          if (!disabled) onNext();
+        }}
+      >
         코멘트 반영 재제안 작성
       </button>
+      {disabled && (
+        <p role="status">
+          미저장 코멘트와 진행 중인 저장·요청을 확인해 주세요. 코멘트 저장 완료
+          후 이동할 수 있습니다.
+        </p>
+      )}
     </div>
   );
 }

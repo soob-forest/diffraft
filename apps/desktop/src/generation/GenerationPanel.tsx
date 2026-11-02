@@ -1,4 +1,5 @@
 import { type ReactNode, useEffect, useState } from "react";
+import { DraftLocked } from "../drafts/DraftRecovery";
 import { ScopeBar } from "../editor/ScopeBar";
 import { Conversation } from "./Conversation";
 import { RequestDialog } from "./RequestDialog";
@@ -9,10 +10,16 @@ import { useGeneration } from "./useGeneration";
 import "./generation.css";
 
 type Props = GenerationProps & { children?: ReactNode };
+const REQUEST_KIND_LABELS = {
+  PATCH: "부분 수정",
+  EXPLAIN: "설명",
+  REWRITE: "전체 재작성",
+};
 export function GenerationPanel(props: Props) {
   const conversation = useConversation(props.taskId);
   const form = useGeneration(props);
   const blocked =
+    form.locked ||
     form.busy ||
     !conversation.page ||
     !conversation.generation ||
@@ -26,6 +33,7 @@ export function GenerationPanel(props: Props) {
     <section className="generation-panel" aria-label="AI 요청">
       {props.children}
       <h3>AI 요청</h3>
+      <DraftLocked locked={form.locked} />
       <RequestForm form={form} blocked={blocked}>
         <ScopeBar model={props.model} requestScope={props.scope} />
       </RequestForm>
@@ -43,6 +51,7 @@ export function GenerationPanel(props: Props) {
           conversation={conversation}
           form={form}
           blocked={blocked}
+          onResult={props.onResult}
         />
       </RequestExtras>
       <RequestConfirmation form={form} />
@@ -54,10 +63,12 @@ function RequestConversation({
   form,
   conversation,
   blocked,
+  onResult,
 }: {
   form: ReturnType<typeof useGeneration>;
   conversation: ReturnType<typeof useConversation>;
   blocked: boolean;
+  onResult?: GenerationProps["onResult"];
 }) {
   return (
     <>
@@ -69,6 +80,7 @@ function RequestConversation({
           blocked={blocked}
           retry={(attempt) => void form.retry(attempt)}
           edit={form.edit}
+          onResult={onResult}
         />
       )}
     </>
@@ -173,8 +185,9 @@ function ImportedRequest({ form }: { form: ReturnType<typeof useGeneration> }) {
       {form.imported !== null && (
         <div className="attempt-failure">
           <p>
-            작성 중인 초안이 있습니다. 이전 지시로 바꿀까요? 원문·조건·범위는
-            새로 확인합니다.
+            {REQUEST_KIND_LABELS[form.imported.mode]} 종류에 작성 중인 초안이
+            있습니다. 실패한 요청의 종류와 지시를 가져올까요? 다른 종류의 초안은
+            유지하고 원문·조건·범위는 새로 확인합니다.
           </p>
           <button type="button" onClick={form.applyImport}>
             이전 지시 가져오기

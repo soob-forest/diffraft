@@ -7,6 +7,7 @@ pub mod conflict_api;
 pub mod connection;
 pub mod conversation;
 pub mod document;
+pub mod drafts;
 pub mod editor;
 pub mod error;
 pub mod export;
@@ -20,6 +21,7 @@ pub mod review;
 pub mod review_api;
 pub mod review_view;
 pub mod rewrite;
+pub mod selection_request;
 
 pub const SCHEMA_VERSION: u32 = 1;
 pub const MAX_DOCUMENT_BYTES: usize = 1024 * 1024;

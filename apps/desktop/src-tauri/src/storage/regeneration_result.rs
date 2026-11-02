@@ -9,7 +9,8 @@ use crate::{
     domain::{
         ai::AiResponse,
         error::AppError,
-        regeneration::RegenerateRequest,
+        regeneration::{RegenerateRequest, RegenerationTarget},
+        review::Proposal,
         review::{ReviewBatch, ReviewJob},
     },
 };
@@ -58,20 +59,12 @@ impl Store {
         let mut connection = self.connection()?;
         require_running(&connection, job)?;
         let (_, mut batch, old) = regeneration_context::target(&connection, &request)?;
-        let AiResponse::Patch { changes, .. } = response else {
-            return Err(invalid_patch());
-        };
-        if changes.len() != 1
-            || changes[0].before != old.operation.before
-            || changes[0].block_id != old.operation.block_id
-        {
-            return Err(invalid_patch());
-        }
-        let revision = request.revision(changes[0].after.clone());
+        let (after, reason) = replacement(&request, &old, response)?;
+        let revision = request.revision(after);
         let base = review_queries::base(&connection, &batch)?;
         let scope = review_queries::scope(&connection, &batch.id)?;
         let mut proposal = revise(&base, &scope, &mut batch, &revision)?;
-        proposal.operation.reason = changes[0].reason.clone();
+        proposal.operation.reason = reason;
         let json = serde_json::to_string(response).map_err(|_| invalid_patch())?;
         let transaction = connection.transaction().map_err(database_error)?;
         self.persist_revision(&transaction, &batch, &proposal, &revision)?;
@@ -85,4 +78,36 @@ impl Store {
         transaction.commit().map_err(database_error)?;
         review_queries::batch(&connection, &batch.id)
     }
+}
+
+fn replacement(
+    request: &RegenerateRequest,
+    old: &Proposal,
+    response: &AiResponse,
+) -> Result<(String, String), AppError> {
+    let AiResponse::Patch { changes, .. } = response else {
+        return Err(invalid_patch());
+    };
+    if changes.len() != 1 || changes[0].block_id != old.operation.block_id {
+        return Err(invalid_patch());
+    }
+    let after = match request.options.as_ref().map(|options| &options.target) {
+        Some(RegenerationTarget::CandidateSelection(selection)) => {
+            if changes[0].before != selection.quote {
+                return Err(invalid_patch());
+            }
+            crate::document::selection::replace_selection(
+                &old.operation.after,
+                selection,
+                &changes[0].after,
+            )?
+        }
+        _ => {
+            if changes[0].before != old.operation.before {
+                return Err(invalid_patch());
+            }
+            changes[0].after.clone()
+        }
+    };
+    Ok((after, changes[0].reason.clone()))
 }

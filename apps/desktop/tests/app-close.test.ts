@@ -74,3 +74,15 @@ it("navigation in progress cannot start a close or release its lock", async () =
     "문서 이동이 끝난 뒤 다시 종료해 주세요.",
   );
 });
+
+it("an unmounted initialization listener cannot skip the active workspace flush", async () => {
+  const { options, event } = setup();
+  let active = true;
+  const close = createCloseRequest({ ...options, isActive: () => active });
+  active = false;
+  await close(event);
+  expect(event.preventDefault).toHaveBeenCalledTimes(1);
+  expect(options.flush).not.toHaveBeenCalled();
+  expect(options.lock.current).toBe(false);
+  expect(invoke).not.toHaveBeenCalled();
+});

@@ -1,3 +1,4 @@
+import type { ComponentProps } from "react";
 import type { ReviewProjection } from "../generated/ReviewProjection";
 import type { VersionSummary } from "../generated/VersionSummary";
 import { ComparisonViewer } from "../review/ComparisonViewer";
@@ -5,13 +6,17 @@ import { ReviewHeader } from "../review/ReviewContent";
 import type { ReviewModel } from "../review/useReview";
 
 export function RewriteComparison({
+  active,
   comparison,
   review,
   versions,
+  selection,
 }: {
+  active?: boolean;
   comparison: ReviewProjection;
   review: ReviewModel;
   versions: VersionSummary[];
+  selection?: ComponentProps<typeof ComparisonViewer>["selection"];
 }) {
   const current = versions.find(
     (version) => version.id === comparison.currentHeadId,
@@ -26,7 +31,11 @@ export function RewriteComparison({
     <>
       <header className="rewrite-comparison-heading">
         <h3>
-          현재 확정본 v{current ?? "확인 필요"} → 재작성 후보 {candidate}
+          {comparison.batch.status === "ACTIVE" ? "현재 확정본" : "당시 기준본"}{" "}
+          v
+          {(comparison.batch.status === "ACTIVE" ? current : base) ??
+            "확인 필요"}{" "}
+          → 재작성 후보 {candidate}
         </h3>
         <p>
           기준 v{base ?? "확인 필요"} · {comparison.batch.summary}
@@ -36,10 +45,12 @@ export function RewriteComparison({
         </p>
       </header>
       <ComparisonViewer
+        active={active}
         comparison={comparison}
+        selection={selection}
         header={<ReviewHeader review={review} />}
         labels={[
-          `확정본 v${current ?? "확인 필요"}`,
+          `${comparison.batch.status === "ACTIVE" ? "확정본" : "당시 기준본"} v${(comparison.batch.status === "ACTIVE" ? current : base) ?? "확인 필요"}`,
           `재작성 후보 ${candidate}`,
         ]}
       />

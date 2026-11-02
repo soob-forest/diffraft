@@ -1,4 +1,6 @@
 import { type ReactNode, useEffect, useRef, useState } from "react";
+import { useDraftPersistence } from "../drafts/SessionDrafts";
+import { draftError } from "../drafts/validation";
 import type { TaskSnapshot } from "../generated/TaskSnapshot";
 import { errorMessage } from "../ipc";
 import { editorCommand } from "./api";
@@ -16,7 +18,8 @@ export interface TaskFormProps {
 function useTaskForm(props: TaskFormProps) {
   const [goal, setGoal] = useState(props.task?.goal ?? "");
   const [rules, setRules] = useState(props.task?.pinnedRules ?? "");
-  const operation = useTaskSave(props, goal, rules);
+  const [firstInstruction, setFirstInstruction] = useState("");
+  const operation = useTaskSave(props, goal, rules, firstInstruction);
   return {
     ...operation,
     dirty:
@@ -26,24 +29,38 @@ function useTaskForm(props: TaskFormProps) {
     setGoal,
     rules,
     setRules,
+    firstInstruction,
+    setFirstInstruction,
   };
 }
 
-function useTaskSave(props: TaskFormProps, goal: string, rules: string) {
-  const [message, setMessage] = useState("");
-  const [error, setError] = useState("");
-  const [busy, setBusy] = useState(false);
-  const id = useRef(props.task?.id ?? crypto.randomUUID());
-  const pending = useRef<Promise<void> | null>(null);
+function useTaskSave(
+  props: TaskFormProps,
+  goal: string,
+  rules: string,
+  firstInstruction: string,
+) {
+  const { store, flush } = useDraftPersistence();
+  const { message, setMessage, error, setError, busy, setBusy, id, pending } =
+    useTaskSaveState(props.task?.id);
   const save = async () => {
     if (pending.current) return pending.current;
-    if (
-      goal === (props.task?.goal ?? "") &&
-      rules === (props.task?.pinnedRules ?? "")
-    )
-      return;
+    if (taskUnchanged(props, goal, rules)) return;
     setBusy(true);
-    pending.current = persistTask({ ...props, goal, rules, id: id.current });
+    pending.current = persistTask({
+      ...props,
+      goal,
+      rules,
+      id: id.current,
+      prepareRequest: (task) =>
+        saveFirstRequest({
+          task,
+          existing: Boolean(props.task),
+          instruction: firstInstruction,
+          store,
+          flush,
+        }),
+    });
     try {
       await pending.current;
       setMessage("작업 조건을 저장했습니다.");
@@ -68,7 +85,12 @@ function useTaskSave(props: TaskFormProps, goal: string, rules: string) {
 }
 
 async function persistTask(
-  props: TaskFormProps & { goal: string; rules: string; id: string },
+  props: TaskFormProps & {
+    goal: string;
+    rules: string;
+    id: string;
+    prepareRequest: (task: TaskSnapshot) => Promise<void>;
+  },
 ) {
   await props.flush();
   const task = {
@@ -79,6 +101,7 @@ async function persistTask(
     summary: "",
   };
   const saved = await editorCommand({ kind: "put_task", task }, "task");
+  await props.prepareRequest(saved);
   await editorCommand(
     { kind: "select_task", documentId: props.documentId, taskId: saved.id },
     "selected_task",
@@ -107,9 +130,25 @@ export function TaskForm(props: TaskFormProps) {
         }}
       >
         <TaskFields form={form} />
+        {!props.task && (
+          <label>
+            첫 요청 (선택)
+            <textarea
+              rows={3}
+              value={form.firstInstruction}
+              onChange={(event) => form.setFirstInstruction(event.target.value)}
+              disabled={form.busy}
+              placeholder="예: 수치를 유지하고 이 안내를 간결하게 다듬어 주세요."
+            />
+          </label>
+        )}
         {props.children}
         <button type="submit" disabled={form.busy}>
-          {props.task ? "조건 저장" : "작업 만들기"}
+          {props.task
+            ? "조건 저장"
+            : form.firstInstruction.trim()
+              ? "작업 만들고 요청 확인"
+              : "작업 만들기"}
         </button>
         <p role="status">{form.message}</p>
       </form>
@@ -178,4 +217,44 @@ function useTaskFlush(flushRef: FlushRef, save: () => Promise<void>) {
       flushRef.current = null;
     };
   }, [flushRef]);
+}
+
+async function saveFirstRequest({
+  task,
+  existing,
+  instruction,
+  store,
+  flush,
+}: {
+  task: TaskSnapshot;
+  existing: boolean;
+  instruction: string;
+  store: ReturnType<typeof useDraftPersistence>["store"];
+  flush: () => Promise<void>;
+}) {
+  if (existing || !instruction.trim()) return;
+  const error = draftError(instruction);
+  if (error) throw new Error(error);
+  store.write(JSON.stringify(["request", task.documentId, task.id]), {
+    mode: "PATCH",
+    instruction: instruction,
+    prepareOnOpen: true,
+  });
+  await flush();
+}
+
+function useTaskSaveState(taskId: string | undefined) {
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+  const id = useRef(taskId ?? crypto.randomUUID());
+  const pending = useRef<Promise<void> | null>(null);
+  return { message, setMessage, error, setError, busy, setBusy, id, pending };
+}
+
+function taskUnchanged(props: TaskFormProps, goal: string, rules: string) {
+  return (
+    goal === (props.task?.goal ?? "") &&
+    rules === (props.task?.pinnedRules ?? "")
+  );
 }

@@ -1,4 +1,5 @@
 import { modelLabel } from "../connection/provider";
+import { DraftLocked } from "../drafts/DraftRecovery";
 import { type RegenerationProps, useRegeneration } from "./useRegeneration";
 
 export function RegenerateForm(props: RegenerationProps) {
@@ -11,7 +12,9 @@ export function RegenerateForm(props: RegenerationProps) {
         대화·결정을 전달합니다. 문서 전체를 추가로 보내지 않습니다. 새 후보는
         승인 전까지 확정본에 반영되지 않습니다.
       </p>
+      <DraftLocked locked={form.locked} />
       <form
+        inert={form.locked}
         onSubmit={(event) => {
           event.preventDefault();
           void form.submit();

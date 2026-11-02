@@ -79,6 +79,7 @@ fn scoped_world(repeats: usize) -> (World, ReviewBatch) {
 
 fn request(world: &World, batch: &ReviewBatch) -> RegenerateRequest {
     RegenerateRequest {
+        options: None,
         model: Default::default(),
         document_id: world.document.id.clone(),
         batch_id: batch.id.clone(),
@@ -151,6 +152,7 @@ fn regeneration_after_partial_accept_uses_current_head_and_remaining_original() 
         .world
         .store
         .begin_regeneration(RegenerateRequest {
+            options: None,
             model: Default::default(),
             document_id: head.id.clone(),
             batch_id: world.batch.id.clone(),

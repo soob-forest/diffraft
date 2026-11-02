@@ -8,3 +8,4 @@ pub mod patch;
 pub mod review;
 pub mod revisions;
 pub mod scope;
+pub mod selection;

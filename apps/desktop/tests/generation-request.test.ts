@@ -59,9 +59,12 @@ function setup() {
     onProposal: vi.fn(),
     scope: {
       kind: "whole",
+      locked: false,
       setKind: vi.fn(),
       selection: { from: 0, to: 0, cursor: 0 },
       setSelection: vi.fn(),
+      dragSelection: { from: 0, to: 0, cursor: 0 },
+      capture: vi.fn(),
       value: () => ({ kind: "whole" }),
     },
   };

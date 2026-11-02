@@ -42,6 +42,8 @@ export function retryRequest(
       kind: "generate",
       value: { ...saved.value, ...retry, expectedActiveBatchId },
     };
+  if (saved.kind === "selection")
+    return { kind: "selection", value: { ...saved.value, ...retry } };
   if (saved.kind === "regenerate")
     return { kind: "regenerate", value: { ...saved.value, ...retry } };
   return {
@@ -51,7 +53,7 @@ export function retryRequest(
 }
 
 function retryBatch(saved: SavedGenerationRequest, batches: BatchSummary[]) {
-  if (saved.kind === "regenerate") return null;
+  if (saved.kind === "regenerate" || saved.kind === "selection") return null;
   const expected = saved.value.expectedActiveBatchId;
   const active = batches.find((batch) => batch.status === "ACTIVE")?.id ?? null;
   if (expected === active) return active;

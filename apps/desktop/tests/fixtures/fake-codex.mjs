@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
 import { existsSync, writeFileSync } from "node:fs";
 import { createInterface } from "node:readline";
+import { response } from "./fake-codex-response.mjs";
 import {
   account,
   catalog,
@@ -261,36 +262,4 @@ function finishTurn(params) {
     },
   });
   generated = true;
-}
-
-function response(input) {
-  if (input.mode === "EXPLAIN")
-    return { schema_version: 1, mode: "EXPLAIN", answer: "합성 Codex 설명" };
-  if (input.mode === "REWRITE")
-    return {
-      schema_version: 1,
-      mode: "REWRITE",
-      summary: "합성 재작성",
-      candidate_markdown: "# 합성 Codex 후보\n",
-    };
-  const block = input.target
-    ? {
-        block_id: input.target.operation.blockId,
-        before: input.target.operation.before,
-      }
-    : (input.scope.blocks.find((item) => item.before.trim()) ??
-      input.scope.blocks[0]);
-  return {
-    schema_version: 1,
-    mode: "PATCH",
-    summary: "합성 수정",
-    changes: [
-      {
-        block_id: block.block_id,
-        before: block.before,
-        after: "승인할 합성 Codex 수정",
-        reason: "합성 지시 반영",
-      },
-    ],
-  };
 }

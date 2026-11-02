@@ -2,5 +2,6 @@
 import type { GenerateRequest } from "./GenerateRequest";
 import type { RegenerateRequest } from "./RegenerateRequest";
 import type { RewriteRequest } from "./RewriteRequest";
+import type { SelectionRequest } from "./SelectionRequest";
 
-export type SavedGenerationRequest = { "kind": "generate", "value": GenerateRequest } | { "kind": "regenerate", "value": RegenerateRequest } | { "kind": "rewrite", "value": RewriteRequest };
+export type SavedGenerationRequest = { "kind": "selection", "value": SelectionRequest } | { "kind": "generate", "value": GenerateRequest } | { "kind": "regenerate", "value": RegenerateRequest } | { "kind": "rewrite", "value": RewriteRequest };

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ReviewProjection } from "../generated/ReviewProjection";
 import type { TaskReview } from "../generated/TaskReview";
 import { errorMessage } from "../ipc";
@@ -18,6 +18,12 @@ export function useReview(taskId: string, headId: string) {
   const [loading, setLoading] = useState(true);
   const [revision, setRevision] = useState(0);
   const sequence = useRef(new ReadSequence());
+  const chooseBatch = useCallback((value: string) => {
+    sequence.current.invalidate();
+    setLoading(true);
+    setBatchId(value);
+    setRevision((current) => current + 1);
+  }, []);
   const request = useMemo(
     () => ({ taskId, batchId, headId, revision }),
     [taskId, batchId, headId, revision],
@@ -34,11 +40,7 @@ export function useReview(taskId: string, headId: string) {
     error,
     loading,
     batchId,
-    setBatchId: (value: string) => {
-      sequence.current.invalidate();
-      setLoading(true);
-      setBatchId(value);
-    },
+    setBatchId: chooseBatch,
     refresh: () => {
       sequence.current.invalidate();
       setRevision((value) => value + 1);
@@ -52,6 +54,10 @@ async function load(
 ): Promise<Snapshot> {
   if (!taskId) return empty;
   const state = await reviewCommand({ kind: "state", taskId }, "state");
+  if (requested && !state.batches.some((batch) => batch.id === requested))
+    throw new Error(
+      "이 요청의 저장된 결과를 찾을 수 없습니다. 다른 결과로 대신 열지 않았습니다.",
+    );
   const batch =
     state.batches.find((value) => value.id === requested) ??
     state.batches.find((value) => value.status === "ACTIVE") ??

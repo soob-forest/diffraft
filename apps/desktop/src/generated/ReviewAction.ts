@@ -2,7 +2,10 @@
 import type { AddComment } from "./AddComment";
 import type { BatchDecisionKind } from "./BatchDecisionKind";
 import type { BatchDecisionRequest } from "./BatchDecisionRequest";
+import type { CandidateSelection } from "./CandidateSelection";
 import type { DecisionRequest } from "./DecisionRequest";
+import type { RegenerateRequest } from "./RegenerateRequest";
 import type { RevisionRequest } from "./RevisionRequest";
+import type { SelectionRequest } from "./SelectionRequest";
 
-export type ReviewAction = { "kind": "batch_decision", decision: BatchDecisionKind, request: BatchDecisionRequest, } | { "kind": "state", taskId: string, } | { "kind": "projection", batchId: string, expectedHeadId: string, } | { "kind": "accept", decision: DecisionRequest, } | { "kind": "reject", decision: DecisionRequest, } | { "kind": "revise", revision: RevisionRequest, } | { "kind": "add_comment", comment: AddComment, } | { "kind": "set_comment_status", id: string, expectedRevision: number, resolved: boolean, } | { "kind": "proposal_at", batchId: string, proposalId: string, revision: number, };
+export type ReviewAction = { "kind": "prepare_selection", request: SelectionRequest, } | { "kind": "revise_selection", revision: RevisionRequest, selection: CandidateSelection, } | { "kind": "prepare_regeneration", request: RegenerateRequest, } | { "kind": "historical", batchId: string, proposalId: string, revision: number, previousRevision: number | null, } | { "kind": "impact", documentId: string, } | { "kind": "batch_decision", decision: BatchDecisionKind, request: BatchDecisionRequest, } | { "kind": "state", taskId: string, } | { "kind": "projection", batchId: string, expectedHeadId: string, } | { "kind": "accept", decision: DecisionRequest, } | { "kind": "reject", decision: DecisionRequest, } | { "kind": "revise", revision: RevisionRequest, } | { "kind": "add_comment", comment: AddComment, } | { "kind": "set_comment_status", id: string, expectedRevision: number, resolved: boolean, } | { "kind": "proposal_at", batchId: string, proposalId: string, revision: number, };

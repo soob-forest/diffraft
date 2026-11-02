@@ -26,6 +26,8 @@ pub mod regeneration;
 pub mod review;
 #[cfg(feature = "desktop")]
 pub mod rewrite;
+#[cfg(feature = "desktop")]
+pub mod selection;
 
 use crate::{
     domain::{
@@ -54,6 +56,8 @@ pub fn editor(store: &Store, request: EditorRequest) -> Result<EditorReply, AppE
 
 fn dispatch_editor(store: &Store, action: EditorAction) -> Result<EditorReply, AppError> {
     match action {
+        EditorAction::ReadDrafts => store.read_drafts().map(EditorReply::Drafts),
+        EditorAction::WriteDraft { draft } => store.write_draft(draft).map(EditorReply::Draft),
         EditorAction::SelectDocument { document_id } => {
             store.select_document(&document_id).map(EditorReply::State)
         }

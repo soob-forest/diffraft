@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { DraftLocked } from "../drafts/DraftRecovery";
 import { RewriteRequestDialog } from "./RewriteRequestDialog";
 import {
   type RewriteFormProps,
@@ -28,6 +29,7 @@ export function RewriteForm(
         현재 확정본 전체에서 새 후보를 만듭니다. 부분 제안은 확인 후 기록으로
         옮깁니다.
       </p>
+      <DraftLocked locked={form.locked} />
       <label>
         재작성 지시
         <textarea

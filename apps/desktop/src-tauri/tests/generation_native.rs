@@ -145,6 +145,7 @@ fn create_patch(store: &Store, head: &DocumentSnapshot, task: &str) -> ReviewBat
 fn revise_patch(store: &Store, head: &DocumentSnapshot, batch: &ReviewBatch) -> ReviewBatch {
     let proposal = &batch.proposals[0];
     let request = RegenerateRequest {
+        options: None,
         model: Default::default(),
         document_id: head.id.clone(), batch_id: batch.id.clone(), proposal_id: proposal.id.clone(),
         expected_revision: proposal.revision, expected_head_id: head.version_id.clone(),

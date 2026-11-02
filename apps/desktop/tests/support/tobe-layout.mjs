@@ -37,7 +37,9 @@ export async function assertRequestFlow() {
     return {
       heading: panel.querySelector("h2").textContent,
       taskPicker: Boolean(panel.querySelector(".task-picker")),
-      typeButtons: panel.querySelectorAll(".request-kind button").length,
+      typeButtons: [...panel.querySelectorAll(".request-kind button")].map(
+        (button) => button.textContent.trim(),
+      ),
       inputFont: getComputedStyle(input).fontSize,
       buttonWidth: Math.round(button.getBoundingClientRect().width),
     };
@@ -45,7 +47,7 @@ export async function assertRequestFlow() {
   assert.deepEqual(layout, {
     heading: "현재 작업",
     taskPicker: true,
-    typeButtons: 2,
+    typeButtons: ["부분 수정", "설명", "전체 재작성"],
     inputFont: "16px",
     buttonWidth: 311,
   });

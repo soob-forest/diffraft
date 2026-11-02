@@ -15,6 +15,7 @@ pub fn spec() -> Result<ProcessSpec, AppError> {
     if !matches!(
         mode.as_str(),
         "REGENERATE"
+            | "REGENERATE_WRONG_SELECTION"
             | "PATCH"
             | "PATCH_SCOPE"
             | "REGENERATE_DELAY"
@@ -29,6 +30,7 @@ pub fn spec() -> Result<ProcessSpec, AppError> {
             | "STRUCTURED_LIMIT"
             | "MODEL_DENIED"
             | "malformed"
+            | "MALFORMED_DELAY"
     ) {
         return Err(AppError::invalid("등록된 가짜 응답만 사용할 수 있습니다."));
     }

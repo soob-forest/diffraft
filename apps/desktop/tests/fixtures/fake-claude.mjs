@@ -19,12 +19,15 @@ if (expected !== undefined)
     JSON.stringify({ model: selected }),
   );
 const MAX_INPUT_BYTES = 200 * 1024;
+const REPLY_DELAY_MS = 1800;
 let input = "";
 for await (const chunk of process.stdin) {
   input += chunk;
   if (Buffer.byteLength(input) > MAX_INPUT_BYTES) process.exit(2);
 }
-if (mode === "malformed") {
+if (mode === "malformed" || mode === "MALFORMED_DELAY") {
+  if (mode === "MALFORMED_DELAY")
+    await new Promise((resolve) => setTimeout(resolve, REPLY_DELAY_MS));
   process.stdout.write("{invalid json");
   process.exit(0);
 }
@@ -69,16 +72,34 @@ if (mode === "EXPLAIN_FRESH") {
   sessionId = `${hex.slice(0, 8)}-${hex.slice(8, 12)}-4${hex.slice(13, 16)}-8${hex.slice(17, 20)}-${hex.slice(20, 32)}`;
 }
 const response = { schema_version: 1, mode };
-if (mode === "REGENERATE" || mode === "REGENERATE_DELAY") {
+if (
+  ["REGENERATE", "REGENERATE_DELAY", "REGENERATE_WRONG_SELECTION"].includes(
+    mode,
+  )
+) {
   if (mode === "REGENERATE_DELAY")
-    await new Promise((resolve) => setTimeout(resolve, 1800));
+    await new Promise((resolve) => setTimeout(resolve, REPLY_DELAY_MS));
   response.mode = "PATCH";
   response.summary = "코멘트를 반영한 후보";
   response.changes = [
     {
       block_id: request.target.operation.blockId,
-      before: request.target.operation.before,
-      after: "여행자는 준비물과 다음 여행 계획을 여행 기록에 남깁니다.",
+      before:
+        [
+          "unapproved_candidate",
+          "rewrite_candidate",
+          "confirmed_selection",
+        ].includes(request.editableSource) &&
+        mode !== "REGENERATE_WRONG_SELECTION"
+          ? request.scope.text
+          : request.target.operation.before,
+      after: [
+        "unapproved_candidate",
+        "rewrite_candidate",
+        "confirmed_selection",
+      ].includes(request.editableSource)
+        ? "다듬은 부분"
+        : "여행자는 준비물과 다음 여행 계획을 여행 기록에 남깁니다.",
       reason: "코멘트의 실행 주체 반영",
     },
   ];
@@ -111,7 +132,7 @@ if (mode === "REGENERATE" || mode === "REGENERATE_DELAY") {
   }));
 } else if (mode === "REWRITE" || mode === "REWRITE_DELAY") {
   if (mode === "REWRITE_DELAY")
-    await new Promise((resolve) => setTimeout(resolve, 1800));
+    await new Promise((resolve) => setTimeout(resolve, REPLY_DELAY_MS));
   response.mode = "REWRITE";
   response.summary = "상황별 실행 가이드";
   response.candidate_markdown = await readFile(

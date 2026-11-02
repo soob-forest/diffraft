@@ -200,9 +200,16 @@ async function chooseModel(model) {
 }
 
 async function recoverThread() {
-  await $("button=새 문서").click();
+  const previousDocument = await selectedDocument();
+  await $(".document-actions").$("button=새 문서").click();
+  await browser.waitUntil(
+    async () => (await selectedDocument()).id !== previousDocument.id,
+  );
+  await $(".document-actions").$("button=새 문서").waitForEnabled();
   await $(".source-editor .cm-content").waitForExist();
   const document = await selectedDocument();
+  assert.notEqual(document.id, previousDocument.id);
+  assert.equal(document.content, "");
   const task = await createTask("Codex 유실 연결 복구 검증");
   await beginRequest("EXPLAIN", "CODEX_SUCCESS", "로컬에 보존할 첫 설명");
   const first = await terminal(task);

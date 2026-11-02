@@ -1,9 +1,14 @@
 import { EditorState } from "@codemirror/state";
 import { EditorView } from "@codemirror/view";
-import { useEffect, useRef } from "react";
+import { useEffect, useLayoutEffect, useRef } from "react";
 import { rawSource, sourceHistory } from "./raw-history";
 import { editableSetup } from "./setup";
 import { displayOffset, displayText, sourceOffset } from "./source-buffer";
+import {
+  refreshSourcePin,
+  type SourceEditorAction,
+  sourceActionExtensions,
+} from "./source-editor-actions";
 
 export interface EditorSelection {
   from: number;
@@ -16,6 +21,7 @@ export interface SourceEditorProps {
   onSelection: (selection: EditorSelection) => void;
   onComposition: (active: boolean) => void;
   jump: { offset: number; serial: number } | null;
+  action?: SourceEditorAction;
 }
 
 function createEditor(
@@ -29,6 +35,7 @@ function createEditor(
       extensions: [
         editableSetup,
         sourceHistory(props.current.initial),
+        sourceActionExtensions(props),
         EditorView.lineWrapping,
         EditorView.contentAttributes.of({
           "aria-label": "원문 편집",
@@ -75,6 +82,14 @@ export function SourceEditor(props: SourceEditorProps) {
       view.current = null;
     };
   }, []);
+  useEditorNavigation(view, props);
+  return <div className="source-editor" ref={parent} />;
+}
+
+function useEditorNavigation(
+  view: React.RefObject<EditorView | null>,
+  props: SourceEditorProps,
+) {
   useEffect(() => {
     const editor = view.current;
     if (!editor || !props.jump) return;
@@ -84,6 +99,37 @@ export function SourceEditor(props: SourceEditorProps) {
     );
     editor.dispatch({ selection: { anchor: offset }, scrollIntoView: true });
     editor.focus();
-  }, [props.jump]);
-  return <div className="source-editor" ref={parent} />;
+  }, [props.jump, view]);
+  useLayoutEffect(() => {
+    view.current?.dispatch({
+      effects: refreshSourcePin.of(
+        props.action?.active ? (props.action.pinned ?? null) : null,
+      ),
+    });
+  }, [props.action?.pinned, props.action?.active, view]);
+  const handledReturn = useRef(0);
+  useEffect(() => {
+    const editor = view.current,
+      action = props.action;
+    if (
+      !editor ||
+      !action?.active ||
+      !action.returnSerial ||
+      action.returnSerial === handledReturn.current
+    )
+      return;
+    handledReturn.current = action.returnSerial;
+    const raw = editor.state.field(rawSource),
+      pin = action.pinned;
+    if (pin?.source === raw)
+      editor.dispatch({
+        selection: {
+          anchor: displayOffset(raw, pin.selection.from),
+          head: displayOffset(raw, pin.selection.to),
+        },
+        scrollIntoView: true,
+      });
+    editor.focus();
+    action.onPosition(null);
+  }, [props.action, view]);
 }

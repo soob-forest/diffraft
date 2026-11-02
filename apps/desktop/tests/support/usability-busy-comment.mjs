@@ -7,6 +7,8 @@ export async function checkBusyComment(taskId) {
   await openComment();
   await $(".comment-form textarea").setValue("진행 중에도 유지할 초안");
   await beginRequest("EXPLAIN", "EXPLAIN_DELAY", "상태를 설명해 주세요");
+  await $("button=생성 중단").waitForDisplayed();
+  assert.equal(await $(".generation-dialog").isExisting(), false);
   await openComment();
   await browser.waitUntil(
     async () => !(await $("button=코멘트 저장").isEnabled()),

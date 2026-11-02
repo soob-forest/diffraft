@@ -30,7 +30,7 @@ impl Store {
 }
 
 pub(super) fn instruction(connection: &Connection, job: &ReviewJob) -> Result<String, AppError> {
-    let json: String = connection.query_row("SELECT request_json FROM generation_jobs WHERE job_id=?1 UNION ALL SELECT request_json FROM revision_jobs WHERE job_id=?1 UNION ALL SELECT request_json FROM rewrite_jobs WHERE job_id=?1", [&job.id], |row| row.get(0)).map_err(database_error)?;
+    let json: String = connection.query_row("SELECT request_json FROM generation_jobs WHERE job_id=?1 UNION ALL SELECT request_json FROM revision_jobs WHERE job_id=?1 UNION ALL SELECT request_json FROM rewrite_jobs WHERE job_id=?1 UNION ALL SELECT request_json FROM selection_jobs WHERE job_id=?1", [&job.id], |row| row.get(0)).map_err(database_error)?;
     let value: serde_json::Value = serde_json::from_str(&json)
         .map_err(|_| AppError::invalid("저장한 요청을 읽을 수 없습니다."))?;
     value["instruction"]

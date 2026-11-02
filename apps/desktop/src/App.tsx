@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
+import { AppAbout } from "./AppAbout";
 import { ConnectionSettings } from "./connection/ConnectionSettings";
 import { GenerationStatus } from "./connection/GenerationStatus";
-import { SessionDrafts } from "./drafts/SessionDrafts";
+import { DraftStatus, SessionDrafts } from "./drafts/SessionDrafts";
 import { DocumentWorkspace } from "./editor/DocumentWorkspace";
 import { NavigationHosts, NavigationProvider } from "./editor/NavigationSlots";
 import { useWorkspace } from "./workspace";
@@ -23,22 +24,11 @@ function WorkspaceApp() {
   );
   return (
     <div className="app-shell" data-documents-open={documentsOpen}>
-      <header className="app-header" inert={workspace.closing}>
-        <span className="brand-icon">D</span>
-        <strong>DocReview</strong>
-        <span>내 작업 공간</span>
-        {!workspace.editor && (
-          <button
-            type="button"
-            aria-expanded={documentsOpen}
-            aria-controls="document-list"
-            onClick={() => setDocumentsOpen((value) => !value)}
-          >
-            문서 목록
-          </button>
-        )}
-        <GenerationStatus />
-      </header>
+      <AppHeader
+        workspace={workspace}
+        documentsOpen={documentsOpen}
+        setDocumentsOpen={setDocumentsOpen}
+      />
       <Sidebar workspace={workspace} />
       <div className="workspace-body" inert={workspace.busy}>
         {workspace.error && (
@@ -62,6 +52,35 @@ function WorkspaceApp() {
       </div>
       <WorkspaceFooter workspace={workspace} />
     </div>
+  );
+}
+
+function AppHeader({
+  workspace,
+  documentsOpen,
+  setDocumentsOpen,
+}: {
+  workspace: ReturnType<typeof useWorkspace>;
+  documentsOpen: boolean;
+  setDocumentsOpen: React.Dispatch<React.SetStateAction<boolean>>;
+}) {
+  return (
+    <header className="app-header" inert={workspace.closing}>
+      <span className="brand-icon">D</span>
+      <AppAbout />
+      <span>내 작업 공간</span>
+      {!workspace.editor && (
+        <button
+          type="button"
+          aria-expanded={documentsOpen}
+          aria-controls="document-list"
+          onClick={() => setDocumentsOpen((value) => !value)}
+        >
+          문서 목록
+        </button>
+      )}
+      <GenerationStatus />
+    </header>
   );
 }
 
@@ -173,6 +192,7 @@ function WorkspaceFooter({
               : "작업 공간을 여는 중…"}
       </span>
       <span>승인한 변경만 확정본에 반영됩니다.</span>
+      <DraftStatus recovery />
     </footer>
   );
 }

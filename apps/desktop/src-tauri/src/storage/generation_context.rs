@@ -22,7 +22,7 @@ pub(super) fn source(
     }
     rewrite_validation::writable(connection, &head)?;
     let scope = select(&head, request.selection.clone())?;
-    let active: Option<String> = connection.query_row("SELECT b.id FROM proposal_batches b JOIN jobs j ON b.job_id=j.id WHERE j.task_id=?1 AND b.status='ACTIVE'", [&request.task_id], |row| row.get(0)).optional().map_err(database_error)?;
+    let active: Option<String> = connection.query_row("SELECT b.id FROM proposal_batches b JOIN jobs j ON b.job_id=j.id WHERE j.task_id=?1 AND b.status='ACTIVE' ORDER BY b.created_at DESC,b.rowid DESC LIMIT 1", [&request.task_id], |row| row.get(0)).optional().map_err(database_error)?;
     if active != request.expected_active_batch_id {
         return Err(stale());
     }

@@ -55,6 +55,7 @@ function page(
       content: `요청 ${sequence}`,
       createdAt: 100 - sequence,
       jobId: null,
+      result: null,
     })),
   };
 }
@@ -115,4 +116,36 @@ it("resets selection immediately when approval or restoration replaces the edito
   expect(() =>
     selectedRange("selection", selectionForEpoch(2, stored)),
   ).toThrow(/선택/);
+});
+
+it("retries a selected request with its original target and model", () => {
+  const selected: GenerationAttempt = {
+    ...attempt,
+    request: {
+      kind: "selection",
+      value: {
+        documentId: "document",
+        taskId: "task",
+        expectedHeadId: "head",
+        operationId: "original",
+        model: { provider: "codex", model: "saved-model", effort: "low" },
+        instruction: "선택만 개선",
+        target: {
+          kind: "confirmed",
+          value: { taskId: "task", fromUtf16: 3, toUtf16: 5, quote: "원문" },
+        },
+        commentIds: [],
+        contextHash: "hash",
+        retryOf: null,
+      },
+    },
+  };
+  expect(retryRequest(selected, "head", "new", [])).toEqual({
+    kind: "selection",
+    value: {
+      ...selected.request.value,
+      operationId: "new",
+      retryOf: "failed-job",
+    },
+  });
 });

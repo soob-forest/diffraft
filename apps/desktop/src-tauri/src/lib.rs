@@ -5,3 +5,4 @@ pub mod document;
 pub mod domain;
 pub mod providers;
 pub mod storage;
+pub mod verification_workspace;

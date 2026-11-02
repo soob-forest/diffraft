@@ -10,6 +10,7 @@ use ts_rs::TS;
     deny_unknown_fields
 )]
 pub enum SavedGenerationRequest {
+    Selection(Box<super::selection_request::SelectionRequest>),
     Generate(Box<super::generation::GenerateRequest>),
     Regenerate(Box<super::regeneration::RegenerateRequest>),
     Rewrite(Box<super::rewrite::RewriteRequest>),
@@ -35,6 +36,17 @@ pub struct ConversationMessage {
     #[ts(type = "number")]
     pub created_at: i64,
     pub job_id: Option<String>,
+    #[serde(default)]
+    pub result: Option<ConversationResult>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, TS)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct ConversationResult {
+    pub batch_id: String,
+    pub proposal_id: Option<String>,
+    pub revision: Option<u32>,
+    pub status: String,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, TS)]

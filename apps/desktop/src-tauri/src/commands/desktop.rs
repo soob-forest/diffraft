@@ -34,6 +34,11 @@ fn data_directory(app: &AppHandle) -> Result<std::path::PathBuf, AppError> {
         }
         return Err(AppError::invalid("E2E 임시 경로가 올바르지 않습니다."));
     }
+    if let Some(path) =
+        crate::verification_workspace::directory(&std::env::args_os().collect::<Vec<_>>())?
+    {
+        return Ok(path);
+    }
     app.path()
         .app_data_dir()
         .map_err(|_| AppError::new(ErrorCode::SaveFailed, "앱 작업 폴더를 찾을 수 없습니다."))

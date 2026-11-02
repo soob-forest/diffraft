@@ -4,6 +4,7 @@ import { errorMessage } from "../ipc";
 import { openPreviewLink } from "./api";
 import { NavigationSlot } from "./NavigationSlots";
 import { type EditorSelection, SourceEditor } from "./SourceEditor";
+import type { SourceEditorAction } from "./source-editor-actions";
 import type { DocumentModel } from "./useDocument";
 
 const Preview = lazy(() => import("./Preview"));
@@ -13,12 +14,14 @@ type Props = {
   preview: boolean;
   navigationVisible: boolean;
   onSelection: (value: EditorSelection) => void;
+  action?: SourceEditorAction;
 };
 export function EditingArea({
   model,
   preview,
   onSelection,
   navigationVisible,
+  action,
 }: Props) {
   const [jump, setJump] = useState<Jump | null>(null);
   const deferred = useDeferredValue(model.content);
@@ -43,6 +46,7 @@ export function EditingArea({
             onComposition={(active) => model.autosave.composition(active)}
             onSelection={onSelection}
             jump={jump}
+            action={action}
           />
         </div>
         {preview && (

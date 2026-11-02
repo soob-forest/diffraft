@@ -48,7 +48,11 @@ async function inspectEnvironment({ width, height, scale, draft }) {
   await $(".diff-pane").scrollIntoView({ block: "center" });
   const readable = await inspectReadable();
   assert.ok(
-    readable.height >= 120 && readable.hit && readable.historySeparated,
+    readable.mainHeight >= readable.height &&
+      readable.reviewHeight >= readable.height &&
+      readable.height >= 120 &&
+      readable.hit &&
+      readable.historySeparated,
     JSON.stringify({ width, height, scale, readable }),
   );
   await browser.saveScreenshot(

@@ -5,41 +5,24 @@ import {
   EditorView,
   highlightWhitespace,
   keymap,
+  type ViewUpdate,
 } from "@codemirror/view";
-import { useEffect, useRef } from "react";
+import { useEffect, useLayoutEffect, useRef } from "react";
+import { selectionGesture } from "../editor/selection-gesture";
 import { alignmentExtension } from "./alignment";
 import {
   type DisplayRow,
   displayRows,
   displaySelection,
-  type LogicalSelection,
   logicalSelection,
   type PaneSide,
 } from "./coordinates";
 import { groupDecorations, numberGutter, rowDecorations } from "./decorations";
-import type { GroupMark } from "./group-selection";
-import type { ReviewRow } from "./rows";
+import type { DiffPaneProps as Props } from "./diff-pane-types";
 import { bindScroll } from "./scroll";
 
-export type DiffBookmark = {
-  selection: LogicalSelection | null;
-  scrollKey: string;
-};
-type Props = {
-  markers?: Map<string, GroupMark>;
-  rows: (ReviewRow | null)[];
-  side: PaneSide;
-  whitespace: boolean;
-  bookmark: React.RefObject<DiffBookmark>;
-  onSelection: (value: LogicalSelection | null) => void;
-  onGroupSelect?: (id: string) => void;
-  onExpand: (key: string) => void;
-  onMove: (direction: number) => void;
-  onScroll: (side: PaneSide, top: number) => void;
-  register: (side: PaneSide, view: EditorView | null) => void;
-  onMeasure: () => void;
-  jump: { selection: LogicalSelection; serial: number } | null;
-};
+export type { DiffBookmark, SelectionPosition } from "./diff-pane-types";
+
 function createPane(
   parent: HTMLElement,
   props: Props,
@@ -111,43 +94,54 @@ function paneEvents(
 ) {
   return [
     keymap.of([
-      {
-        key: "F7",
-        run: () => {
-          current.current.onMove(1);
-          return true;
-        },
-      },
-      {
-        key: "Shift-F7",
-        run: () => {
-          current.current.onMove(-1);
-          return true;
-        },
-      },
+      moveKey("F7", 1, current),
+      moveKey("Shift-F7", -1, current),
       {
         key: "Enter",
         run: (view) =>
           expandAt(view.state.selection.main.head, view, current.current),
       },
       ...defaultKeymap,
+      {
+        key: "Mod-Shift-Enter",
+        run: (view) => {
+          if (
+            !current.current.onEditSelection ||
+            view.state.selection.main.empty
+          )
+            return false;
+          current.current.onEditSelection();
+          return true;
+        },
+      },
+      {
+        key: "Shift-F10",
+        run: (view) => showSelectionActions(view, current.current, true),
+      },
     ]),
     pointerEvents(current),
+    selectionGesture({
+      enabled: () => current.current.selectionActionsEnabled !== false,
+      show: (view, focus) => {
+        showSelectionActions(view, current.current, focus);
+      },
+      close: () => current.current.onSelectionPosition?.(null),
+    }),
     EditorView.updateListener.of((update) => {
       if (!update.selectionSet) return;
-      const value = logicalSelection(
-        rows,
-        update.state.selection.main,
-        props.side,
-      );
-      current.current.bookmark.current.selection = value;
-      current.current.onSelection(value);
+      reportSelection(update, rows, props.side, current.current);
     }),
   ];
 }
 function pointerEvents(current: React.RefObject<Props>) {
   return EditorView.domEventHandlers({
-    click: (event) => {
+    contextmenu: (event, view) => {
+      if (!showSelectionActions(view, current.current, true)) return false;
+      event.preventDefault();
+      return true;
+    },
+    click: (event, view) => {
+      view.focus();
       const row =
         event.target instanceof Element
           ? event.target.closest<HTMLElement>("[data-group-id]")
@@ -162,6 +156,45 @@ function pointerEvents(current: React.RefObject<Props>) {
     },
   });
 }
+function reportSelection(
+  update: ViewUpdate,
+  rows: DisplayRow[],
+  side: PaneSide,
+  props: Props,
+) {
+  const selection = update.state.selection.main;
+  const value =
+    update.state.selection.ranges.length === 1
+      ? logicalSelection(rows, selection, side)
+      : null;
+  props.bookmark.current.selection = value;
+  props.onSelection(value);
+  props.onSelectionIssue?.(
+    !selection.empty && !value
+      ? "변경 전·제안 내용·접힌 구간 또는 여러 범위가 섞여 있습니다. 한쪽의 연속 범위를 다시 선택해 주세요."
+      : "",
+  );
+  if (selection.empty) props.onSelectionPosition?.(null);
+}
+function showSelectionActions(view: EditorView, props: Props, focus: boolean) {
+  if (
+    props.selectionActionsEnabled === false ||
+    !props.onSelectionPosition ||
+    view.state.selection.main.empty
+  )
+    return false;
+  const rect = view.coordsAtPos(view.state.selection.main.head);
+  if (!rect) return false;
+  props.onSelectionPosition({
+    left: rect.left,
+    top: rect.bottom,
+    above: rect.top,
+    right: view.scrollDOM.getBoundingClientRect().right,
+    side: props.side,
+    focus,
+  });
+  return true;
+}
 function expandAt(position: number, view: EditorView, props: Props) {
   const row = props.rows[view.state.doc.lineAt(position).number - 1];
   if (!row?.folded) return false;
@@ -170,6 +203,9 @@ function expandAt(position: number, view: EditorView, props: Props) {
 }
 export function DiffPane(props: Props) {
   const { parent, editor, markerConfiguration } = usePaneView(props);
+  useLayoutEffect(() => {
+    if (props.selectionActionsEnabled === false) editor.current?.dispatch({});
+  }, [props.selectionActionsEnabled, editor]);
   const handledJump = useRef(props.jump?.serial);
   useEffect(() => {
     if (
@@ -187,6 +223,7 @@ export function DiffPane(props: Props) {
     if (selection) {
       handledJump.current = props.jump.serial;
       editor.current.dispatch({ selection, scrollIntoView: true });
+      editor.current.focus();
     }
   }, [props.jump, props.rows, props.side, editor]);
   useEffect(() => {
@@ -235,4 +272,18 @@ function usePaneView(props: Props) {
     };
   }, [props.rows, props.side, props.whitespace]);
   return { parent, editor, markerConfiguration };
+}
+
+function moveKey(
+  key: string,
+  direction: number,
+  current: React.RefObject<Props>,
+) {
+  return {
+    key,
+    run: () => {
+      current.current.onMove(direction);
+      return true;
+    },
+  };
 }

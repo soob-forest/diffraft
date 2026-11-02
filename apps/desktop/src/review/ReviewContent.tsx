@@ -27,7 +27,15 @@ export function ReviewHeader({ review }: { review: ReviewModel }) {
     </header>
   );
 }
-export function Processed({ proposals }: { proposals: Proposal[] }) {
+export function Processed({
+  proposals,
+  open,
+  batchStatus = "ACTIVE",
+}: {
+  proposals: Proposal[];
+  batchStatus?: string;
+  open: (proposal: Proposal) => void;
+}) {
   if (!proposals.length) return null;
   return (
     <details className="processed">
@@ -39,16 +47,17 @@ export function Processed({ proposals }: { proposals: Proposal[] }) {
               ? "승인됨"
               : proposal.decision === "REJECTED"
                 ? "거절됨"
-                : proposal.validity !== "VALID"
-                  ? "원문 변경으로 재검토 필요"
-                  : "이전 제안"}{" "}
+                : batchStatus !== "ACTIVE"
+                  ? "이전 제안"
+                  : proposal.validity !== "VALID"
+                    ? "원문 변경으로 재검토 필요"
+                    : "이전 제안"}{" "}
             · r{proposal.revision}
           </h3>
           <p>{proposal.operation.reason}</p>
-          <strong>당시 변경 전</strong>
-          <pre>{proposal.operation.before}</pre>
-          <strong>당시 변경 후</strong>
-          <pre>{proposal.operation.after}</pre>
+          <button type="button" onClick={() => open(proposal)}>
+            당시 변경 비교
+          </button>
         </article>
       ))}
     </details>

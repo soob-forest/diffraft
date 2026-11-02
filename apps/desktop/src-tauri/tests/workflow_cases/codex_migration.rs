@@ -8,6 +8,10 @@ use docreview_core::{
 };
 
 pub fn remove_codex_schema(world: &World) {
+    world
+        .database()
+        .execute_batch("DROP TABLE selection_jobs; DROP TABLE drafts;")
+        .unwrap();
     world.database().execute_batch("DROP TABLE codex_execution_scopes; DROP TABLE codex_sessions; DROP TABLE ai_preferences;").unwrap();
 }
 

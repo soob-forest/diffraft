@@ -1,7 +1,8 @@
 import { useRef, useState } from "react";
+import { DraftLocked } from "../drafts/DraftRecovery";
 import type { ScopeSnapshot } from "../generated/ScopeSnapshot";
 import { errorMessage } from "../ipc";
-import { editorCommand } from "./api";
+import { confirmRequestScope } from "./confirm-request-scope";
 import type { RequestScope } from "./request-scope";
 import type { DocumentModel } from "./useDocument";
 
@@ -15,19 +16,13 @@ function useScope({ model, requestScope }: Props) {
   const pin = async () => {
     const sequence = ++latest.current;
     try {
-      const selection = requestScope.value();
-      await model.autosave.flush();
-      const value = await editorCommand(
-        {
-          kind: "scope",
-          documentId: model.state.document.id,
-          expectedVersion: model.autosave.document.version,
-          selection,
-        },
-        "scope",
-      );
+      const { scope, captured } = await confirmRequestScope({
+        model,
+        requestScope,
+      });
       if (sequence === latest.current) {
-        setScope(value);
+        if (captured) requestScope.capture(captured);
+        setScope(scope);
         setPinnedSelection(selectionKey);
         model.setError("");
       }
@@ -59,26 +54,16 @@ function useScope({ model, requestScope }: Props) {
 export function ScopeBar(props: Props) {
   const scope = useScope(props);
   const [expanded, setExpanded] = useState(false);
-  const selection = props.requestScope.selection;
-  const heading =
-    props.model.state.headings
-      .filter((item) => item.fromUtf16 <= selection.cursor)
-      .at(-1)?.title ?? "문서 시작";
-  const summary =
-    scope.kind === "whole"
-      ? "전체 문서"
-      : scope.kind === "section"
-        ? `현재 섹션 · ${heading}`
-        : selection.to > selection.from
-          ? `선택 영역 · ${selection.to - selection.from}자`
-          : "선택 영역이 없습니다. 원문에서 선택해 주세요.";
+  const summary = scopeSummary(props, scope.kind);
   return (
     <section className="scope-bar" aria-label="요청 범위">
+      <DraftLocked locked={props.requestScope.locked} />
       <div className="scope-heading">
         <strong>요청 범위</strong>
         <button
           type="button"
           aria-expanded={expanded}
+          disabled={props.requestScope.locked}
           onClick={() => setExpanded((value) => !value)}
         >
           변경
@@ -91,6 +76,7 @@ export function ScopeBar(props: Props) {
         <label>
           범위
           <select
+            disabled={props.requestScope.locked}
             value={scope.kind}
             onChange={(event) => scope.choose(event.target.value)}
           >
@@ -101,6 +87,7 @@ export function ScopeBar(props: Props) {
         </label>
         <button
           type="button"
+          disabled={props.requestScope.locked}
           onClick={() => {
             void scope.pin();
           }}
@@ -111,4 +98,19 @@ export function ScopeBar(props: Props) {
       </div>
     </section>
   );
+}
+
+function scopeSummary(props: Props, kind: string) {
+  const selection = props.requestScope.selection;
+  const heading =
+    props.model.state.headings
+      .filter((item) => item.fromUtf16 <= selection.cursor)
+      .at(-1)?.title ?? "문서 시작";
+  return kind === "whole"
+    ? "전체 문서"
+    : kind === "section"
+      ? `현재 섹션 · ${heading}`
+      : selection.to > selection.from
+        ? `선택 영역 · ${selection.to - selection.from}자`
+        : "선택 영역이 없습니다. 원문에서 선택해 주세요.";
 }

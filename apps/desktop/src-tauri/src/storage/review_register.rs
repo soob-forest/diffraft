@@ -72,11 +72,23 @@ impl Store {
         } else {
             "STALE"
         };
+        let selection_job: bool = connection
+            .query_row(
+                "SELECT EXISTS(SELECT 1 FROM selection_jobs WHERE job_id=?1)",
+                [&job.id],
+                |row| row.get(0),
+            )
+            .map_err(database_error)?;
+        if selection_job && validity != "VALID" {
+            return Err(crate::document::review::stale());
+        }
         let id = self.runtime.id();
         let now = self.runtime.now_ms()?;
         let transaction = connection.transaction().map_err(database_error)?;
         transaction.execute("INSERT INTO proposal_batches(id,job_id,mode,base_version_id,apply_head_id,status,summary,created_at) VALUES(?1,?2,'PATCH',?3,?3,'ACTIVE',?4,?5)", params![id,job.id,source.scope.version_id,summary,now]).map_err(database_error)?;
-        archive_previous(&transaction, &source.task_id, &id)?;
+        if !selection_job {
+            archive_previous(&transaction, &source.task_id, &id)?;
+        }
         self.insert_proposals(&transaction, &id, &operations, validity)?;
         self.complete_generation(&transaction, job, response, session)?;
         transaction.commit().map_err(database_error)?;
@@ -105,7 +117,7 @@ impl Store {
 fn require_patch_job(connection: &Connection, job: &ReviewJob) -> Result<(), AppError> {
     let rewrite: bool = connection
         .query_row(
-            "SELECT EXISTS(SELECT 1 FROM rewrite_jobs WHERE job_id=?1 UNION ALL SELECT 1 FROM generation_jobs WHERE job_id=?1 AND json_extract(request_json,'$.mode')!='PATCH')",
+            "SELECT EXISTS(SELECT 1 FROM rewrite_jobs WHERE job_id=?1 UNION ALL SELECT 1 FROM generation_jobs WHERE job_id=?1 AND json_extract(request_json,'$.mode')!='PATCH' UNION ALL SELECT 1 FROM selection_jobs WHERE job_id=?1 AND json_extract(request_json,'$.target.kind')='rewrite')",
             [&job.id],
             |row| row.get(0),
         )

@@ -14,21 +14,7 @@ export function GroupBar({
   return (
     <div className="group-bar">
       <SelectedGroup panel={panel} projection={projection} />
-      <GroupCompletion remaining={projection.groups.length} />
     </div>
-  );
-}
-function GroupCompletion({ remaining }: { remaining: number }) {
-  const status = useRef<HTMLParagraphElement>(null);
-  const hadPending = useRef(remaining > 0);
-  useEffect(() => {
-    if (hadPending.current && !remaining) status.current?.focus();
-    hadPending.current = remaining > 0;
-  }, [remaining]);
-  return remaining ? null : (
-    <p role="status" ref={status} tabIndex={-1}>
-      유효한 미처리 변경이 없습니다. 변경 상세의 처리·이전 기록에서 확인하세요.
-    </p>
   );
 }
 export function GroupNavigation({

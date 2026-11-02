@@ -80,6 +80,10 @@ pub struct EditorRequest {
     deny_unknown_fields
 )]
 pub enum EditorAction {
+    ReadDrafts,
+    WriteDraft {
+        draft: super::drafts::DraftWrite,
+    },
     SelectDocument {
         document_id: String,
     },
@@ -116,6 +120,8 @@ pub enum EditorAction {
 #[derive(Debug, Serialize, Deserialize, JsonSchema, TS)]
 #[serde(tag = "kind", content = "value", rename_all = "snake_case")]
 pub enum EditorReply {
+    Drafts(Vec<super::drafts::DraftRecord>),
+    Draft(super::drafts::DraftRecord),
     SelectedTask(Option<String>),
     Rules(String),
     State(EditorState),

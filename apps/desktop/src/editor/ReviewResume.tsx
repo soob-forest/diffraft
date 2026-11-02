@@ -1,3 +1,4 @@
+import { reviewPresentation } from "../review/presentation";
 import { useReview } from "../review/useReview";
 import type { DocumentModel } from "./useDocument";
 
@@ -20,19 +21,17 @@ export function ReviewResume({
     projection.batch.status !== "ACTIVE"
   )
     return null;
-  const count = projection.groups.length;
-  const rewrite =
-    projection.batch.mode === "REWRITE" &&
-    projection.batch.baseVersionId === model.autosave.document.versionId;
-  if (!count && !rewrite) return null;
+  const state = reviewPresentation(projection, review.state.generating);
+  if (!["pending", "rewrite", "stale", "conflict"].includes(state.kind))
+    return null;
+  const title =
+    state.kind === "pending"
+      ? `이 작업의 남은 변경 ${projection.groups.length}개`
+      : state.title;
   return (
     <div className="review-resume">
       <div>
-        <strong>
-          {rewrite
-            ? "전체 재작성 후보가 기다리고 있습니다."
-            : `이 작업의 남은 변경 ${count}개`}
-        </strong>
+        <strong>{title}</strong>
         <p>
           {model.state.tasks.find((task) => task.id === taskId)?.goal} · 아직
           원문에 반영하지 않았습니다.

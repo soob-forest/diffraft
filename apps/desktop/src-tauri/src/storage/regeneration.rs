@@ -9,13 +9,33 @@ use crate::{
     domain::{
         editor::ScopeSelection,
         error::{AppError, ErrorCode},
-        regeneration::RegenerateRequest,
+        regeneration::{
+            PreparedRegeneration, RegenerateRequest, RegenerationOptions, RegenerationTarget,
+        },
         review::{ReviewBatch, ReviewJob},
     },
 };
 use rusqlite::{Connection, OptionalExtension, params};
 
 impl Store {
+    pub fn prepare_regeneration(
+        &self,
+        mut request: RegenerateRequest,
+    ) -> Result<PreparedRegeneration, AppError> {
+        request.validate()?;
+        let lock = self.document_lock(&request.document_id)?;
+        let _guard = lock.lock().map_err(|_| lock_error())?;
+        let connection = self.connection()?;
+        let target = regeneration_context::target(&connection, &request)?;
+        let context = regeneration_context::execution_context(&connection, &request, &target)?;
+        let options = request.options.get_or_insert(RegenerationOptions {
+            target: RegenerationTarget::Whole,
+            comment_ids: None,
+            context_hash: None,
+        });
+        options.context_hash = Some(super::files::content_hash(&context));
+        Ok(PreparedRegeneration { request, context })
+    }
     pub fn begin_regeneration(&self, request: RegenerateRequest) -> Result<ReviewJob, AppError> {
         request.validate()?;
         let lock = self.document_lock(&request.document_id)?;
@@ -31,7 +51,15 @@ impl Store {
             ));
         }
         let target = regeneration_context::target(&connection, &request)?;
-        let context = regeneration_context::context(&connection, &request, &target)?;
+        let context = regeneration_context::execution_context(&connection, &request, &target)?;
+        if let Some(options) = &request.options
+            && options.context_hash.as_deref()
+                != Some(super::files::content_hash(&context).as_str())
+        {
+            return Err(AppError::invalid(
+                "요청의 문맥이나 코멘트가 변경되었습니다. 요청 내용을 다시 확인해 주세요.",
+            ));
+        }
         let scope = serde_json::to_string(&select(&target.0, ScopeSelection::Whole)?)
             .map_err(|_| AppError::invalid("재제안 범위를 저장할 수 없습니다."))?;
         let json = serde_json::to_string(&request)

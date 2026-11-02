@@ -57,11 +57,11 @@ impl Store {
                 params![job.id, json, target.context],
             )
             .map_err(database_error)?;
-        if let Some(batch) = target.active_patch {
+        if target.active_patch.is_some() {
             transaction
                 .execute(
-                    "UPDATE proposal_batches SET status='ARCHIVED' WHERE id=?1",
-                    [batch],
+                    "UPDATE proposal_batches SET status='ARCHIVED' WHERE mode='PATCH' AND status='ACTIVE' AND job_id IN (SELECT id FROM jobs WHERE task_id=?1)",
+                    [&request.task_id],
                 )
                 .map_err(database_error)?;
         }

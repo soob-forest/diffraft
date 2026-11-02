@@ -32,7 +32,7 @@ pub(super) fn provider_model(
     job: &str,
 ) -> Result<ProviderModel, AppError> {
     let json: String = connection.query_row(
-        "SELECT request_json FROM generation_jobs WHERE job_id=?1 UNION ALL SELECT request_json FROM revision_jobs WHERE job_id=?1 UNION ALL SELECT request_json FROM rewrite_jobs WHERE job_id=?1",
+        "SELECT request_json FROM generation_jobs WHERE job_id=?1 UNION ALL SELECT request_json FROM revision_jobs WHERE job_id=?1 UNION ALL SELECT request_json FROM rewrite_jobs WHERE job_id=?1 UNION ALL SELECT request_json FROM selection_jobs WHERE job_id=?1",
         [job], |row| row.get(0),
     ).map_err(database_error)?;
     let value: serde_json::Value = serde_json::from_str(&json)

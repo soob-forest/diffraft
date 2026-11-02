@@ -137,9 +137,10 @@ describe("네이티브 변경 검토", () => {
     );
     await browser.saveScreenshot(".artifacts/review-completed.png");
     assert.match(
-      await $(".group-bar [role=status]").getText(),
-      /변경 상세의 처리·이전 기록/,
+      await $(".review-panel > div.review-message[role=status]").getText(),
+      /검토 완료[\s\S]*승인 2개 · 거절 1개/,
     );
+    assert.equal(await $("button=확정본 보기").isExisting(), true);
     await $("button=원문").click();
     await $('[data-testid="source-editor"]').click();
     await browser.keys([Key.Command, "z"]);

@@ -70,6 +70,9 @@ describe("공식 CLI 연결 화면과 생성 수명", () => {
     await mkdir(".artifacts", { recursive: true });
     if ((await $(".connection-diagnostics").getAttribute("open")) !== null)
       await $(".connection-diagnostics > summary").click();
+    await browser.waitUntil(
+      async () => !(await $("button=생성 중단").isExisting()),
+    );
     await browser.saveScreenshot(".artifacts/connection-ready.png");
     await writeFile(join(root, "next-generation"), "malformed");
     await openDiagnostics();

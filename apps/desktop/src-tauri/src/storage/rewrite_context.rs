@@ -40,7 +40,7 @@ fn active_batch(
     request: &RewriteRequest,
 ) -> Result<Option<String>, AppError> {
     let active: Option<(String,String)> = connection.query_row(
-        "SELECT b.id,b.mode FROM proposal_batches b JOIN jobs j ON b.job_id=j.id WHERE j.task_id=?1 AND b.status='ACTIVE'",
+        "SELECT b.id,b.mode FROM proposal_batches b JOIN jobs j ON b.job_id=j.id WHERE j.task_id=?1 AND b.status='ACTIVE' ORDER BY b.created_at DESC,b.rowid DESC LIMIT 1",
         [&request.task_id], |row| Ok((row.get(0)?,row.get(1)?)),
     ).optional().map_err(database_error)?;
     if active.as_ref().map(|value| &value.0) != request.expected_active_batch_id.as_ref() {

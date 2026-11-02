@@ -25,6 +25,20 @@
   flex: 1 1 0;
   min-height: 0;
 }
+.review-current,
+.historical-diff {
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  min-height: 0;
+}
+.review-current[hidden] {
+  display: none;
+}
+.review-current > .diff-viewer,
+.historical-diff > .diff-viewer {
+  flex: 1 1 0;
+}
 .diff-panes {
   flex: 1;
   min-height: 120px;

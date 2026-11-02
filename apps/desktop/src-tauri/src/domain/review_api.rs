@@ -11,6 +11,26 @@ use ts_rs::TS;
 
 #[derive(Debug, Serialize, Deserialize, JsonSchema, TS)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct ReviewImpact {
+    pub first_task_id: Option<String>,
+    pub proposals: u32,
+    pub groups: u32,
+    pub rewrites: u32,
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, TS)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct ProposalComparison {
+    pub base_version_id: String,
+    pub proposal: Proposal,
+    pub before: String,
+    pub after: String,
+    pub hunks: Vec<super::review_view::DiffHunk>,
+    pub stats: super::review_view::DiffStats,
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, TS)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct BatchSummary {
     pub id: String,
     pub base_version_id: String,
@@ -43,6 +63,25 @@ pub struct ReviewRequest {
     deny_unknown_fields
 )]
 pub enum ReviewAction {
+    PrepareSelection {
+        request: super::selection_request::SelectionRequest,
+    },
+    ReviseSelection {
+        revision: RevisionRequest,
+        selection: super::regeneration::CandidateSelection,
+    },
+    PrepareRegeneration {
+        request: super::regeneration::RegenerateRequest,
+    },
+    Historical {
+        batch_id: String,
+        proposal_id: String,
+        revision: u32,
+        previous_revision: Option<u32>,
+    },
+    Impact {
+        document_id: String,
+    },
     BatchDecision {
         decision: BatchDecisionKind,
         request: BatchDecisionRequest,
@@ -81,6 +120,10 @@ pub enum ReviewAction {
 #[derive(Debug, Serialize, Deserialize, JsonSchema, TS)]
 #[serde(tag = "kind", content = "value", rename_all = "snake_case")]
 pub enum ReviewReply {
+    PreparedSelection(super::selection_request::PreparedSelection),
+    PreparedRegeneration(super::regeneration::PreparedRegeneration),
+    Historical(ProposalComparison),
+    Impact(ReviewImpact),
     State(TaskReview),
     Projection(ReviewProjection),
     Document(DocumentSnapshot),
