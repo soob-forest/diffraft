@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="900" viewBox="0 0 1440 900" role="img" aria-labelledby="title desc">
+<title id="title">삭제와 추가를 섞어 선택했을 때의 안내</title>
+<desc id="desc">DocReview 개선 제안 화면. 합성 예시이며 실제 앱 캡처가 아닙니다.</desc>
+<style>text{font-family:"Apple SD Gothic Neo","Noto Sans CJK KR",sans-serif;font-size:16px;fill:#182537} .small{font-size:13px;fill:#526276}.muted{fill:#526276}.title{font-size:22px;font-weight:600}.heading{font-size:16px;font-weight:600}.blue{fill:#2957c8}.green{fill:#14633b}.red{fill:#a0332d}.white{fill:white}.mono{font-family:"SFMono-Regular",Menlo,"Apple SD Gothic Neo",monospace}</style>
+<rect x="0" y="0" width="1440" height="900" rx="0" fill="white"/>
+<rect x="0" y="0" width="1440" height="50" rx="0" fill="#182537"/>
+<rect x="20" y="11" width="28" height="28" rx="7" fill="#8eafff"/>
+<text x="27" y="32" class="heading">D</text>
+<text x="62" y="32" class="white heading">DocReview</text>
+<text x="169" y="32" class="white small">내 작업 공간</text>
+<rect x="0" y="50" width="196" height="820" rx="0" fill="#edf2f6"/>
+<text x="20" y="92" class="small">문서</text>
+<text x="24" y="143" class="">문서 열기</text>
+<text x="24" y="197" class="">새 문서</text>
+<text x="24" y="251" class="">AI 연결 설정</text>
+<rect x="12" y="326" width="172" height="44" rx="6" fill="#eaf0ff"/>
+<text x="24" y="354" class="blue">여행 준비 가이드</text>
+<text x="24" y="420" class="small">▸ 문서 탐색</text>
+<rect x="1080" y="50" width="360" height="820" rx="0" fill="#f8fafc"/>
+<rect x="1080" y="50" width="1" height="820" rx="0" fill="#dce4ee"/>
+<text x="220" y="98" class="title">여행 준비 가이드</text>
+<text x="420" y="98" class="small">v12</text>
+<text x="456" y="98" class="small green">원문 저장됨</text>
+<rect x="760" y="73" width="126" height="40" rx="6" fill="white" stroke="#c2cfe1"/>
+<text x="823.0" y="99.0" text-anchor="middle" class="">파일 비교·복구</text>
+<rect x="900" y="73" width="156" height="40" rx="6" fill="white" stroke="#c2cfe1"/>
+<text x="978.0" y="99.0" text-anchor="middle" class="">확정본 내보내기</text>
+<text x="220" y="154" class="muted">원문</text>
+<text x="280" y="154" class="blue">변경 검토</text>
+<rect x="280" y="177" width="62" height="3" rx="0" fill="#2957c8"/>
+<text x="378" y="154" class="muted">미리보기</text>
+<text x="966" y="154" class="small">패널 접기</text>
+<rect x="196" y="180" width="884" height="1" rx="0" fill="#dce4ee"/>
+<rect x="196" y="836" width="884" height="1" rx="0" fill="#dce4ee"/>
+<text x="220" y="858" class="small">버전 기록 · 12개</text>
+<rect x="0" y="870" width="1440" height="30" rx="0" fill="#e7edf4"/>
+<text x="20" y="891" class="small">로컬 작업 공간 · 승인한 변경만 확정본에 반영됩니다.</text>
+<text x="220" y="216" class="heading">변경 검토 · 남은 3개</text>
+<text x="760" y="216" class="small">제안 기록</text>
+<rect x="884" y="191" width="172" height="38" rx="6" fill="white" stroke="#c2cfe1"/>
+<text x="970.0" y="216.0" text-anchor="middle" class="">남은 제안 전체 승인</text>
+<text x="220" y="264" class="heading">선택 1 / 3 · 출발 준비</text>
+<rect x="614" y="240" width="78" height="36" rx="6" fill="white" stroke="#c2cfe1"/>
+<text x="653.0" y="264.0" text-anchor="middle" class="">이전</text>
+<rect x="700" y="240" width="78" height="36" rx="6" fill="white" stroke="#c2cfe1"/>
+<text x="739.0" y="264.0" text-anchor="middle" class="">다음</text>
+<rect x="786" y="240" width="98" height="36" rx="6" fill="white" stroke="#c2cfe1"/>
+<text x="835.0" y="264.0" text-anchor="middle" class="">변경 거절</text>
+<rect x="894" y="240" width="162" height="36" rx="6" fill="#2957c8"/>
+<text x="975.0" y="264.0" text-anchor="middle" class="white">변경 그룹 승인</text>
+<rect x="196" y="293" width="884" height="48" rx="0" fill="#f5f7fa"/>
+<text x="220" y="324" class="small">인라인     나란히       □ 전체 문맥     □ 공백 표시</text>
+<text x="870" y="324" class="small">− 삭제 · + 추가</text>
+<text x="244" y="377" class="heading blue">1. 출발 준비</text>
+<rect x="196" y="395" width="884" height="43" rx="0" fill="#fdecec"/>
+<text x="218" y="423" class="small red">4  −</text>
+<text x="274" y="423" class="red">준비를 마치면 동행인에게 알립니다.</text>
+<rect x="196" y="438" width="884" height="43" rx="0" fill="#e8f5ec"/>
+<text x="218" y="466" class="small green">4  +</text>
+<text x="274" y="466" class="green">준비 확인이 끝나면 동행인에게 바로 알립니다.</text>
+<text x="274" y="512" class="">출발 시간과 이동 경로를 함께 기록합니다.</text>
+<text x="244" y="576" class="heading">2. 확인 시간</text>
+<rect x="196" y="594" width="884" height="43" rx="0" fill="#fdecec"/>
+<text x="218" y="622" class="small red">8  −</text>
+<text x="274" y="622" class="red">출발 전 10분 동안 준비물을 확인합니다.</text>
+<rect x="196" y="637" width="884" height="43" rx="0" fill="#e8f5ec"/>
+<text x="218" y="665" class="small green">8  +</text>
+<text x="274" y="665" class="green">출발 전 5분 동안 준비물을 확인합니다.</text>
+<text x="244" y="733" class="heading">3. 여행 기록</text>
+<rect x="196" y="748" width="884" height="36" rx="0" fill="#fdecec"/>
+<text x="218" y="773" class="small red">12 −</text>
+<text x="274" y="773" class="red">필요하면 다음 준비 사항을 정리합니다.</text>
+<rect x="196" y="784" width="884" height="36" rx="0" fill="#e8f5ec"/>
+<text x="218" y="809" class="small green">12 +</text>
+<text x="274" y="809" class="green">다음 준비 사항이 있으면 정리합니다.</text>
+<rect x="268" y="401" width="516" height="74" rx="3" fill="#d4e1ff" stroke="#8ba9ed"/>
+<text x="274" y="423" class="">준비를 마치면 동행인에게 알립니다.</text>
+<text x="274" y="466" class="">준비 확인이 끝나면 동행인에게 바로 알립니다.</text>
+<text x="1104" y="92" class="heading">수정할 범위를 확인해 주세요</text>
+<rect x="1104" y="124" width="312" height="126" rx="6" fill="#fff3d9"/>
+<text x="1120" y="151" class="small">변경 전과 제안 내용이</text>
+<text x="1120" y="174" class="small">함께 선택되어 있습니다.</text>
+<text x="1120" y="197" class="small">한쪽에서 연속된 범위를 선택해 주세요.</text>
+<text x="1104" y="293" class="heading">어느 내용을 다듬을까요?</text>
+<text x="1104" y="331" class="small">제안 문구를 고치려면 초록색 추가 행에서</text>
+<text x="1104" y="356" class="small">다시 선택하세요.</text>
+<rect x="1104" y="405" width="312" height="44" rx="6" fill="#2957c8"/>
+<text x="1260.0" y="433.0" text-anchor="middle" class="white">제안 내용에서 다시 선택</text>
+<rect x="1104" y="463" width="312" height="44" rx="6" fill="white" stroke="#c2cfe1"/>
+<text x="1260.0" y="491.0" text-anchor="middle" class="">이 변경 전체 다시 제안</text>
+<rect x="1104" y="548" width="312" height="1" rx="0" fill="#dce4ee"/>
+<text x="1104" y="586" class="small">작성하던 지시는 보관합니다.</text>
+<text x="1104" y="611" class="small">대상을 바꿔도 자동 요청하지 않습니다.</text>
+</svg>

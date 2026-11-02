@@ -30,6 +30,8 @@ npm run test:e2e
 
 화면 잠금을 해제하고 빌드가 끝난 뒤 실행한다. embedded 드라이버는 한 번에 앱 한 개만 사용한다. Cargo/앱 빌드와 네이티브 E2E를 동시에 실행하지 않는다.
 
+실행기는 완료된 E2E 빌드의 SHA-256·전용 명령 표시와 소유한 비공개 임시 폴더를 앱 시작 전에 검사한다. 빌드 시작 시 이전 증명을 무효화하고 성공한 뒤에만 다시 발급한다. 일반 빌드·미완료 빌드·바뀐 바이너리·비소유 폴더는 차단한다. WDIO 직접 실행에도 같은 검사가 적용된다. 이 검사는 동시 실행 허가가 아니며 Cargo/build/E2E 순차 실행을 유지한다.
+
 특정 흐름만 검사하려면 다음처럼 실행한다.
 
 ```sh
@@ -38,7 +40,7 @@ npm run test:e2e -- shutdown
 npm run test:e2e -- quit
 ```
 
-선택 실행: `tobe`, `design`, `design-resume`, `usability`, `connection`, `model-selection`, `codex`, `codex-recovery`, `codex-keyboard`, `codex-native`, `generation`, `review`, `recovery`, `conflict`, `layout`, `regeneration`, `history`, `rewrite`, `rewrite-cancel`, `navigation`, `export`, `shutdown`, `quit`, `performance`, `startup-failure`. 재시작 검사가 필요한 흐름은 실행기가 별도 프로세스로 이어 실행한다.
+선택 실행: `selection-popover`, `selection-transitions`, `source-lifecycle`, `ux`, `ux-extensions`, `ux-local`, `ux-recovery`, `ux-reliability`, `ux-native`, `tobe`, `design`, `design-resume`, `usability`, `connection`, `model-selection`, `codex`, `codex-recovery`, `codex-keyboard`, `codex-native`, `generation`, `review`, `recovery`, `conflict`, `layout`, `regeneration`, `history`, `rewrite`, `rewrite-cancel`, `navigation`, `export`, `shutdown`, `quit`, `performance`, `startup-failure`. 재시작 검사가 필요한 흐름은 실행기가 별도 프로세스로 이어 실행한다.
 
 `shutdown`과 `startup-failure`는 부모가 소유한 실제 앱 ChildProcess의 `exit` 결과가 code 0 / signal null인지 검사한다. 프로세스 소멸만으로 성공 처리하지 않는다. E2E 전용 수명 기록으로 앱 Exit 시 메인 WebView가 유지되고 종료 준비가 완료됐는지도 확인한다. `test:unit`에는 SIGSEGV·비정상 코드·누락 결과를 거부하는 관측기 검사도 포함한다.
 
@@ -97,7 +99,7 @@ CLI 관측 검사는 같은 환경에서 `cargo test --locked --test model_obser
 ## 검증 범위와 한계
 
 - macOS WebView 자동 문자 삽입은 실제 두벌식 조합 검사가 아니다. 실제 입력기에서 `한` 입력 직후 Backspace로 `하`가 남는지, 이어 쓰기·조합 중 삭제·저장·재시작을 별도로 확인한다.
-- 실제 OS 열기·저장·취소·덮어쓰기 창은 일반 앱에서 별도로 확인한다. 테스트 파일 선택 fixture와 DOM 검사가 이를 대신하지 않는다. VoiceOver는 사용자 요청에 따라 이번 사용성 개선 범위에서 제외한다.
+- 실제 OS 열기·저장·취소·덮어쓰기 창은 일반 앱에서 별도로 확인한다. 테스트 파일 선택 fixture와 DOM 검사가 이를 대신하지 않는다. 이전 사용성 작업에서는 VoiceOver를 제외했으나 현재 SPEC T16은 실제 VoiceOver·IME 검증을 요구한다. 자동 DOM/키보드 검사를 그 완료 근거로 대체하지 않는다.
 - 2026-10-28 이전 구현의 네이티브 종료·입력 잠금·CLI 종료·재시작 검사는 통과했다. 전체 시나리오별 결과와 중간 실패 수정 근거는 사용성 실행 기록을 따른다.
 - macOS 14·M1·8 GB 최소 장치, 개발 도구 없는 새 macOS 사용자 환경, 실제 작성자 사용성 검증은 확인되지 않았다.
 - Pro·Max·Enterprise 허용은 합성 인증 계약으로 검사했다. 실제 해당 플랜 계정 검증과 구분한다.
@@ -110,3 +112,21 @@ CLI 관측 검사는 같은 환경에서 `cargo test --locked --test model_obser
 ## 디자인 비교 자료 검사
 
 저장소 루트에서 `node --test docs/design/usability-comparison.test.mjs docs/design/reimplementation.test.mjs`를 실행한다. 브라우저 검사는 별도 터미널의 `python3 -m http.server 8766 --bind 127.0.0.1`과 `node docs/design/verify-browser.mjs`를 사용한다. Chrome 임시 프로필은 스크립트가 종료·삭제하며 서버는 확인 후 Ctrl+C로 종료한다. 페이지 검사는 네이티브 제품이나 실제 사용자 평가를 대신하지 않는다.
+
+## 선택 수정 검사
+
+`npm run test:e2e -- ux`는 후보 부분 수정의 성공·잘못된 응답 거부, 지시/인용/다른 제안/확정본 보존, 별도 프로세스 초안 복원과 `ux-extensions`의 확정 문맥·재작성 후보 선택을 실행한다. `ux-local`의 키보드·직접 수정·첫 요청과 긴 인용/지시/모델의 9개 화면 조합도 포함한다. 잘못된 선택 응답의 오류 상태도 같은 9개 조합에서 확인한다. 확장만 실행하려면 `-- ux-extensions`, 로컬 조작만 실행하려면 `-- ux-local`을 사용한다. 화면 잠금으로 visibility가 hidden이면 실패로 종료하며 검사를 우회하지 않는다.
+
+순수 선택/문장·문단/초안 경합 검사는 `test:unit`, Rust는 workflow의 `drafts`, `ux_reads`, `selection_revision`, `selection_extensions`, `selection_extension_failures`를 포함한다. 두 가짜 공급자·고정 문맥 재시도·중복·중단·과거 기준 비교를 확인한다. 최신 결과와 미검증 항목은 [UX 개선 현재 상태](ux-status.md)에 구분한다. 캡처 1~9와 전환 보완 화면은 [실제 앱 화면](../usage/ux/README.md)에 정리한다.
+
+`ux-native`는 별도의 `DocReview UX.app`과 임시 DB를 만들고 실제 키보드/VoiceOver 확인 신호를 기다리는 수동 선택 실행이다. 기본 전체 회귀에는 포함하지 않는다. 조합 이벤트나 실제 VoiceOver 검증 기록이 없으면 통과시키지 않는다. [수동 인수 절차와 이번 시도의 제한](ux-native-validation.md)을 따른다.
+
+`selection-popover`는 diff 행동/정확한 코멘트, 원문 부분 요청의 성공·실패·기존 제안 보존, 다른 작업의 겹침 이동, 첫 작업·중복 생성 방지, 원문 변경 차단, 팝오버 9개 창/배율 조합과 별도 프로세스 초안 복원을 검사한다. embedded 드라이버의 합성 키 이벤트는 HTML 버튼의 OS Enter 기본 동작이나 실제 IME 검사가 아니다.
+
+`selection-transitions`는 A 수정 중 B 탐색 뒤 정확한 결과·승인 그룹 복귀, 원문/diff 활성 초안 분리, 보기 왕복의 팝오버 취소와 우클릭 메뉴 제어를 검사한다. 별도 재실행으로 두 화면의 대상 ID·revision·지시 보존과 자동 전송 부재를 확인한다. 숨은 다른 viewer의 팝오버와 구분해 원문 도구를 검사하며 네이티브 기본 메뉴는 일반 release의 OS 우클릭으로 별도 확인한다. [보완 기록](selection-transition-fixes.md)을 따른다.
+
+`source-lifecycle`는 원문 요청 중 보기 왕복의 실행 잠금·성공 이동·실패 오류와 지시 보존, 작업 A/B 전환의 초안 보존·임시 선택 해제와 이전 요청의 늦은 성공을 검사한다. 가짜 응답을 지연해 실제 RUNNING 상태에서 전환하고 확정 파일·버전 보존도 확인한다. [원문 요청 수명 보완](source-request-lifecycle-fixes.md)을 따른다.
+
+일반 release는 `--verification-workspace <전용 임시 폴더>`에서 합성 DB만 연다. 전용 이름·소유자·0700·고정 마커·심볼릭 링크를 검증하며 잘못된 인자에는 사용자 DB로 폴백하지 않는다. `verification-fixture.mjs`는 소유한 E2E 데이터만 백업하고 문서의 canonical 경로를 새 임시 폴더로 바꾼다. 일반 release에는 가짜 공급자·테스트 IPC를 포함하지 않는다. 빌드 ID·시각·프로필과 실행 파일 해시는 `.artifacts/build-*.json`에 기록하며 빌드 중 제품 소스가 바뀌면 증명을 발급하지 않는다.
+
+`npm run test:e2e -- ux-reliability`는 실패한 일반 요청의 종류·지시 복원, 종류별 초안 충돌 선택, 첫 확인 취소, 승인 후 원문 선택 고정과 문서 왕복을 검사한다. 별도 재실행으로 손상 초안 격리·정상 초안 저장·원본 확인·명시적 초기화·입력 재개도 검증한다. 복구 버튼은 3개 창 × 3개 배율에서 hit target·넘침을 확인한다. 단위 검사는 초기화 CAS 실패·중복·늦은 입력·알 수 없는 오류 전파와 E2E 실행 차단을 포함한다. [보완 기록](draft-reliability.md)을 따른다.

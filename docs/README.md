@@ -2,7 +2,7 @@
 
 DocReview의 사용·설치·제품 동작·개발 구조를 설명한다. 실제 앱 사용은 [화면별 사용법](../README.md#앱-사용법), 소스 실행은 [개발 환경](../apps/desktop/README.md)을 참고한다.
 
-## 문서 안내
+## 현재 동작과 사용
 
 | 문서 | 내용 |
 | --- | --- |
@@ -10,14 +10,34 @@ DocReview의 사용·설치·제품 동작·개발 구조를 설명한다. 실�
 | [제품 범위](product/prd.md) | 대상 사용자·기능 범위·검토 원칙 |
 | [기능 명세](product/specification.md) | 화면 동작·승인·범위·저장·오류 계약 |
 | [인수 기준](product/acceptance-criteria.md) | 정상·실패·경계 사례의 기대 결과 |
+| [UX 개선 현재 상태](development/ux-status.md) | 구현된 동작·최종 검증 소스·설치 앱·남은 수동 인수 |
+| [선택 수정 화면 계약](design/ux-runtime-contract.md) | 현재 요청·선택·초안·이력의 동작 |
+| [실제 UX 개선 화면](usage/ux/README.md) | 원문/diff 팝오버·확인·실패·전환의 합성 앱 캡처 19장 |
+| [일반 사용법 이미지](usage/images/README.md) | 11월 1일 캡처의 출처와 갱신 방법 |
+
+## 개발과 검증
+
+| 문서 | 내용 |
+| --- | --- |
 | [개발 설계](development/architecture.md) | 기술 선택·CLI·세션·데이터 모델·복구·IPC |
 | [Diff 구현 상세](development/diff-implementation.md) | projection·승인 그룹·코멘트 앵커·비교 표시 |
 | [테스트 안내](development/testing.md) | 검사 명령·가짜 CLI·네이티브 E2E·검증 한계 |
+| [실제 입력기·VoiceOver 검사](development/ux-native-validation.md) | 격리된 수동 인수 절차와 미검증 이유 |
+
+UX의 단계별 문제·대안·실패 회귀·설치 이력은 [현재 상태의 기록 목록](development/ux-status.md#단계별-기록)에서 찾는다. 각 기록의 검사 수와 빌드 ID는 해당 단계 기준이다.
+
+## 설계와 제안
+
+| 문서 | 내용 |
+| --- | --- |
 | [사용 시나리오](design/scenarios.md) | 예시 문서와 화면별 시작 조건·조작·결과 |
 | [디자인 명세](design/design-guide.md) | 화면 구조·컴포넌트·색·타이포그래피·접근성 |
+| [사용자 경험 개선 제안](design/ux-improvement-proposal.md) | 구현 전 분석·대안과 정적 개선 화면안 9개 |
+| [선택 팝오버 작업 계획](development/selection-popover-plan.md) | 원문 확장·시안 정합화·인수 행렬과 수행 상태 |
+| [선택 확장 결정](development/selection-extension-decision.md) | 확정본·재작성 후보의 부분 요청 계약과 대안 |
+| [시안 대조와 예외](development/selection-popover-audit.md) | 제안 화면별 구현 대응·허용 차이·행동 위치 |
 | [화면 갤러리](design/gallery.html) | 설계 화면 11개의 독립 HTML 갤러리 |
 | [예시 문서](examples/) | 원문·후보·확정본·전체 재작성 fixture |
-| [사용법 이미지](usage/images/README.md) | 실제 앱 캡처의 출처와 갱신 방법 |
 | [공식 참고 자료](references.md) | 설계에 참고한 공식 문서 |
 
 ## 설계 화면과 예시

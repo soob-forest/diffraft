@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DocReview 사용자 경험 개선 화면안</title>
+  <link rel="stylesheet" href="gallery.css">
+</head>
+<body>
+  <header id="top">
+    <div class="eyebrow">DOCREVIEW · DESIGN PROPOSAL · 2026.11.01</div>
+    <h1>선택한 문장에서 새 후보 검토까지</h1>
+    <p>현재 앱의 패널 구조를 유지한 개선 화면안입니다. 선택한 부분 수정의 세 단계와 잘못된 선택 안내, 원문 편집 영향, 이력과 검토 완료를 볼 수 있습니다.</p>
+    <p class="muted notice">설계 기준을 설명하는 정적 시안입니다. 실제 앱 캡처가 아니며 문서·모델·버전·건수는 합성 예시입니다. 화면 안 버튼은 작동하지 않습니다. 이미지를 누르면 원본 크기로 볼 수 있습니다.</p>
+    <p><a href="../ux-improvement-proposal.md">개선 제안서 읽기</a></p>
+  </header>
+  <nav aria-label="개선 화면으로 이동">
+    <a href="#selection-request">선택하고 요청</a>
+    <a href="#request-confirm">요청 확인</a>
+    <a href="#revised-candidate">새 후보</a>
+    <a href="#invalid-selection">잘못된 선택</a>
+    <a href="#source-scope">원문 범위</a>
+    <a href="source-selection-popover.html">원문 팝오버 추가안</a>
+    <a href="#source-impact">편집 영향</a>
+    <a href="#proposal-history">이전 제안</a>
+    <a href="#completed-review">검토 완료</a>
+    <a href="#request-types">요청과 모델</a>
+  </nav>
+  <main>
+    <section id="selection-request" aria-labelledby="selection-title">
+      <div class="screen-heading">
+        <div><span class="screen-code">UX01 · 수정 흐름 1 / 3</span><h2 id="selection-title">읽던 문장에서 바로 수정 요청</h2></div>
+        <div class="screen-links"><a href="selection-request.png">원본 PNG</a><a href="selection-request.svg">편집 가능한 SVG</a></div>
+      </div>
+      <p>현재는 변경 상세의 코멘트·재제안 진입을 찾아야 합니다. 개선안은 선택 주변의 ‘이 부분 수정’에서 오른쪽 요청 폼으로 바로 연결하고, 인용과 본문 강조를 유지합니다.</p>
+      <figure><a href="selection-request.png"><img src="selection-request.png" width="2880" height="1800" alt="제안 문장에 선택 강조와 이 부분 수정 버튼이 있고 오른쪽에 대상 인용과 수정 지시 입력이 있는 화면"></a><figcaption>선택은 요청을 실행하지 않습니다. 지시는 한 번 작성하고 코멘트는 별도 행동으로 남깁니다.</figcaption></figure>
+    </section>
+    <section id="request-confirm" aria-labelledby="confirm-title">
+      <div class="screen-heading">
+        <div><span class="screen-code">UX01 · 수정 흐름 2 / 3</span><h2 id="confirm-title">수정할 범위와 전달할 문맥을 구분</h2></div>
+        <div class="screen-links"><a href="request-confirm.png">원본 PNG</a><a href="request-confirm.svg">SVG</a></div>
+      </div>
+      <p>‘한 문장만 수정’과 ‘한 문장만 외부 전송’은 다릅니다. 확인 단계에서 대상·전달 문맥·코멘트·실제 모델을 보여주고, 사용자가 최종 요청합니다.</p>
+      <figure><a href="request-confirm.png"><img src="request-confirm.png" width="2880" height="1800" alt="선택한 문장, 전달할 문맥, 코멘트 포함 여부와 모델을 구분하고 확인 후 요청하는 화면" loading="lazy"></a><figcaption>선택 밖 후보 문구와 다른 제안을 유지한다는 약속은 Rust 코어의 부분 교체 검증으로 보장해야 합니다.</figcaption></figure>
+    </section>
+    <section id="revised-candidate" aria-labelledby="candidate-title">
+      <div class="screen-heading">
+        <div><span class="screen-code">UX01 · 수정 흐름 3 / 3</span><h2 id="candidate-title">같은 위치에서 새 후보를 검토</h2></div>
+        <div class="screen-links"><a href="revised-candidate.png">원본 PNG</a><a href="revised-candidate.svg">SVG</a></div>
+      </div>
+      <p>새 후보가 도착하면 기존 검토 위치를 유지합니다. 선택 밖 문구·다른 제안·원문 보존을 확인하고, 이전 후보 비교 또는 별도 승인을 선택합니다.</p>
+      <figure><a href="revised-candidate.png"><img src="revised-candidate.png" width="2880" height="1800" alt="새 후보 r2는 미승인이며 원문 v12와 다른 변경을 유지한 상태에서 변경 그룹 승인을 제공하는 화면" loading="lazy"></a><figcaption>문장 수정과 승인 단위를 구분합니다. 한 문장을 다듬어도 기존 결합 그룹의 승인 범위는 유지합니다.</figcaption></figure>
+    </section>
+    <section id="invalid-selection" aria-labelledby="invalid-title">
+      <div class="screen-heading">
+        <div><span class="screen-code">UX01 · 선택 실패</span><h2 id="invalid-title">삭제와 추가를 섞어 선택했을 때</h2></div>
+        <div class="screen-links"><a href="invalid-selection.png">원본 PNG</a><a href="invalid-selection.svg">SVG</a></div>
+      </div>
+      <p>단일 수정 대상으로 해석할 수 없는 선택을 제안 전체로 바꾸지 않습니다. 이유를 설명하고 제안 쪽에서 다시 선택하거나 변경 전체 재제안을 명시적으로 선택하게 합니다.</p>
+      <figure><a href="invalid-selection.png"><img src="invalid-selection.png" width="2880" height="1800" alt="삭제와 추가가 함께 선택되었음을 설명하고 한쪽에서 다시 선택하도록 안내하는 화면" loading="lazy"></a><figcaption>입력한 지시는 보존하고 선택만으로 새 요청을 실행하지 않습니다.</figcaption></figure>
+    </section>
+    <section id="source-scope" aria-labelledby="scope-title">
+      <div class="screen-heading">
+        <div><span class="screen-code">UX03 · 원문 선택</span><h2 id="scope-title">선택한 영역을 새 요청 범위로 고정</h2></div>
+        <div class="screen-links"><a href="source-scope.png">원본 PNG</a><a href="source-scope.svg">SVG</a></div>
+      </div>
+      <p>최초 설계는 고정 버튼에서 일반 요청 범위로 연결했습니다. 이후 보완 설계는 <a href="source-selection-popover.html">선택 옆 팝오버 → 원문 부분 수정</a>으로 연결하고 기존 미승인 제안을 보존합니다. 아래 최초 화면은 설계 이력으로 보관합니다.</p>
+      <figure><a href="source-scope.png"><img src="source-scope.png" width="2880" height="1800" alt="원문 문단 선택과 선택한 영역에 요청 버튼, 오른쪽의 선택 문단 범위가 연결된 화면" loading="lazy"></a><figcaption>새 요청 성공 시 기존 제안이 기록으로 옮겨지는 영향은 확인 단계에 명시합니다. 후보 일부 수정과 다른 경로입니다.</figcaption></figure>
+    </section>
+    <section id="source-impact" aria-labelledby="impact-title">
+      <div class="screen-heading">
+        <div><span class="screen-code">UX02 · 원문 편집</span><h2 id="impact-title">직접 편집의 영향을 입력 전에 안내</h2></div>
+        <div class="screen-links"><a href="source-impact.png">원본 PNG</a><a href="source-impact.svg">SVG</a></div>
+      </div>
+      <p>원문 편집으로 남은 제안이 재검토 상태로 바뀌는 규칙은 유지합니다. 반복 확인창 대신 본문 위에 영향 개수와 후보 수정 경로를 표시합니다.</p>
+      <figure><a href="source-impact.png"><img src="source-impact.png" width="2880" height="1800" alt="원문 위에서 남은 제안 3개에 대한 편집 영향을 알리고 변경 검토로 연결하는 화면" loading="lazy"></a><figcaption>유효한 미검토 제안이 있을 때만 표시합니다. 원문 직접 편집은 계속 허용합니다.</figcaption></figure>
+    </section>
+    <section id="proposal-history" aria-labelledby="history-title">
+      <div class="screen-heading">
+        <div><span class="screen-code">UX04 · UX05 · 이력</span><h2 id="history-title">이전 제안은 넓은 중앙에서 비교</h2></div>
+        <div class="screen-links"><a href="proposal-history.png">원본 PNG</a><a href="proposal-history.svg">SVG</a></div>
+      </div>
+      <p>현재의 좁은 패널에 전문을 쌓는 대신, 오른쪽은 목록과 실제 상태를 표시하고 중앙에서 당시 원문과 후보를 읽기 전용으로 비교합니다.</p>
+      <figure><a href="proposal-history.png"><img src="proposal-history.png" width="2880" height="1800" alt="새 요청으로 교체된 이전 제안을 중앙에서 읽기 전용 비교하고 오른쪽에서 현재 제안으로 돌아가는 화면" loading="lazy"></a><figcaption>이 화면은 ‘새 요청으로 교체됨’ 사유가 확인된 합성 사례입니다. 이력 열람을 검토 완료와 구분합니다.</figcaption></figure>
+    </section>
+    <section id="completed-review" aria-labelledby="complete-title">
+      <div class="screen-heading">
+        <div><span class="screen-code">UX04 · UX06 · 완료</span><h2 id="complete-title">검토 완료와 다음 행동을 명확하게</h2></div>
+        <div class="screen-links"><a href="completed-review.png">원본 PNG</a><a href="completed-review.svg">SVG</a></div>
+      </div>
+      <p>모든 결정을 마친 상태에서는 ‘남은 0개’ 대신 완료 내역과 저장된 확정본을 보여줍니다. 대화의 응답에서도 해당 요청의 변경과 현재 처리 상태로 이동합니다.</p>
+      <figure><a href="completed-review.png"><img src="completed-review.png" width="2880" height="1800" alt="승인 2개와 거절 1개를 설명하고 확정본 v14 보기와 내보내기를 제공하며 대화에 현재 상태를 표시하는 화면" loading="lazy"></a><figcaption>기준 변경·취소·변경 없음에는 이 완료 화면을 재사용하지 않고 해당 이유와 다음 행동을 표시합니다.</figcaption></figure>
+    </section>
+    <section id="request-types" aria-labelledby="types-title">
+      <div class="screen-heading">
+        <div><span class="screen-code">UX07 · UX08 · UX09 · 요청</span><h2 id="types-title">요청 종류와 사용할 AI를 한곳에서</h2></div>
+        <div class="screen-links"><a href="request-types.png">원본 PNG</a><a href="request-types.svg">SVG</a></div>
+      </div>
+      <p>부분 수정·설명·전체 재작성의 진입을 통합하고, 현재 모델 설정과 초안 저장 상태를 짧게 보여줍니다. 전체 재작성 선택 시 범위와 적용 방식을 별도로 안내합니다.</p>
+      <figure><a href="request-types.png"><img src="request-types.png" width="2880" height="1800" alt="부분 수정 설명 전체 재작성 선택, Codex 기본값과 실제 모델 확정 안내, 작업별 초안 저장 상태를 제공하는 화면" loading="lazy"></a><figcaption>초안 저장 표시는 영속 저장 도입과 저장 성공 확인을 전제로 한 후속 화면안입니다.</figcaption></figure>
+    </section>
+  </main>
+  <footer><a href="#top">화면 목록으로</a> · 1440×900 설계, 2880×1800 PNG · SVG와 Python 생성 원본 포함 · <code>python3 docs/design/ux-proposal/build.py</code>로 macOS에서 재생성</footer>
+</body>
+</html>

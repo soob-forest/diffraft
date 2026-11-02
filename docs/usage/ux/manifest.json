@@ -1,0 +1,96 @@
+{
+  "app": "DocReview 0.1.0 E2E development build",
+  "synthetic": true,
+  "edited": false,
+  "platform": "macOS Tauri WKWebView",
+  "captureBuild": {
+    "id": "0d212ae375c9b6a9-e2e",
+    "sourceHash": "0d212ae375c9b6a9fb65097bed730926c04e1a0c08f06474d90d068ecab3dfdf",
+    "builtAt": "2026-11-02T09:30:32.579Z",
+    "binaryHash": "058efad83b8a27b7cb991c5911d1c7e249d814e161ec196ebbabcc4765eabc39"
+  },
+  "verification": {
+    "finalSourceNative": {
+      "phases": 22,
+      "cases": 74,
+      "suites": [
+        "source-lifecycle",
+        "selection-transitions",
+        "ux",
+        "selection-popover",
+        "ux-reliability",
+        "usability",
+        "shutdown",
+        "model-selection",
+        "codex"
+      ],
+      "buildId": "0d212ae375c9b6a9-e2e"
+    },
+    "frontendUnit": 163,
+    "nodeUnit": 9,
+    "priorRust": {
+      "passed": 333,
+      "ignored": 30,
+      "rerunThisFollowup": false
+    },
+    "popoverLayouts": {
+      "source": 9,
+      "diff": 9,
+      "selectedTextHitTargetVerified": true
+    },
+    "physicalImeVerified": false,
+    "voiceOverVerified": false,
+    "actualUserStudy": false,
+    "note": "원문 요청 수명·소유자 검사와 완료 메시지 정리 뒤 같은 최종 소스에서 관련 native 22단계·74건 통과."
+  },
+  "installedRelease": {
+    "id": "0d212ae375c9b6a9-release",
+    "sourceHash": "0d212ae375c9b6a9fb65097bed730926c04e1a0c08f06474d90d068ecab3dfdf",
+    "builtAt": "2026-11-02T09:36:35.169Z",
+    "binaryHash": "5bd486a839458e39b730a5d993e5d76e013c815ca497715a930e17a3b1c47241",
+    "executable": "/Applications/DocReview.app/Contents/MacOS/docreview",
+    "aboutIdVerified": true,
+    "signatureVerified": true,
+    "testMarkers": 0,
+    "schemaAfter": 10,
+    "existingRowsPreserved": {
+      "documents": true,
+      "versions": true,
+      "tasks": true,
+      "jobs": true
+    },
+    "allDatabaseTablesPreserved": true,
+    "verifiedAt": "2026-11-02T09:40:13.731736+00:00",
+    "syntheticWorkspaceNativeChecks": {
+      "taskSwitchClosesComposer": true,
+      "owningTaskDraftRestored": true,
+      "aboutBuildId": true,
+      "noAiOrApproval": true,
+      "documentsVersionsTasksJobsPreserved": true,
+      "normalExit": true
+    },
+    "userDocumentAiTested": false,
+    "notarized": false
+  },
+  "screens": [
+    {"screen": 1, "title": "선택 행동", "image": "diff-actions.png", "sourceArtifact": "apps/desktop/.artifacts/selection-popover/diff-actions.png", "test": "apps/desktop/tests/selection-popover.e2e.mjs", "captureBuildId": "0d212ae375c9b6a9-e2e", "capturedAt": "2026-11-02T09:32:43.215717+00:00", "pixels": [2880, 1800], "sha256": "98540bd1dd73d0c222e6171b96480f2906c1f79aa87da6d2b0390777ff726b0b"},
+    {"screen": 1, "title": "선택한 부분 수정", "image": "selection-request.png", "sourceArtifact": "apps/desktop/.artifacts/ux/selection-request.png", "test": "apps/desktop/tests/ux.e2e.mjs", "captureBuildId": "0d212ae375c9b6a9-e2e", "capturedAt": "2026-11-02T09:31:14.330873+00:00", "pixels": [2880, 1800], "sha256": "7e8e821cac15697ed9871659551d29b9ce4e8c7e156073ecbd4e65d344015e40"},
+    {"screen": 2, "title": "범위·문맥·모델 확인", "image": "request-confirm.png", "sourceArtifact": "apps/desktop/.artifacts/ux/request-confirm.png", "test": "apps/desktop/tests/ux.e2e.mjs", "captureBuildId": "0d212ae375c9b6a9-e2e", "capturedAt": "2026-11-02T09:31:17.691802+00:00", "pixels": [2880, 1856], "sha256": "c72f4cc84145463de56eaa8aaf895018f80d7261caab086906627ced3c49c094"},
+    {"screen": 3, "title": "새 미승인 후보", "image": "revised-candidate.png", "sourceArtifact": "apps/desktop/.artifacts/ux/revised-candidate.png", "test": "apps/desktop/tests/ux.e2e.mjs", "captureBuildId": "0d212ae375c9b6a9-e2e", "capturedAt": "2026-11-02T09:31:18.189009+00:00", "pixels": [2880, 1856], "sha256": "0d855766d3d3f3fcdf0854adddd1a46a9bcb9ed6fc8a28f63cd58fbecf0238f6"},
+    {"screen": 4, "title": "수정할 수 없는 선택", "image": "invalid-selection.png", "sourceArtifact": "apps/desktop/.artifacts/ux/invalid-selection.png", "test": "apps/desktop/tests/ux-local.e2e.mjs", "captureBuildId": "0d212ae375c9b6a9-e2e", "capturedAt": "2026-11-02T09:31:38.091719+00:00", "pixels": [2880, 1856], "sha256": "8c0cf5eaa0b24f2498b963eaae882a225987f8619ba0e74c1a8c922c092d526a"},
+    {"screen": 5, "title": "원문 선택 팝오버", "image": "source-scope.png", "sourceArtifact": "apps/desktop/.artifacts/selection-popover/source-actions.png", "test": "apps/desktop/tests/selection-popover.e2e.mjs", "captureBuildId": "0d212ae375c9b6a9-e2e", "capturedAt": "2026-11-02T09:32:43.627216+00:00", "pixels": [2880, 1800], "sha256": "e9f892e0b9adaf6faa4cc3f9fc5a4f7db916ac2e65ef599eca3ce92318ea211d"},
+    {"screen": 5, "title": "원문 부분 수정 확인", "image": "source-confirm.png", "sourceArtifact": "apps/desktop/.artifacts/selection-popover/source-confirm.png", "test": "apps/desktop/tests/selection-popover.e2e.mjs", "captureBuildId": "0d212ae375c9b6a9-e2e", "capturedAt": "2026-11-02T09:32:44.702214+00:00", "pixels": [2880, 1800], "sha256": "1b863626615e015bd4d04e16f12388356a53ff08e09364a937357f56b3d1a75e"},
+    {"screen": 5, "title": "원문 새 부분 제안", "image": "source-success.png", "sourceArtifact": "apps/desktop/.artifacts/selection-popover/source-success.png", "test": "apps/desktop/tests/selection-popover.e2e.mjs", "captureBuildId": "0d212ae375c9b6a9-e2e", "capturedAt": "2026-11-02T09:32:45.039634+00:00", "pixels": [2880, 1800], "sha256": "3e75b755634a81fac6df320443fa07ba1b46490edcaab7c5584102ac507a0105"},
+    {"screen": 5, "title": "원문 실패·지시 보존", "image": "source-failure.png", "sourceArtifact": "apps/desktop/.artifacts/selection-popover/source-failure.png", "test": "apps/desktop/tests/selection-popover.e2e.mjs", "captureBuildId": "0d212ae375c9b6a9-e2e", "capturedAt": "2026-11-02T09:32:44.446321+00:00", "pixels": [2880, 1800], "sha256": "3916e4e14da86a5cb8b7846b2b3066adbe55c54644c32c4387ac2c3b19df5637"},
+    {"screen": 5, "title": "미승인 제안 겹침", "image": "source-overlap.png", "sourceArtifact": "apps/desktop/.artifacts/selection-popover/source-overlap.png", "test": "apps/desktop/tests/selection-popover.e2e.mjs", "captureBuildId": "0d212ae375c9b6a9-e2e", "capturedAt": "2026-11-02T09:32:46.558589+00:00", "pixels": [2880, 1800], "sha256": "d61e769359268a5f8e242b3856d3efeedb240177fbec0ae16b214e4e25c754c0"},
+    {"screen": 6, "title": "원문 편집 영향", "image": "source-impact.png", "sourceArtifact": "apps/desktop/.artifacts/ux/source-impact.png", "test": "apps/desktop/tests/ux-local.e2e.mjs", "captureBuildId": "0d212ae375c9b6a9-e2e", "capturedAt": "2026-11-02T09:31:38.209594+00:00", "pixels": [2880, 1856], "sha256": "19109b47b1e4dad50c05eff6315e9e151d13bf76247a74da80878beee2e60c39"},
+    {"screen": 7, "title": "과거 후보 비교", "image": "proposal-history.png", "sourceArtifact": "apps/desktop/.artifacts/ux/proposal-history.png", "test": "apps/desktop/tests/ux-local.e2e.mjs", "captureBuildId": "0d212ae375c9b6a9-e2e", "capturedAt": "2026-11-02T09:31:37.879434+00:00", "pixels": [2880, 1856], "sha256": "e841f4698692e7e6acab51e4c89b4cb9e1d12f9f7ddcd552e487c5e4d1d5277c"},
+    {"screen": 8, "title": "검토 완료", "image": "completed-review.png", "sourceArtifact": "apps/desktop/.artifacts/ux/completed-review.png", "test": "apps/desktop/tests/ux-local.e2e.mjs", "captureBuildId": "0d212ae375c9b6a9-e2e", "capturedAt": "2026-11-02T09:31:38.963616+00:00", "pixels": [2880, 1856], "sha256": "7672415d78d8fe9851bdf7a4c2b9ad24bbf8f4eb01bd891c2d0c311466c29166"},
+    {"screen": 9, "title": "요청 종류·첫 지시 보존", "image": "request-types.png", "sourceArtifact": "apps/desktop/.artifacts/ux/request-types.png", "test": "apps/desktop/tests/ux-local.e2e.mjs", "captureBuildId": "0d212ae375c9b6a9-e2e", "capturedAt": "2026-11-02T09:31:39.445436+00:00", "pixels": [2880, 1856], "sha256": "224e84c8d0300be6cec3e0c733117b29fa3a82a3f6898753f89846271080a429"},
+    {"screen": 5, "title": "800×600·200% 원문 선택", "image": "source-popup-800-2.png", "sourceArtifact": "apps/desktop/.artifacts/selection-popover/source-popup-800-2.png", "test": "apps/desktop/tests/selection-popover-layout.e2e.mjs", "captureBuildId": "0d212ae375c9b6a9-e2e", "capturedAt": "2026-11-02T09:32:58.202146+00:00", "pixels": [1600, 1256], "sha256": "d9912f781b591bf9fece8cdfe90dc6bd6cf033b745b549abb65d749cc6ac2264"},
+    {"screen": "transitions", "title": "원문 대상·지시 복귀", "image": "source-return.png", "sourceArtifact": "apps/desktop/.artifacts/selection-transitions/source-return.png", "test": "apps/desktop/tests/selection-transitions.e2e.mjs", "captureBuildId": "0d212ae375c9b6a9-e2e", "capturedAt": "2026-11-02T09:31:01.245135+00:00", "pixels": [2880, 1800], "sha256": "b3764f4915717f86e75a30522e83e863223369ba7b2350a87bc0f3ee31a82a8f"},
+    {"screen": "transitions", "title": "정확한 저장 결과·승인 그룹", "image": "exact-result.png", "sourceArtifact": "apps/desktop/.artifacts/selection-transitions/exact-result.png", "test": "apps/desktop/tests/selection-transitions.e2e.mjs", "captureBuildId": "0d212ae375c9b6a9-e2e", "capturedAt": "2026-11-02T09:31:03.862177+00:00", "pixels": [2880, 1800], "sha256": "e51e24a516fdec2e6deb6fb2679f59616b0395b3e44f3501f13dd972ad494009"},
+    {"screen": "source-lifecycle", "title": "보기 왕복 후 원문 요청 완료", "image": "source-lifecycle-completed.png", "sourceArtifact": "apps/desktop/.artifacts/source-lifecycle/completed.png", "test": "apps/desktop/tests/source-lifecycle.e2e.mjs", "captureBuildId": "0d212ae375c9b6a9-e2e", "capturedAt": "2026-11-02T09:30:48.614943+00:00", "pixels": [2880, 1800], "sha256": "75775c3caa04e697718a80cee1a0fcb955b8c5226be1f0ad835cb18329aacd5b"},
+    {"screen": "source-lifecycle", "title": "보기 왕복 후 실패·지시 유지", "image": "source-lifecycle-failed.png", "sourceArtifact": "apps/desktop/.artifacts/source-lifecycle/failed.png", "test": "apps/desktop/tests/source-lifecycle.e2e.mjs", "captureBuildId": "0d212ae375c9b6a9-e2e", "capturedAt": "2026-11-02T09:30:51.971188+00:00", "pixels": [2880, 1800], "sha256": "9cae006e0be5d7ae096b601acdd0217b5fea8a555664d477de2d94d348383284"}
+  ]
+}

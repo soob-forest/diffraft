@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>원문 선택 팝오버 · 설계와 구현</title>
+  <link rel="stylesheet" href="gallery.css">
+</head>
+<body>
+<header id="top">
+  <div class="eyebrow">DOCREVIEW · SOURCE SELECTION · 2026.11.02</div>
+  <h1>원문을 읽는 위치에서 부분 수정 요청</h1>
+  <p>드래그 → 선택 옆 ‘이 부분 수정’ → 오른쪽 인용·지시 → 범위·문맥 확인 → 새 미승인 제안 검토.</p>
+  <p class="notice">원문 고정 버튼에서 일반 요청으로 연결하던 최초 화면 5를 보완한 흐름입니다. 아래 이미지는 합성 문서·임시 DB·가짜 AI로 촬영한 실제 앱입니다. 화면 안 버튼은 작동하지 않습니다.</p>
+  <p><a href="index.html#source-scope">최초 시안 5</a> · <a href="../../usage/ux/README.md#5-원문-선택-팝오버와-새-부분-제안">실제 화면과 재현</a> · <a href="../../development/selection-popover-audit.md">차이와 구현 결정</a></p>
+</header>
+<nav aria-label="원문 수정 단계">
+  <a href="#selection">선택 팝오버</a><a href="#confirmation">범위·문맥 확인</a><a href="#result">새 제안</a><a href="#failure">실패·겹침</a>
+</nav>
+<main>
+<section id="selection">
+  <h2>1. 선택 옆에서 시작</h2>
+  <p>선택·복사만으로 요청 범위나 기존 초안을 바꾸지 않습니다. ‘이 부분 수정’을 누를 때 인용을 고정하고 오른쪽에서 지시를 작성합니다. 팝오버는 모달이 아니며 작성 시작 후 닫힙니다.</p>
+  <figure><a href="../../usage/ux/source-scope.png"><img src="../../usage/ux/source-scope.png" alt="원문 선택 옆 강조된 이 부분 수정 팝오버"></a><figcaption>기본 복사·편집을 유지합니다. Shift+F10과 Enter로도 진입합니다.</figcaption></figure>
+</section>
+<section id="confirmation">
+  <h2>2. 수정 범위와 전달 문맥 확인</h2>
+  <p>확인 단계는 오른쪽 작성 필드를 대신합니다. 정확한 인용·지시·모델·실제 전달 문맥을 확인하고 최종 버튼으로만 요청합니다. 수정 허용 범위와 외부 전송 문맥을 구분합니다.</p>
+  <figure><a href="../../usage/ux/source-confirm.png"><img src="../../usage/ux/source-confirm.png" alt="선택 원문과 지시 모델 전달 문맥을 확인하는 오른쪽 패널" loading="lazy"></a><figcaption>기존 미승인 묶음은 생성 시 유지합니다. 이후 승인은 다른 묶음의 기준을 바꿀 수 있습니다.</figcaption></figure>
+</section>
+<section id="result">
+  <h2>3. 정확한 새 미승인 제안 검토</h2>
+  <p>요청 결과의 새 묶음을 바로 엽니다. 확정본 반영은 별도 승인으로 진행하며 다른 제안을 일반 생성처럼 보관 처리하지 않습니다.</p>
+  <figure><a href="../../usage/ux/source-success.png"><img src="../../usage/ux/source-success.png" alt="선택 원문의 새 부분 제안을 변경 검토에서 여는 화면" loading="lazy"></a></figure>
+</section>
+<section id="failure">
+  <h2>실패와 기존 제안 겹침</h2>
+  <p>오류 시 인용·지시를 보존하고 수동 재시도합니다. 미승인 구간과 겹치면 해당 작업의 검토로 명시 이동하며 원문 좌표를 후보 좌표로 추정하지 않습니다.</p>
+  <figure><a href="../../usage/ux/source-failure.png"><img src="../../usage/ux/source-failure.png" alt="실패 뒤 유지된 원문 인용과 수정 지시" loading="lazy"></a></figure>
+  <figure><a href="../../usage/ux/source-overlap.png"><img src="../../usage/ux/source-overlap.png" alt="선택과 겹치는 미승인 제안의 검토로 이동하는 안내" loading="lazy"></a></figure>
+</section>
+</main>
+<footer><a href="#top">처음으로</a> · <a href="../../usage/ux/manifest.json">캡처 출처·시각·해시</a> · 실제 IME·VoiceOver·작성자 평가는 별도 미완료</footer>
+</body>
+</html>

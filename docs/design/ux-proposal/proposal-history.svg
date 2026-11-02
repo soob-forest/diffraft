@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="900" viewBox="0 0 1440 900" role="img" aria-labelledby="title desc">
+<title id="title">이전 제안은 중앙에서 읽기 전용 비교</title>
+<desc id="desc">DocReview 개선 제안 화면. 합성 예시이며 실제 앱 캡처가 아닙니다.</desc>
+<style>text{font-family:"Apple SD Gothic Neo","Noto Sans CJK KR",sans-serif;font-size:16px;fill:#182537} .small{font-size:13px;fill:#526276}.muted{fill:#526276}.title{font-size:22px;font-weight:600}.heading{font-size:16px;font-weight:600}.blue{fill:#2957c8}.green{fill:#14633b}.red{fill:#a0332d}.white{fill:white}.mono{font-family:"SFMono-Regular",Menlo,"Apple SD Gothic Neo",monospace}</style>
+<rect x="0" y="0" width="1440" height="900" rx="0" fill="white"/>
+<rect x="0" y="0" width="1440" height="50" rx="0" fill="#182537"/>
+<rect x="20" y="11" width="28" height="28" rx="7" fill="#8eafff"/>
+<text x="27" y="32" class="heading">D</text>
+<text x="62" y="32" class="white heading">DocReview</text>
+<text x="169" y="32" class="white small">내 작업 공간</text>
+<rect x="0" y="50" width="196" height="820" rx="0" fill="#edf2f6"/>
+<text x="20" y="92" class="small">문서</text>
+<text x="24" y="143" class="">문서 열기</text>
+<text x="24" y="197" class="">새 문서</text>
+<text x="24" y="251" class="">AI 연결 설정</text>
+<rect x="12" y="326" width="172" height="44" rx="6" fill="#eaf0ff"/>
+<text x="24" y="354" class="blue">여행 준비 가이드</text>
+<text x="24" y="420" class="small">▸ 문서 탐색</text>
+<rect x="1080" y="50" width="360" height="820" rx="0" fill="#f8fafc"/>
+<rect x="1080" y="50" width="1" height="820" rx="0" fill="#dce4ee"/>
+<text x="220" y="98" class="title">여행 준비 가이드</text>
+<text x="420" y="98" class="small">v12</text>
+<text x="456" y="98" class="small green">원문 저장됨</text>
+<rect x="760" y="73" width="126" height="40" rx="6" fill="white" stroke="#c2cfe1"/>
+<text x="823.0" y="99.0" text-anchor="middle" class="">파일 비교·복구</text>
+<rect x="900" y="73" width="156" height="40" rx="6" fill="white" stroke="#c2cfe1"/>
+<text x="978.0" y="99.0" text-anchor="middle" class="">확정본 내보내기</text>
+<text x="220" y="154" class="muted">원문</text>
+<text x="280" y="154" class="blue">변경 검토</text>
+<rect x="280" y="177" width="62" height="3" rx="0" fill="#2957c8"/>
+<text x="378" y="154" class="muted">미리보기</text>
+<text x="966" y="154" class="small">패널 접기</text>
+<rect x="196" y="180" width="884" height="1" rx="0" fill="#dce4ee"/>
+<rect x="196" y="836" width="884" height="1" rx="0" fill="#dce4ee"/>
+<text x="220" y="858" class="small">버전 기록 · 12개</text>
+<rect x="0" y="870" width="1440" height="30" rx="0" fill="#e7edf4"/>
+<text x="20" y="891" class="small">로컬 작업 공간 · 승인한 변경만 확정본에 반영됩니다.</text>
+<text x="220" y="217" class="heading">이전 제안 열람 · 읽기 전용</text>
+<rect x="220" y="237" width="836" height="79" rx="6" fill="#edf2f6"/>
+<text x="236" y="264" class="small">이 제안은 새 요청으로 교체되었습니다.</text>
+<text x="236" y="287" class="small">아래 내용은 당시 원문 v12와 후보 r1의 비교입니다.</text>
+<text x="244" y="377" class="heading blue">1. 출발 준비</text>
+<rect x="196" y="395" width="884" height="43" rx="0" fill="#fdecec"/>
+<text x="218" y="423" class="small red">4  −</text>
+<text x="274" y="423" class="red">준비를 마치면 동행인에게 알립니다.</text>
+<rect x="196" y="438" width="884" height="43" rx="0" fill="#e8f5ec"/>
+<text x="218" y="466" class="small green">4  +</text>
+<text x="274" y="466" class="green">준비 확인이 끝나면 동행인에게 바로 알립니다.</text>
+<text x="274" y="512" class="">출발 시간과 이동 경로를 함께 기록합니다.</text>
+<text x="244" y="576" class="heading">2. 확인 시간</text>
+<rect x="196" y="594" width="884" height="43" rx="0" fill="#fdecec"/>
+<text x="218" y="622" class="small red">8  −</text>
+<text x="274" y="622" class="red">출발 전 10분 동안 준비물을 확인합니다.</text>
+<rect x="196" y="637" width="884" height="43" rx="0" fill="#e8f5ec"/>
+<text x="218" y="665" class="small green">8  +</text>
+<text x="274" y="665" class="green">출발 전 5분 동안 준비물을 확인합니다.</text>
+<text x="244" y="733" class="heading">3. 여행 기록</text>
+<rect x="196" y="748" width="884" height="36" rx="0" fill="#fdecec"/>
+<text x="218" y="773" class="small red">12 −</text>
+<text x="274" y="773" class="red">필요하면 다음 준비 사항을 정리합니다.</text>
+<rect x="196" y="784" width="884" height="36" rx="0" fill="#e8f5ec"/>
+<text x="218" y="809" class="small green">12 +</text>
+<text x="274" y="809" class="green">다음 준비 사항이 있으면 정리합니다.</text>
+<text x="1104" y="92" class="heading">제안 기록</text>
+<rect x="1104" y="139" width="312" height="88" rx="6" fill="white" stroke="#c2cfe1"/>
+<text x="1120" y="171" class="heading">현재 제안</text>
+<text x="1120" y="200" class="small">미검토 변경 3개</text>
+<rect x="1104" y="245" width="312" height="88" rx="6" fill="#eaf0ff" stroke="#c2cfe1"/>
+<text x="1120" y="277" class="heading">이전 제안 · 표현 다듬기</text>
+<text x="1120" y="306" class="small blue">새 요청으로 교체됨 · 선택됨</text>
+<rect x="1104" y="351" width="312" height="88" rx="6" fill="white" stroke="#c2cfe1"/>
+<text x="1120" y="383" class="heading">이전 제안 · 초안 작성</text>
+<text x="1120" y="412" class="small">전체 승인됨</text>
+<rect x="1104" y="479" width="312" height="44" rx="6" fill="#2957c8"/>
+<text x="1260.0" y="507.0" text-anchor="middle" class="white">현재 제안 검토로 돌아가기</text>
+<rect x="1104" y="535" width="312" height="42" rx="6" fill="white" stroke="#c2cfe1"/>
+<text x="1260.0" y="562.0" text-anchor="middle" class="">현재 확정본 보기</text>
+<text x="1104" y="620" class="small">과거 기록에서 승인하지 않습니다.</text>
+</svg>

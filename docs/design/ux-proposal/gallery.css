@@ -1,0 +1,68 @@
+:root {
+  font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", sans-serif;
+  color: #182537;
+  background: #f5f7fa;
+  font-synthesis: none;
+}
+* { box-sizing: border-box; }
+body { margin: 0; }
+a { color: #2957c8; text-underline-offset: 4px; }
+:focus-visible { outline: 3px solid #2957c8; outline-offset: 4px; }
+header, main, footer { max-width: 1540px; margin: auto; padding: 32px; }
+header { padding-bottom: 20px; }
+.eyebrow { font-size: 13px; font-weight: 600; color: #526276; letter-spacing: .08em; }
+h1 { font-size: 32px; letter-spacing: -1px; margin: 14px 0; }
+h2 { font-size: 22px; margin: 8px 0 12px; }
+p { line-height: 1.75; max-width: 1000px; margin: 10px 0; }
+.muted { color: #526276; font-size: 14px; }
+.notice { border-left: 3px solid #8ba9ed; padding-left: 16px; }
+nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  max-width: 1476px;
+  margin: 0 auto;
+  padding: 0 0 22px;
+  border-bottom: 1px solid #dce4ee;
+}
+nav a {
+  text-decoration: none;
+  background: white;
+  padding: 10px 14px;
+  border: 1px solid #c2cfe1;
+  border-radius: 6px;
+  font-size: 14px;
+}
+nav a:hover { background: #eaf0ff; }
+section { margin-bottom: 56px; scroll-margin-top: 20px; }
+.screen-heading { display: flex; gap: 20px; justify-content: space-between; align-items: end; }
+.screen-links { display: flex; flex-wrap: wrap; gap: 18px; font-size: 14px; padding-bottom: 14px; }
+.screen-code { color: #526276; font-size: 13px; letter-spacing: .04em; }
+figure { margin: 20px 0 0; }
+figure > a { display: block; }
+img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 8 / 5;
+  border: 1px solid #dce4ee;
+  border-radius: 9px;
+  background: white;
+}
+figcaption { margin-top: 10px; color: #526276; font-size: 14px; line-height: 1.7; }
+footer { border-top: 1px solid #dce4ee; font-size: 13px; color: #526276; }
+@media (max-width: 700px) {
+  header, main, footer { padding: 22px 16px; }
+  h1 { font-size: 26px; }
+  nav { margin: 0 16px; }
+  nav a { padding: 10px; }
+  .screen-heading { display: block; }
+  section { margin-bottom: 38px; }
+}
+@media print {
+  nav, .screen-links { display: none; }
+  body { background: white; }
+  header, main, footer { max-width: none; padding: 12px; }
+  section { break-inside: avoid; page-break-after: always; margin: 0; }
+  img { border-radius: 0; }
+}
