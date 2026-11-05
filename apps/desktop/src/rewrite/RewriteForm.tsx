@@ -20,6 +20,7 @@ export function RewriteForm(
   const batch = props.review.projection?.batch;
   const canReference =
     batch?.mode === "REWRITE" &&
+    batch.reviewMode === "WHOLE" &&
     (batch.status === "ACTIVE" || batch.status === "ARCHIVED") &&
     batch.baseVersionId === props.model.autosave.document.versionId;
   return (

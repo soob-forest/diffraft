@@ -17,6 +17,7 @@ pub fn revise(
     batch: &mut ReviewBatch,
     request: &RevisionRequest,
 ) -> Result<Proposal, AppError> {
+    batch.require_editable_candidate()?;
     let proposal = batch
         .proposals
         .iter_mut()

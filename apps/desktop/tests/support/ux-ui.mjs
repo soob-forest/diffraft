@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { Key } from "webdriverio";
 import { editor, invoke } from "./review-fixture.mjs";
+import { settleUxRender, waitForDiffSelection } from "./ux-render.mjs";
 
 export async function selectDiffText(text, side = "after") {
   if ((await $("button=나란히").getAttribute("aria-pressed")) !== "true")
@@ -24,6 +25,7 @@ export async function selectDiffText(text, side = "after") {
     Key.ArrowRight,
     Key.ArrowRight,
   ]);
+  await waitForDiffSelection(side);
 }
 export async function currentBatch(fixture) {
   return (
@@ -70,10 +72,29 @@ export async function aiPreference(action) {
   });
 }
 export async function assertButtonHit(selector) {
-  await $(selector).scrollIntoView({ block: "center" });
-  const result = await browser.execute((selector) => {
-    const button = document.querySelector(selector),
-      rect = button.getBoundingClientRect();
+  await browser.execute((query) => {
+    const button = document.querySelector(query);
+    if (!button) throw new Error(`검사할 버튼을 찾을 수 없습니다: ${query}`);
+    button.scrollIntoView({ block: "center", behavior: "instant" });
+  }, selector);
+  await settleUxRender();
+  let result;
+  await browser.waitUntil(
+    async () => {
+      result = await buttonGeometry(selector);
+      return result.hit && result.width > 0 && result.height > 0;
+    },
+    {
+      timeoutMsg: `스크롤 후 실제 버튼 hit target을 확인해야 합니다: ${selector}`,
+    },
+  );
+  assert.equal(result.hit, true, JSON.stringify(result));
+}
+async function buttonGeometry(selector) {
+  return browser.execute((query) => {
+    const button = document.querySelector(query);
+    if (!button) throw new Error(`검사할 버튼을 찾을 수 없습니다: ${query}`);
+    const rect = button.getBoundingClientRect();
     return {
       hit: button.contains(
         document.elementFromPoint(
@@ -81,9 +102,12 @@ export async function assertButtonHit(selector) {
           rect.y + rect.height / 2,
         ),
       ),
+      width: rect.width,
       height: rect.height,
+      x: rect.x,
+      y: rect.y,
       viewport: [innerWidth, innerHeight],
+      visibility: document.visibilityState,
     };
   }, selector);
-  assert.equal(result.hit, true, JSON.stringify(result));
 }

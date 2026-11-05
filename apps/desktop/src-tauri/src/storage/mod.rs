@@ -63,6 +63,14 @@ mod selection_jobs;
 mod selection_results;
 mod selection_source;
 mod task_context;
+mod unit_comments;
+mod unit_review_dependencies;
+mod unit_review_original;
+mod unit_review_queries;
+mod unit_review_records;
+mod unit_review_reopen;
+mod unit_review_start;
+mod unit_review_state;
 mod writer_lock;
 #[cfg(test)]
 mod writer_lock_tests;

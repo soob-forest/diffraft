@@ -130,6 +130,15 @@ if (
     after: change.after,
     reason: change.name,
   }));
+} else if (mode === "REWRITE_UNITS") {
+  response.mode = "REWRITE";
+  response.summary = "도입부와 수치·마무리 변경";
+  response.candidate_markdown = (
+    await readFile(new URL("confirmed_v14.md", examples), "utf8")
+  )
+    .replace("# 여행 준비 가이드", "# 바로 실행하는 여행 가이드")
+    .replace("출발 전 10분", "출발 전 20분")
+    .replace("완료한 준비는", "여행 기록을 마치면 완료한 준비는");
 } else if (mode === "REWRITE" || mode === "REWRITE_DELAY") {
   if (mode === "REWRITE_DELAY")
     await new Promise((resolve) => setTimeout(resolve, REPLY_DELAY_MS));

@@ -7,6 +7,9 @@ export function reviewFingerprint(projection: ReviewProjection | null): string {
     projection.currentHeadId,
     projection.batch.id,
     projection.batch.status,
+    projection.batch.reviewMode,
+    projection.batch.reviewPlan?.id,
+    projection.batch.reviewUnits.map((unit) => [unit.id, unit.reviewRevision]),
     projection.batch.proposals.map((p) => [
       p.id,
       p.revision,

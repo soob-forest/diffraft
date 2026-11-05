@@ -4,20 +4,24 @@ import type { DecisionRequest } from "../generated/DecisionRequest";
 import type { ProposalRevision } from "../generated/ProposalRevision";
 import { errorMessage } from "../ipc";
 import { reviewCommand } from "./api";
+import { useReviewMessage } from "./review-feedback";
+import { reviewFingerprint } from "./state";
 import type { ReviewModel } from "./useReview";
 
 type DecisionAction = { kind: "accept" | "reject"; decision: DecisionRequest };
 export function useReviewActions(document: DocumentModel, review: ReviewModel) {
-  const [busy, setBusy] = useState(false);
-  const [appliedVersion, setAppliedVersion] = useState("");
-  const [message, setMessage] = useState("");
+  const [busy, setBusy] = useState(false),
+    [appliedVersion, setAppliedVersion] = useState("");
+  const feedback = useReviewMessage();
+  const { setMessage } = feedback;
   const lock = useRef(false);
   const pending = useRef<DecisionAction | null>(null);
+  const completion = useDecisionCompletion(review);
   const execute = async (
     kind: DecisionAction["kind"],
     proposals: ProposalRevision[],
   ) => {
-    if (lock.current || !review.projection) return;
+    if (lock.current || !review.projection) return false;
     lock.current = true;
     setBusy(true);
     setMessage("");
@@ -30,26 +34,77 @@ export function useReviewActions(document: DocumentModel, review: ReviewModel) {
       )
         pending.current = { kind, decision };
       const action = pending.current;
-      await document.gate.run(async () => {
-        if (action.kind === "accept")
-          document.adoptSaved(await reviewCommand(action, "document"));
-        else await reviewCommand(action, "batch");
-      });
+      const apply = () => applyDecision(document, action);
+      const saved = await document.gate.run(apply);
       if (kind === "accept") setAppliedVersion(action.decision.expectedHeadId);
       pending.current = null;
-      setMessage(
-        `${proposals.length}개 제안을 ${kind === "accept" ? "승인" : "거절"}했습니다.`,
-      );
+      setMessage(decisionMessage(review, action, saved?.version));
+      completion.mark();
       review.refresh();
+      return true;
     } catch (error) {
-      setMessage(errorMessage(error));
+      setMessage(errorMessage(error), "attention");
       review.refresh();
+      return false;
     } finally {
       lock.current = false;
       setBusy(false);
     }
   };
-  return { busy, message, setMessage, execute, appliedVersion };
+  return {
+    busy,
+    ...feedback,
+    execute,
+    appliedVersion,
+    completion: completion.value,
+  };
+}
+
+function useDecisionCompletion(review: ReviewModel) {
+  const [value, setValue] = useState<{
+    batchId: string;
+    fingerprint: string;
+    serial: number;
+  } | null>(null);
+  return {
+    value,
+    mark: () =>
+      setValue((previous) => ({
+        batchId: review.projection?.batch.id ?? "",
+        fingerprint: reviewFingerprint(review.projection),
+        serial: (previous?.serial ?? 0) + 1,
+      })),
+  };
+}
+
+async function applyDecision(document: DocumentModel, action: DecisionAction) {
+  if (action.kind === "accept") {
+    const saved = await reviewCommand(action, "document");
+    document.adoptSaved(saved);
+    return saved;
+  }
+  await reviewCommand(action, "batch");
+  return null;
+}
+
+function decisionMessage(
+  review: ReviewModel,
+  action: DecisionAction,
+  version?: number,
+) {
+  const units =
+    review.projection?.batch.reviewUnits.filter((unit) =>
+      unit.proposals.some((p) =>
+        action.decision.proposals.some((target) => target.id === p.id),
+      ),
+    ) ?? [];
+  const target =
+    units.length === 1
+      ? `변경 ${units[0].number}`
+      : units.length
+        ? `변경 ${units.length}개`
+        : `${action.decision.proposals.length}개 제안`;
+  return `${target} ${action.kind === "accept" ? "승인" : "거절"} 완료.${version ? ` · v${version} 저장됨` : " 원문은 그대로입니다."}`;
 }
 function makeDecision(
   review: ReviewModel,

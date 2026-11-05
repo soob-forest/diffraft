@@ -9,5 +9,6 @@ import type { ReviewComment } from "./ReviewComment";
 import type { ReviewImpact } from "./ReviewImpact";
 import type { ReviewProjection } from "./ReviewProjection";
 import type { TaskReview } from "./TaskReview";
+import type { UnitComment } from "./UnitComment";
 
-export type ReviewReply = { "kind": "prepared_selection", "value": PreparedSelection } | { "kind": "prepared_regeneration", "value": PreparedRegeneration } | { "kind": "historical", "value": ProposalComparison } | { "kind": "impact", "value": ReviewImpact } | { "kind": "state", "value": TaskReview } | { "kind": "projection", "value": ReviewProjection } | { "kind": "document", "value": DocumentSnapshot } | { "kind": "batch", "value": ReviewBatch } | { "kind": "comment", "value": ReviewComment } | { "kind": "proposal", "value": Proposal };
+export type ReviewReply = { "kind": "prepared_selection", "value": PreparedSelection } | { "kind": "prepared_regeneration", "value": PreparedRegeneration } | { "kind": "historical", "value": ProposalComparison } | { "kind": "impact", "value": ReviewImpact } | { "kind": "state", "value": TaskReview } | { "kind": "projection", "value": ReviewProjection } | { "kind": "document", "value": DocumentSnapshot } | { "kind": "batch", "value": ReviewBatch } | { "kind": "comment", "value": ReviewComment } | { "kind": "unit_comment", "value": UnitComment } | { "kind": "proposal", "value": Proposal };

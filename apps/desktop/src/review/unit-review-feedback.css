@@ -1,0 +1,30 @@
+.unit-review-alert {
+  flex-basis: 100%;
+  min-width: 0;
+  padding: 4px 8px;
+  color: #8c4012;
+  background: #fff4e6;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+@media (max-height: 400px) {
+  .unit-review .unit-review-alert {
+    grid-column: 1 / -1;
+    grid-row: 3;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  .unit-review-tools:has(.unit-review-alert) .unit-progress > strong:focus {
+    grid-row: 4;
+  }
+  .unit-review-tools:has(.unit-review-alert) .unit-original-notice {
+    position: relative;
+    grid-column: 1 / -1;
+    grid-row: 2;
+    justify-self: end;
+    align-self: center;
+    right: auto;
+    bottom: auto;
+  }
+}

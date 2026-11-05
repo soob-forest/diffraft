@@ -12,14 +12,10 @@ import { PaneAlignment } from "./alignment";
 import type { LogicalSelection, PaneSide } from "./coordinates";
 import type { DiffBookmark, SelectionPosition } from "./DiffPane";
 import { groupRowMarks } from "./group-selection";
-import {
-  compactReviewRows,
-  type DiffComparison,
-  reviewRows,
-  splitRows,
-} from "./rows";
+import type { DiffComparison } from "./rows";
 import { rememberScroll, synchronizeScroll } from "./scroll";
 import { useComparisonWidth } from "./useComparisonWidth";
+import { type DiffPreferences, useDiffDisplay } from "./useDiffDisplay";
 
 export type Props = {
   active?: boolean;
@@ -35,77 +31,25 @@ export type Props = {
   selectionTools?: ReactNode;
   onGroupSelect?: (id: string) => void;
   onMove: (direction: number) => void;
-  jump: { selection: LogicalSelection; serial: number } | null;
+  jump: {
+    selection: LogicalSelection;
+    serial: number;
+    focus?: boolean;
+    revealGroupHeading?: boolean;
+  } | null;
+  preferences?: DiffPreferences;
+  scrollKey?: string;
+  onRememberScroll?: (key: string) => void;
 };
-function useDisplay(
-  projection: DiffComparison,
-  beforeChange: () => void,
-  headings?: Heading[],
-) {
-  const [split, setSplit] = useState(false);
-  const [full, setFull] = useState(false);
-  const [whitespace, setWhitespace] = useState(false);
-  const [expanded, setExpanded] = useState<ReadonlySet<string>>(new Set());
-  const rows = useMemo(() => {
-    const source = reviewRows(projection, expanded, full);
-    return full || expanded.size || !headings
-      ? source
-      : compactReviewRows(
-          source,
-          headings.map((heading) => heading.fromUtf16),
-        );
-  }, [projection, expanded, full, headings]);
-  const pairs = useMemo(() => splitRows(rows), [rows]);
-  const before = useMemo(() => pairs.map((pair) => pair.before), [pairs]);
-  const after = useMemo(() => pairs.map((pair) => pair.after), [pairs]);
-  return {
-    split,
-    setSplit: (value: boolean) => {
-      beforeChange();
-      setSplit(value);
-    },
-    full,
-    setFull: (value: boolean) => {
-      beforeChange();
-      setFull(value);
-    },
-    whitespace,
-    setWhitespace: (value: boolean) => {
-      beforeChange();
-      setWhitespace(value);
-    },
-    rows,
-    before,
-    after,
-    expand: (key: string) => {
-      beforeChange();
-      setExpanded((values) => new Set([...values, key]));
-    },
-  };
-}
 export function useDiffViewer(props: Props) {
-  const [popup, setPopup] = useState<{
-    comparison: DiffComparison;
-    position: SelectionPosition | null;
-  } | null>(null);
-  useLayoutEffect(() => {
-    if (props.active === false || !props.selectionTools) setPopup(null);
-  }, [props.active, props.selectionTools]);
-  const selectionPosition =
-    popup?.comparison === props.projection ? popup.position : null;
-  const setSelectionPosition = (position: SelectionPosition | null) => {
-    if (!position && document.activeElement?.closest(".selection-context"))
-      views.current.get(popup?.position?.side ?? "inline")?.focus();
-    setPopup({ comparison: props.projection, position });
-  };
-  const clearPointerPopup = () =>
-    setPopup((current) => (current?.position?.focus ? current : null));
+  const views = useRef(new Map<PaneSide, EditorView>());
+  const { selectionPosition, setSelectionPosition, clearPointerPopup } =
+    useSelectionPopup(props, views);
   const bookmark = useRef<DiffBookmark>({
     selection: null,
-    scrollKey: "",
+    scrollKey: props.scrollKey ?? "",
   });
-  const views = useRef(new Map<PaneSide, EditorView>());
-  const display = useDisplay(
+  const display = useDiffDisplay(
     props.projection,
     () => {
       setSelectionPosition(null);
@@ -113,6 +57,7 @@ export function useDiffViewer(props: Props) {
       if (view) rememberScroll(view, bookmark);
     },
     props.headings,
+    props.preferences,
   );
   const width = useComparisonWidth(display.split);
   const common = useDiffPanes({
@@ -128,11 +73,11 @@ export function useDiffViewer(props: Props) {
     display,
     common,
     selectionPosition,
-    closeSelection: (restoreFocus = true) => {
-      const side = selectionPosition?.side;
-      setSelectionPosition(null);
-      if (side && restoreFocus) views.current.get(side)?.focus();
-    },
+    closeSelection: restoreSelectionFocus(
+      selectionPosition,
+      setSelectionPosition,
+      views,
+    ),
   };
 }
 
@@ -145,23 +90,13 @@ function useDiffPanes({
   clearPointerPopup,
 }: {
   props: Props;
-  display: ReturnType<typeof useDisplay>;
+  display: ReturnType<typeof useDiffDisplay>;
   bookmark: React.RefObject<DiffBookmark>;
   views: React.RefObject<Map<PaneSide, EditorView>>;
   setSelectionPosition: (value: SelectionPosition | null) => void;
   clearPointerPopup: () => void;
 }) {
-  const markers = useMemo(
-    () =>
-      "groups" in props.projection
-        ? groupRowMarks(
-            props.projection as ReviewProjection,
-            display.rows,
-            props.selectedGroup || "",
-          )
-        : undefined,
-    [props.projection, display.rows, props.selectedGroup],
-  );
+  const markers = useGroupMarkers(props, display.rows);
   const alignment = useRef(new PaneAlignment());
   return {
     selectionActionsEnabled:
@@ -185,8 +120,10 @@ function useDiffPanes({
       else views.current.delete(side);
     },
     onMeasure: () => alignment.current.measure(),
-    onScroll: (side: PaneSide, top: number) =>
-      scrollPanes(views, clearPointerPopup, side, top),
+    onScroll: (side: PaneSide, top: number) => {
+      scrollPanes(views, clearPointerPopup, side, top);
+      props.onRememberScroll?.(bookmark.current.scrollKey);
+    },
   };
 }
 
@@ -198,4 +135,56 @@ function scrollPanes(
 ) {
   close();
   synchronizeScroll(views.current, side, top);
+}
+
+function useGroupMarkers(
+  props: Props,
+  rows: ReturnType<typeof useDiffDisplay>["rows"],
+) {
+  return useMemo(
+    () =>
+      "groups" in props.projection
+        ? groupRowMarks(
+            props.projection as ReviewProjection,
+            rows,
+            props.selectedGroup || "",
+          )
+        : undefined,
+    [props.projection, rows, props.selectedGroup],
+  );
+}
+
+function restoreSelectionFocus(
+  selectionPosition: SelectionPosition | null,
+  setSelectionPosition: (position: SelectionPosition | null) => void,
+  views: React.RefObject<Map<PaneSide, EditorView>>,
+) {
+  return (restoreFocus = true) => {
+    const side = selectionPosition?.side;
+    setSelectionPosition(null);
+    if (side && restoreFocus) views.current.get(side)?.focus();
+  };
+}
+
+function useSelectionPopup(
+  props: Props,
+  views: React.RefObject<Map<PaneSide, EditorView>>,
+) {
+  const [popup, setPopup] = useState<{
+    comparison: DiffComparison;
+    position: SelectionPosition | null;
+  } | null>(null);
+  useLayoutEffect(() => {
+    if (props.active === false || !props.selectionTools) setPopup(null);
+  }, [props.active, props.selectionTools]);
+  const selectionPosition =
+    popup?.comparison === props.projection ? popup.position : null;
+  const setSelectionPosition = (position: SelectionPosition | null) => {
+    if (!position && document.activeElement?.closest(".selection-context"))
+      views.current.get(popup?.position?.side ?? "inline")?.focus();
+    setPopup({ comparison: props.projection, position });
+  };
+  const clearPointerPopup = () =>
+    setPopup((current) => (current?.position?.focus ? current : null));
+  return { selectionPosition, setSelectionPosition, clearPointerPopup };
 }

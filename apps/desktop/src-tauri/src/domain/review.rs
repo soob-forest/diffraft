@@ -28,7 +28,7 @@ pub struct ByteRange {
     pub to: u32,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, TS)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema, TS)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct EditOperation {
     pub range: ByteRange,
@@ -62,6 +62,12 @@ pub struct ReviewBatch {
     pub apply_head_id: String,
     pub status: String,
     pub mode: String,
+    #[serde(default)]
+    pub review_mode: super::unit_review::ReviewMode,
+    #[serde(default)]
+    pub review_plan: Option<super::unit_review::ReviewPlan>,
+    #[serde(default)]
+    pub review_units: Vec<super::unit_review::ReviewUnit>,
     pub summary: String,
     pub candidate_markdown: Option<String>,
     pub proposals: Vec<Proposal>,
@@ -72,6 +78,21 @@ pub struct ReviewBatch {
 pub struct ProposalRevision {
     pub id: String,
     pub revision: u32,
+}
+
+impl ReviewBatch {
+    pub fn is_unit_review(&self) -> bool {
+        self.mode == "REWRITE" && self.review_mode == super::unit_review::ReviewMode::Changes
+    }
+
+    pub fn require_editable_candidate(&self) -> Result<(), AppError> {
+        if self.is_unit_review() {
+            return Err(AppError::invalid(
+                "변경별 검토에서는 승인·거절·코멘트를 사용할 수 있습니다. 내용 수정은 최신 확정본에서 새 요청으로 진행해 주세요.",
+            ));
+        }
+        Ok(())
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema, TS)]

@@ -57,6 +57,7 @@ pub(super) fn candidate(
     if batch.document_id != request.document_id
         || batch.id != request.batch_id
         || batch.mode != "REWRITE"
+        || batch.is_unit_review()
         || batch.base_version_id != request.expected_head_id
         || batch.apply_head_id != request.expected_head_id
         || !matches!(batch.status.as_str(), "ACTIVE" | "ARCHIVED")

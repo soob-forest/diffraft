@@ -40,7 +40,7 @@ npm run test:e2e -- shutdown
 npm run test:e2e -- quit
 ```
 
-선택 실행: `selection-popover`, `selection-transitions`, `source-lifecycle`, `ux`, `ux-extensions`, `ux-local`, `ux-recovery`, `ux-reliability`, `ux-native`, `tobe`, `design`, `design-resume`, `usability`, `connection`, `model-selection`, `codex`, `codex-recovery`, `codex-keyboard`, `codex-native`, `generation`, `review`, `recovery`, `conflict`, `layout`, `regeneration`, `history`, `rewrite`, `rewrite-cancel`, `navigation`, `export`, `shutdown`, `quit`, `performance`, `startup-failure`. 재시작 검사가 필요한 흐름은 실행기가 별도 프로세스로 이어 실행한다.
+선택 실행: `rewrite-review`, `rewrite-review-keyboard`, `review-followup`, `selection-popover`, `selection-transitions`, `source-lifecycle`, `ux`, `ux-extensions`, `ux-local`, `ux-recovery`, `ux-reliability`, `ux-native`, `tobe`, `design`, `design-resume`, `usability`, `connection`, `model-selection`, `codex`, `codex-recovery`, `codex-keyboard`, `codex-native`, `generation`, `review`, `recovery`, `conflict`, `layout`, `regeneration`, `history`, `rewrite`, `rewrite-cancel`, `navigation`, `export`, `shutdown`, `quit`, `performance`, `startup-failure`. 재시작 검사가 필요한 흐름은 실행기가 별도 프로세스로 이어 실행한다.
 
 `shutdown`과 `startup-failure`는 부모가 소유한 실제 앱 ChildProcess의 `exit` 결과가 code 0 / signal null인지 검사한다. 프로세스 소멸만으로 성공 처리하지 않는다. E2E 전용 수명 기록으로 앱 Exit 시 메인 WebView가 유지되고 종료 준비가 완료됐는지도 확인한다. `test:unit`에는 SIGSEGV·비정상 코드·누락 결과를 거부하는 관측기 검사도 포함한다.
 
@@ -99,7 +99,7 @@ CLI 관측 검사는 같은 환경에서 `cargo test --locked --test model_obser
 ## 검증 범위와 한계
 
 - macOS WebView 자동 문자 삽입은 실제 두벌식 조합 검사가 아니다. 실제 입력기에서 `한` 입력 직후 Backspace로 `하`가 남는지, 이어 쓰기·조합 중 삭제·저장·재시작을 별도로 확인한다.
-- 실제 OS 열기·저장·취소·덮어쓰기 창은 일반 앱에서 별도로 확인한다. 테스트 파일 선택 fixture와 DOM 검사가 이를 대신하지 않는다. 이전 사용성 작업에서는 VoiceOver를 제외했으나 현재 SPEC T16은 실제 VoiceOver·IME 검증을 요구한다. 자동 DOM/키보드 검사를 그 완료 근거로 대체하지 않는다.
+- 실제 OS 열기·저장·취소·덮어쓰기 창은 일반 앱에서 별도로 확인한다. 테스트 파일 선택 fixture와 DOM 검사가 이를 대신하지 않는다. 변경 검토 [SPEC의 UR08](../../SPEC.md)과 [TODO의 UX-09](../../TODO.md)는 실제 VoiceOver·한글 IME 검증을 요구하며 두 항목은 아직 미확인이다. OS 키 자동화나 합성 composition 가드를 그 완료 근거로 대체하지 않는다.
 - 2026-10-28 이전 구현의 네이티브 종료·입력 잠금·CLI 종료·재시작 검사는 통과했다. 전체 시나리오별 결과와 중간 실패 수정 근거는 사용성 실행 기록을 따른다.
 - macOS 14·M1·8 GB 최소 장치, 개발 도구 없는 새 macOS 사용자 환경, 실제 작성자 사용성 검증은 확인되지 않았다.
 - Pro·Max·Enterprise 허용은 합성 인증 계약으로 검사했다. 실제 해당 플랜 계정 검증과 구분한다.
@@ -130,3 +130,28 @@ CLI 관측 검사는 같은 환경에서 `cargo test --locked --test model_obser
 일반 release는 `--verification-workspace <전용 임시 폴더>`에서 합성 DB만 연다. 전용 이름·소유자·0700·고정 마커·심볼릭 링크를 검증하며 잘못된 인자에는 사용자 DB로 폴백하지 않는다. `verification-fixture.mjs`는 소유한 E2E 데이터만 백업하고 문서의 canonical 경로를 새 임시 폴더로 바꾼다. 일반 release에는 가짜 공급자·테스트 IPC를 포함하지 않는다. 빌드 ID·시각·프로필과 실행 파일 해시는 `.artifacts/build-*.json`에 기록하며 빌드 중 제품 소스가 바뀌면 증명을 발급하지 않는다.
 
 `npm run test:e2e -- ux-reliability`는 실패한 일반 요청의 종류·지시 복원, 종류별 초안 충돌 선택, 첫 확인 취소, 승인 후 원문 선택 고정과 문서 왕복을 검사한다. 별도 재실행으로 손상 초안 격리·정상 초안 저장·원본 확인·명시적 초기화·입력 재개도 검증한다. 복구 버튼은 3개 창 × 3개 배율에서 hit target·넘침을 확인한다. 단위 검사는 초기화 CAS 실패·중복·늦은 입력·알 수 없는 오류 전파와 E2E 실행 차단을 포함한다. [보완 기록](draft-reliability.md)을 따른다.
+
+## 재작성 변경별 검토 검사
+
+다음 명령은 순서대로 실행하며 빌드·Cargo·네이티브 E2E를 병렬로 실행하지 않는다. `rewrite-review`는 main 종료 후 같은 소유 임시 DB를 별도 프로세스의 restart 단계로 이어 간다.
+
+```sh
+npm run native:build:e2e
+npm run test:e2e -- rewrite-review
+npm run test:e2e -- rewrite-review-keyboard
+npm run test:e2e -- review-followup
+```
+
+`rewrite-review`의 대상은 실제 REWRITE 생성→로컬 계획 시작→단위 의견→도입부 승인/수치 거절→등록 실패와 초안 보관 구분→별도 프로세스 재개→거절 재검토→남은 승인→확정본 사본 내보내기다. 빈 필터·필터 밖 선택·의견 작성 중 필터 왕복, 현재/원래 시각·텍스트 기준, 원래 조회 로딩/실패/재시도·성공 캐시·늦은 응답을 함께 검사한다. 조회 장애는 테스트 transport 경계에서 주입하며 원문·결정·등록 내용을 바꾸지 않는다. 새 전체 요청과 일괄 승인 확인 중 외부 수정도 대상이다.
+
+화면은 800×600·1280×800·1440×900 × 100%·150%·200%의 본문·코멘트·오류·처리 기록을 측정한다. 초기 viewport와 명시적인 선택 위치 이동·본문 스크롤·패널 왕복·팝업 열기를 구분해 기록한다. 버튼 hit target만으로 읽기 공간을 판정하지 않고 삭제/추가·선택 번호·결정의 동시 가시성, 본문 실제 텍스트 영역·좌측 표식·포커스 가림·스크롤 복원을 확인한다. 긴 제목과 결합 범위는 별도 합성 `layout` 문서를 기존 생성 모드로 요청하고 실제 계획의 제목·복수 operation·모든 관련 위치를 검사한다. 읽기 왕복 후 원문·결정·등록 의견 불변과 원래 main 문서·작업·초안 복귀를 확인한다.
+
+측정 전에는 native 창 표시와 `document.visibilityState=visible`을 요구하고 native·문서 포커스도 기록한다. 가려졌으면 검증한 PID·실행 경로의 테스트 창을 한 번 실제로 표시·전면 복원하고 제한 시간 안에 다시 확인한다. 프레임 대기도 제한하며 숨김·프레임 정지·WebDriver 응답 지연을 통과로 처리하지 않는다. 검사 전제 실패와 제품 계약 실패를 구분한다. 실제 키 전송은 별도로 전면 앱을 엄격히 검증한다. 최신 캡처·측정·빌드 출처는 `.artifacts/unit-review/after/`, 이전 단계 자료는 `.artifacts/unit-review/`에 구분한다.
+
+Rust `rewrite_plan`, `unit_review`, `unit_review_edges`, `unit_review_guards`, `unit_review_migration`, `unit_review_races`, `unit_comments`는 바이트 보존·구조 결합·동시성·이관·저널 복구·불변 후보·의견 대상/CAS를 검사한다. 프런트엔드 단위 검사는 공통 필터·선택 정리·순환·재검토 회차, 시각/텍스트의 동일 hunks·행 marker·실제 기준 버전, 빈 행·HTML 텍스트·페이지 clamp, key별 보관 응답과 현재 입력의 동일성, 다른 key 실패·복원/잠금·중복 재시도·늦은 응답을 다룬다.
+
+`rewrite-review-keyboard`는 접근성 권한·PID·실행 경로·전면 앱을 확인한 Swift 검사기로 macOS Tab·Enter·Esc·F7/Shift+F7·반복 Enter/Space를 전달하는 자동 검사다. 반복키는 비결정 제목에서 freshdown을 시작하고 실제 hold를 유지한 채 결정 버튼으로 포커스를 옮겨 repeatdown·keyup을 받으며 trusted 순서·대상을 확인한다. finally에서 같은 PID의 키를 해제한다. 필터 안 탐색·빈 목록·줄바꿈·초안 보존·복귀·결정 수·제목/완료 포커스를 검사하며 기본 전체 실행에는 포함하지 않는다. `CompositionEvent`와 `isComposing`을 주입하는 사례는 **합성 Escape 가드 검사**로 표시한다. trusted OS 키 이벤트도 실제 한글 입력기 조합이나 VoiceOver 발화를 검증한 것은 아니다.
+
+`review-followup`은 일부 승인 후 current/original의 실제 scrollTop·첫 가시 행·포커스 보존, 800×600/200%의 승인 IPC 실패와 외부 파일 충돌 안내의 실제 bounds/hit, 60행 초과 계획에서 선택·관련 위치의 텍스트 페이지/행 이동과 수동 이탈·복귀를 검사한다. 외부 충돌은 기존 계약의 미처리 STALE 전이와 외부 파일 변경을 기대하고 문서 head·결정·회차·의견은 보존한다. 단위 행 부재 안내와 숨은 텍스트의 지연 이동은 단위 회귀에서 확인한다.
+
+공유 비교·초안 경계 변경 뒤에는 `review`, `rewrite`, `history`, `recovery` 및 변경한 선택 수정 경로의 관련 회귀를 실행한다. 마지막에는 `npm run native:build`로 일반 앱을 복원하고 소스/바이너리 출처와 테스트 기능 제외를 확인한다. 이번 실행 결과·범위·남은 수동 확인은 [변경 검토 실행 기록](review-ux-implementation.md), 이전 단계는 [기존 구현 기록](rewrite-unit-review.md)을 따른다. 이 문서의 검사 목록은 최신 빌드의 성공 결과를 대신하지 않는다.

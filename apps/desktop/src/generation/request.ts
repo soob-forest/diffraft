@@ -89,19 +89,7 @@ export async function prepareRequest(
       mode === "REWRITE"
         ? { kind: "whole" as const }
         : props.scope.value(head.content);
-    const [scope, review, model] = await Promise.all([
-      editorCommand(
-        {
-          kind: "scope",
-          documentId: head.id,
-          expectedVersion: head.version,
-          selection,
-        },
-        "scope",
-      ),
-      reviewCommand({ kind: "state", taskId: props.taskId }, "state"),
-      resolveModel(),
-    ]);
+    const [scope, review, model] = await readRequestContext(props, selection);
     if (review.generating)
       throw new Error(
         "진행 중인 요청을 완료하거나 중단한 뒤 다시 요청해 주세요.",
@@ -147,7 +135,7 @@ function requestForMode({
         ...common,
         expectedActiveBatchId: active?.id ?? null,
         referenceBatchId: null,
-        archivePatch: active?.mode === "PATCH",
+        archivePatch: active?.reviewMode === "CHANGES",
       },
     };
   return {
@@ -178,4 +166,24 @@ function requestBase(
     instruction,
     retryOf: null,
   };
+}
+
+async function readRequestContext(
+  props: GenerationProps,
+  selection: GenerateRequest["selection"],
+) {
+  const head = props.model.autosave.document;
+  return Promise.all([
+    editorCommand(
+      {
+        kind: "scope",
+        documentId: head.id,
+        expectedVersion: head.version,
+        selection,
+      },
+      "scope",
+    ),
+    reviewCommand({ kind: "state", taskId: props.taskId }, "state"),
+    resolveModel(),
+  ]);
 }

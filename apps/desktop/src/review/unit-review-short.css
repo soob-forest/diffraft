@@ -1,0 +1,128 @@
+html:has(.unit-review:not([hidden])),
+body:has(.unit-review:not([hidden])) {
+  overflow: clip;
+}
+.unit-review .diff-pane .cm-content.cm-lineWrapping {
+  min-width: 0;
+}
+@media (max-height: 400px) {
+  .document-workspace[data-mode="review"] .unit-review-tools {
+    position: sticky;
+    top: 0;
+    z-index: 3;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    gap: 4px;
+    padding: 4px 12px;
+    background: white;
+  }
+  .unit-review .unit-core,
+  .unit-review .unit-progress {
+    display: contents;
+  }
+  .unit-review .unit-selected-heading {
+    grid-column: 1;
+    grid-row: 1;
+    min-width: 0;
+  }
+  .unit-review .unit-progress .unit-filter {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .unit-review .unit-options {
+    grid-column: 3;
+    grid-row: 1;
+  }
+  .unit-review .unit-actions {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+  .unit-review .unit-progress > strong,
+  .unit-review .unit-feedback {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .unit-review .unit-progress > strong:focus {
+    position: static;
+    width: auto;
+    height: auto;
+    clip-path: none;
+    grid-column: 1 / -1;
+    grid-row: 3;
+  }
+  .unit-review-tools:has(.unit-original-notice) .unit-actions {
+    padding-right: 150px;
+    gap: 2px;
+  }
+  .unit-review .unit-original-notice button {
+    min-height: 36px;
+  }
+  .unit-review .unit-original-notice {
+    position: absolute;
+    right: 12px;
+    bottom: 4px;
+    margin: 0;
+    padding: 0;
+  }
+  .unit-review .unit-original-notice > span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  .review-panel.unit-review .diff-viewer {
+    position: relative;
+  }
+  .review-panel.unit-review .diff-folds {
+    display: none;
+  }
+  .unit-review .unit-comparison-label {
+    flex-wrap: nowrap;
+    min-height: 38px;
+    padding-right: 136px;
+  }
+  .unit-review .unit-comparison-label > span:first-child {
+    flex: 1;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .unit-review .unit-comparison-label > button {
+    flex-shrink: 0;
+  }
+  .unit-review
+    .unit-comparison-label:has(.unit-offscreen)
+    .unit-location-reset {
+    display: none;
+  }
+  .unit-review .unit-offscreen {
+    max-width: 140px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .unit-review .unit-related-locations {
+    flex-shrink: 0;
+  }
+  .review-panel.unit-review .text-diff:not([open]) {
+    position: absolute;
+    top: 0;
+    right: 4px;
+    height: 38px;
+    padding: 4px;
+    border: 0;
+    font-size: 13px;
+  }
+  .review-panel.unit-review .text-diff[open] {
+    position: static;
+  }
+  .unit-review-tools:has(.unit-original-notice) .unit-actions button {
+    padding-inline: 6px;
+  }
+}

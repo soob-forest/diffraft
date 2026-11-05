@@ -10,6 +10,8 @@ export function draftLabel(key: string) {
     candidate: "직접 수정 초안",
     regenerate: "재제안 초안",
     rewrite: "재작성 초안",
+    "unit-comment": "변경 전체 코멘트 초안",
+    "review-navigation": "변경 검토 보기 설정",
   };
   return (
     Object.entries(labels).find(([kind]) =>

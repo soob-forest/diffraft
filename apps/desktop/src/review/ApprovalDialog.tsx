@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import type { ProposalRevision } from "../generated/ProposalRevision";
 import type { ReviewProjection } from "../generated/ReviewProjection";
+import { isUnitReview } from "./unit-review-model";
 
 export type Approval = {
   fingerprint: string;
@@ -43,6 +44,13 @@ export function ApprovalDialog(props: Props) {
 }
 
 function ApprovalContent(props: Props) {
+  if (isUnitReview(props.projection.batch))
+    return (
+      <>
+        <UnitApproval {...props} />
+        <ApprovalButtons {...props} />
+      </>
+    );
   const excluded =
     props.projection.batch.proposals.length - props.approval.proposals.length;
   return (
@@ -72,19 +80,56 @@ function ApprovalContent(props: Props) {
       <p className="muted">
         확인 중 문서·제안·생성 상태가 바뀌면 다시 확인해야 합니다.
       </p>
-      <div className="dialog-actions">
-        <button type="button" disabled={props.busy} onClick={props.onClose}>
-          취소
-        </button>
-        <button
-          type="button"
-          className="primary"
-          disabled={props.busy}
-          onClick={props.onApprove}
-        >
-          확인 후 전체 승인
-        </button>
-      </div>
+      <ApprovalButtons {...props} label="확인 후 전체 승인" />
     </>
+  );
+}
+
+function UnitApproval({ projection, approval }: Props) {
+  const ids = new Set(approval.proposals.map((proposal) => proposal.id));
+  const included = projection.batch.reviewUnits.filter((unit) =>
+    unit.proposals.some((proposal) => ids.has(proposal.id)),
+  );
+  return (
+    <>
+      <h2 id="approval-title">남은 변경 승인</h2>
+      <p>
+        v{approval.version} 확정본에 아래 {included.length}개 변경을 반영하고
+        바로 저장합니다.
+      </p>
+      <ul>
+        {included.map((unit) => (
+          <li key={unit.id}>
+            변경 {unit.number} · {unit.title}
+            <p>{unit.reason}</p>
+          </li>
+        ))}
+      </ul>
+      <p>
+        이미 처리했거나 유효하지 않은 변경{" "}
+        {projection.batch.reviewUnits.length - included.length}개는 제외됩니다.
+      </p>
+      <p className="muted">
+        확인 중 문서·검토 회차·생성 상태가 바뀌면 다시 확인해야 합니다.
+      </p>
+    </>
+  );
+}
+
+function ApprovalButtons(props: Props & { label?: string }) {
+  return (
+    <div className="dialog-actions">
+      <button type="button" disabled={props.busy} onClick={props.onClose}>
+        취소
+      </button>
+      <button
+        type="button"
+        className="primary"
+        disabled={props.busy}
+        onClick={props.onApprove}
+      >
+        {props.label ?? "확인 후 승인·저장"}
+      </button>
+    </div>
   );
 }

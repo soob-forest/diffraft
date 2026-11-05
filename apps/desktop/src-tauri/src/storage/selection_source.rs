@@ -48,6 +48,7 @@ pub(super) fn source(
             selection,
         } => {
             let batch = review_queries::batch(db, batch_id)?;
+            batch.require_editable_candidate()?;
             if batch.document_id != head.id
                 || batch.task_id != request.task_id
                 || batch.mode != "REWRITE"
@@ -79,7 +80,7 @@ fn reject_pending_overlap(
     head: &DocumentSnapshot,
     scope: &ScopeSnapshot,
 ) -> Result<(), AppError> {
-    let mut statement=db.prepare("SELECT b.id FROM proposal_batches b JOIN jobs j ON j.id=b.job_id JOIN tasks t ON t.id=j.task_id WHERE t.document_id=?1 AND b.status='ACTIVE' AND b.mode='PATCH' AND b.apply_head_id=?2").map_err(database_error)?;
+    let mut statement=db.prepare("SELECT b.id FROM proposal_batches b JOIN jobs j ON j.id=b.job_id JOIN tasks t ON t.id=j.task_id WHERE t.document_id=?1 AND b.status='ACTIVE' AND b.review_mode='CHANGES' AND b.apply_head_id=?2").map_err(database_error)?;
     let ids = statement
         .query_map([&head.id, &head.version_id], |row| row.get::<_, String>(0))
         .map_err(database_error)?

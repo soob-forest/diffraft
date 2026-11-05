@@ -16,7 +16,7 @@ export function BatchActions({
   const actions = useBatchDecision(model, review, blocked);
   const batch = review.projection?.batch;
   if (!batch) return null;
-  const rewrite = batch.mode === "REWRITE";
+  const rewrite = batch.mode === "REWRITE" && batch.reviewMode === "WHOLE";
   const current = batch.baseVersionId === review.projection?.currentHeadId;
   const pending = batch.status === "ACTIVE" || batch.status === "ARCHIVED";
   return (
@@ -62,14 +62,13 @@ function RewriteButtons({
   current: boolean;
   actions: ReturnType<typeof useBatchDecision>;
 }) {
-  const rewrite = batch.mode === "REWRITE";
+  const rewrite = batch.mode === "REWRITE" && batch.reviewMode === "WHOLE";
   return (
     <>
       {rewrite && batch.status === "ACTIVE" && (
         <button
           type="button"
           disabled={actions.blocked || !current}
-          className="primary"
           onClick={() => actions.confirm("apply_rewrite")}
         >
           이 재작성안 적용

@@ -66,7 +66,7 @@ impl Store {
         }
         let id = self.runtime.id();
         let transaction = connection.transaction().map_err(database_error)?;
-        transaction.execute("INSERT INTO proposal_batches(id,job_id,mode,base_version_id,apply_head_id,status,summary,candidate_markdown,created_at) VALUES(?1,?2,'REWRITE',?3,?3,'ACTIVE',?4,?5,?6)", params![id,job.id,source.scope.version_id,summary,candidate_markdown,self.runtime.now_ms()?]).map_err(database_error)?;
+        transaction.execute("INSERT INTO proposal_batches(id,job_id,mode,review_mode,base_version_id,apply_head_id,status,summary,candidate_markdown,created_at) VALUES(?1,?2,'REWRITE','WHOLE',?3,?3,'ACTIVE',?4,?5,?6)", params![id,job.id,source.scope.version_id,summary,candidate_markdown,self.runtime.now_ms()?]).map_err(database_error)?;
         archive_previous(&transaction, &source.task_id, &id)?;
         self.complete_generation(&transaction, job, response, session)?;
         transaction.commit().map_err(database_error)?;

@@ -14,8 +14,11 @@ import { Processed, ProposalDetails } from "./ReviewContent";
 import { ReviewStatus } from "./ReviewStatus";
 import { ReviewTaskOptions } from "./ReviewTaskOptions";
 import { ReviewMessage, useReviewEntry } from "./ReviewTools";
+import { RewriteReviewStart } from "./RewriteReviewStart";
 import { SelectedRequestForm } from "./SelectedRequestForm";
 import { SelectionRequestEntry } from "./SelectionRequestEntry";
+import { UnitReview } from "./UnitReview";
+import { isUnitReview } from "./unit-review-model";
 import { type Panel, useReviewPanel } from "./useReviewPanel";
 import "./review.css";
 import "./selection.css";
@@ -43,6 +46,31 @@ export function ReviewPanel(props: Props) {
         검토할 작업을 먼저 만들거나 선택해 주세요.
       </div>
     );
+  if (panel.review.projection && isUnitReview(panel.review.projection.batch))
+    return (
+      <>
+        <UnitReview
+          key={panel.review.projection.batch.id}
+          panel={panel}
+          document={props.document}
+          active={props.active}
+          options={
+            <ReviewTaskOptions
+              panel={panel}
+              document={props.document}
+              taskId={props.taskId}
+              flushTask={props.flushTask}
+              rewriteRequest={props.rewriteRequest}
+            />
+          }
+        />
+        <PendingApproval panel={panel} />
+      </>
+    );
+  return <StandardReviewPanel {...props} panel={panel} />;
+}
+
+function StandardReviewPanel({ panel, ...props }: Props & { panel: Panel }) {
   return (
     <section
       className="review-panel"
@@ -121,7 +149,9 @@ function PendingApproval({ panel }: { panel: Panel }) {
         if (!panel.approval || panel.blocked) return;
         void panel.actions
           .execute("accept", panel.approval.proposals)
-          .then(() => panel.setApproval(null));
+          .then(() => {
+            panel.setApproval(null);
+          });
       }}
     />
   );
@@ -147,24 +177,27 @@ function ReviewDisplay({
       </p>
     );
   return projection.batch.mode === "REWRITE" ? (
-    <RewriteComparison
-      active={active && !panel.history.target}
-      key={`${projection.batch.id}:${projection.currentHeadId}`}
-      comparison={projection}
-      review={panel.review}
-      versions={document.state.versions}
-      selection={{
-        onSelection: panel.setSelection,
-        onSelectionIssue: panel.setSelectionIssue,
-        onEditSelection: () => {
-          panel.startSelectedRequest();
-          surface?.showDetail();
-        },
-        tools: panel.selectedRequest.active ? null : (
-          <SelectionRequestEntry panel={panel} />
-        ),
-      }}
-    />
+    <>
+      <RewriteReviewStart document={document} panel={panel} />
+      <RewriteComparison
+        active={active && !panel.history.target}
+        key={`${projection.batch.id}:${projection.currentHeadId}`}
+        comparison={projection}
+        review={panel.review}
+        versions={document.state.versions}
+        selection={{
+          onSelection: panel.setSelection,
+          onSelectionIssue: panel.setSelectionIssue,
+          onEditSelection: () => {
+            panel.startSelectedRequest();
+            surface?.showDetail();
+          },
+          tools: panel.selectedRequest.active ? null : (
+            <SelectionRequestEntry panel={panel} />
+          ),
+        }}
+      />
+    </>
   ) : (
     <ReviewComparison
       panel={panel}

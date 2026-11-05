@@ -81,6 +81,31 @@ fn dispatch_mutation(store: &Store, action: ReviewAction) -> Result<ReviewReply,
         } => store
             .proposal_revision(&batch_id, &proposal_id, revision)
             .map(ReviewReply::Proposal),
+        action => dispatch_unit_review(store, action),
+    }
+}
+
+fn dispatch_unit_review(store: &Store, action: ReviewAction) -> Result<ReviewReply, AppError> {
+    match action {
+        ReviewAction::OriginalRewrite { batch_id } => store
+            .original_rewrite_projection(&batch_id)
+            .map(ReviewReply::Projection),
+        ReviewAction::StartRewriteReview { request } => {
+            store.start_rewrite_review(request).map(ReviewReply::Batch)
+        }
+        ReviewAction::ReopenUnitReview { request } => {
+            store.reopen_unit_review(request).map(ReviewReply::Batch)
+        }
+        ReviewAction::AddUnitComment { comment } => store
+            .add_unit_comment(comment)
+            .map(ReviewReply::UnitComment),
+        ReviewAction::SetUnitCommentStatus {
+            id,
+            expected_revision,
+            resolved,
+        } => store
+            .set_unit_comment_status(&id, expected_revision, resolved)
+            .map(ReviewReply::UnitComment),
         _ => Err(AppError::invalid("검토 명령을 확인해 주세요.")),
     }
 }

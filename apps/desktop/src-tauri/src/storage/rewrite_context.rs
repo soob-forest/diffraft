@@ -40,13 +40,15 @@ fn active_batch(
     request: &RewriteRequest,
 ) -> Result<Option<String>, AppError> {
     let active: Option<(String,String)> = connection.query_row(
-        "SELECT b.id,b.mode FROM proposal_batches b JOIN jobs j ON b.job_id=j.id WHERE j.task_id=?1 AND b.status='ACTIVE' ORDER BY b.created_at DESC,b.rowid DESC LIMIT 1",
+        "SELECT b.id,b.review_mode FROM proposal_batches b JOIN jobs j ON b.job_id=j.id WHERE j.task_id=?1 AND b.status='ACTIVE' ORDER BY b.created_at DESC,b.rowid DESC LIMIT 1",
         [&request.task_id], |row| Ok((row.get(0)?,row.get(1)?)),
     ).optional().map_err(database_error)?;
     if active.as_ref().map(|value| &value.0) != request.expected_active_batch_id.as_ref() {
         return Err(stale());
     }
-    let patch = active.filter(|(_, mode)| mode == "PATCH").map(|(id, _)| id);
+    let patch = active
+        .filter(|(_, mode)| mode == "CHANGES")
+        .map(|(id, _)| id);
     if patch.is_some() && !request.archive_patch {
         return Err(AppError::invalid(
             "이전 부분 제안을 기록으로 옮긴 뒤 전체 재작성하는지 확인해 주세요.",
@@ -67,6 +69,7 @@ fn reference(
         || batch.task_id != request.task_id
         || batch.base_version_id != request.expected_head_id
         || batch.mode != "REWRITE"
+        || batch.is_unit_review()
         || !matches!(batch.status.as_str(), "ACTIVE" | "ARCHIVED")
     {
         return Err(stale());

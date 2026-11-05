@@ -64,7 +64,7 @@ export function reviewPresentation(
   projection: ReviewProjection | null,
   generating = false,
 ): ReviewPresentation {
-  const proposals = projection?.batch.proposals ?? [];
+  const proposals = decisionUnits(projection);
   const accepted = proposals.filter((p) => p.decision === "ACCEPTED").length;
   const rejected = proposals.filter((p) => p.decision === "REJECTED").length;
   const kind = presentationKind(projection, generating);
@@ -90,7 +90,8 @@ function activeKind(p: ReviewProjection): Kind {
   const pending = p.batch.proposals.filter((v) => v.decision === "PENDING");
   if (pending.some((v) => v.validity === "CONFLICT")) return "conflict";
   if (staleSelection(p, pending)) return "stale";
-  if (p.batch.mode === "REWRITE") return "rewrite";
+  if (p.batch.mode === "REWRITE" && p.batch.reviewMode === "WHOLE")
+    return "rewrite";
   if (p.groups.length) return "pending";
   if (
     p.batch.proposals.length &&
@@ -108,7 +109,18 @@ function staleSelection(
 ) {
   return (
     pending.some((v) => v.validity === "STALE") ||
-    ((pending.length > 0 || p.batch.mode === "REWRITE") &&
+    ((pending.length > 0 || p.batch.reviewMode === "WHOLE") &&
       p.currentHeadId !== p.batch.applyHeadId)
   );
+}
+
+function decisionUnits(projection: ReviewProjection | null) {
+  if (!projection) return [];
+  const { batch } = projection;
+  if (batch.mode !== "REWRITE" || batch.reviewMode !== "CHANGES")
+    return batch.proposals;
+  return batch.reviewUnits.flatMap((unit) => {
+    const proposal = batch.proposals.find((p) => p.groupId === unit.id);
+    return proposal ? [proposal] : [];
+  });
 }

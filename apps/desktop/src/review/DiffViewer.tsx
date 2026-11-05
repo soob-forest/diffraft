@@ -1,6 +1,7 @@
 import { SelectionPopover } from "../editor/SelectionPopover";
 import { DiffPane } from "./DiffPane";
 import { TextDiff } from "./TextDiff";
+import { textDiffJump } from "./text-diff-navigation";
 import { type Props, useDiffViewer } from "./useDiffViewer";
 export function DiffViewer(props: Props) {
   const { width, display, common, selectionPosition, closeSelection } =
@@ -30,7 +31,16 @@ export function DiffViewer(props: Props) {
         </SelectionPopover>
       )}
       {props.textDetails !== false && (
-        <TextDiff hunks={props.projection.hunks} />
+        <TextDiff
+          hunks={props.projection.hunks}
+          markers={common.markers}
+          labels={props.labels}
+          selectedGroup={props.selectedGroup}
+          active={props.active}
+          jump={
+            props.selectedGroup ? textDiffJump(display.rows, props.jump) : null
+          }
+        />
       )}
     </section>
   );

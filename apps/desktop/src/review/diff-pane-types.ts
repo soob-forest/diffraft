@@ -32,5 +32,10 @@ export type DiffPaneProps = {
   onScroll: (side: PaneSide, top: number) => void;
   register: (side: PaneSide, view: EditorView | null) => void;
   onMeasure: () => void;
-  jump: { selection: LogicalSelection; serial: number } | null;
+  jump: {
+    selection: LogicalSelection;
+    serial: number;
+    focus?: boolean;
+    revealGroupHeading?: boolean;
+  } | null;
 };

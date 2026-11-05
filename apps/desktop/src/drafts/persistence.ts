@@ -1,6 +1,7 @@
 import type { DraftRecord } from "../generated/DraftRecord";
 import type { DraftWrite } from "../generated/DraftWrite";
 import { errorMessage } from "../ipc";
+import { DraftAcknowledgements, LOCKED_DRAFT } from "./acknowledgements";
 import { decodeDraft } from "./decode";
 import { DraftDecodeError } from "./decode-error";
 import { DraftSizeError, serializeDraft } from "./serialization";
@@ -23,6 +24,7 @@ export class DraftPersistence {
   private resetting = new Map<QuarantinedDraft, Promise<void>>();
   private oversizedValue: OversizedDraft | null = null;
   private revisions = new Map<string, number>();
+  private acknowledgements = new DraftAcknowledgements();
   private dirty = new Set<string>();
   private listeners = new Set<() => void>();
   private timer: ReturnType<typeof setTimeout> | undefined;
@@ -37,6 +39,7 @@ export class DraftPersistence {
   ) {
     this.unsubscribe = store.onWrite((key) => {
       this.dirty.add(key);
+      this.acknowledgements.pending(key, store.peek(key));
       this.setStatus("초안 저장 대기 중…");
       clearTimeout(this.timer);
       this.timer = setTimeout(() => {
@@ -45,6 +48,10 @@ export class DraftPersistence {
     });
   }
   status = () => this.label;
+  storageState = (key: string, value: unknown) =>
+    this.store.isBlocked(key)
+      ? LOCKED_DRAFT
+      : this.acknowledgements.state(key, value);
   oversizedDraft = () => this.oversizedValue;
   quarantinedDrafts = () => this.quarantined;
   discardQuarantined = (issue: QuarantinedDraft): Promise<void> => {
@@ -67,6 +74,7 @@ export class DraftPersistence {
         valueJson: null,
       });
       this.revisions.set(key, record.revision);
+      this.acknowledgements.forget(key);
       this.quarantined = this.quarantined.filter((value) => value !== issue);
       this.store.forgetUnchanged(key);
       this.store.unblock(key);
@@ -102,7 +110,10 @@ export class DraftPersistence {
       for (const { record, value, issue } of values) {
         this.revisions.set(record.key, record.revision);
         if (issue) this.store.block(record.key);
-        else if (value !== null) this.store.hydrate(record.key, value);
+        else if (value !== null) {
+          this.acknowledgements.confirm(record.key, value);
+          this.store.hydrate(record.key, value);
+        }
       }
       this.loaded = true;
       this.setStatus(
@@ -147,21 +158,31 @@ export class DraftPersistence {
           this.dirty.delete(key);
           continue;
         }
-        this.setStatus("초안 저장 중…");
-        const value = this.store.peek(key),
-          json = this.serialize(key, value);
-        const record = await this.transport.write({
-          key,
-          schemaVersion: 1,
-          expectedRevision: this.revisions.get(key) ?? 0,
-          valueJson: json ?? null,
-        });
-        this.revisions.set(key, record.revision);
-        if (this.store.peek(key) === value) this.dirty.delete(key);
+        await this.saveKey(key);
       }
       this.setStatus("초안 로컬 저장됨");
     } catch (reason) {
+      this.acknowledgements.interruptPending(errorMessage(reason));
       this.setStatus(`초안 저장 실패: ${errorMessage(reason)}`);
+      throw reason;
+    }
+  }
+  private async saveKey(key: string) {
+    const value = this.store.peek(key);
+    this.acknowledgements.saving(key, value);
+    this.setStatus("초안 저장 중…");
+    try {
+      const record = await this.transport.write({
+        key,
+        schemaVersion: 1,
+        expectedRevision: this.revisions.get(key) ?? 0,
+        valueJson: this.serialize(key, value),
+      });
+      this.revisions.set(key, record.revision);
+      this.acknowledgements.confirm(key, value);
+      if (this.store.peek(key) === value) this.dirty.delete(key);
+    } catch (reason) {
+      this.acknowledgements.fail(key, value, errorMessage(reason));
       throw reason;
     }
   }

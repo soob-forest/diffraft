@@ -108,19 +108,28 @@ export function useDraftPersistence() {
   );
   return { ...context, status, flush: context.persistence.flush };
 }
-export function DraftStatus({ recovery = false }: { recovery?: boolean }) {
+type DraftSummary = { message: string; retry?: () => void; busy: boolean };
+export function DraftStatus({
+  recovery = false,
+  summary,
+}: {
+  recovery?: boolean;
+  summary?: DraftSummary;
+}) {
   const drafts = useDraftPersistence();
   return (
     <div className="draft-status" aria-live="polite">
-      {drafts.status}
-      {drafts.status.includes("실패") && (
+      {summary ? <p role="status">{summary.message}</p> : drafts.status}
+      {(summary ? summary.retry : drafts.status.includes("실패")) && (
         <button
           type="button"
+          disabled={summary?.busy}
           onClick={() => {
-            void drafts.flush().catch(() => {});
+            if (summary) summary.retry?.();
+            else void drafts.flush().catch(() => {});
           }}
         >
-          초안 저장 재시도
+          {summary ? "초안 보관 재시도" : "초안 저장 재시도"}
         </button>
       )}
       <OversizedRecovery persistence={drafts.persistence} />
@@ -158,9 +167,13 @@ export function useSessionDraft<T>(key: string, initial: T) {
   const locked = useSyncExternalStore(store.subscribe, () =>
     store.isBlocked(key),
   );
+  const storage = useSyncExternalStore(persistence.subscribe, () =>
+    persistence.storageState(key, value),
+  );
   return {
     value,
     locked,
+    storage,
     flush: persistence.flush,
     set: (next: T) => store.write(key, next),
     replace: (expected: T, next: T) => store.replace(key, expected, next),

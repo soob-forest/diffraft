@@ -76,3 +76,13 @@ type ReviewGroup = {
 - [D14 공식 이전 저장소](https://code.haverbeke.berlin/codemirror/merge)
 
 CodeMirror merge 자료는 비교 UI 설계의 참고 자료다. 제품이 사용하는 정확한 패키지 조합은 [package.json](../../apps/desktop/package.json)과 lockfile을 따른다.
+
+### 16.7 재작성의 검토 계획과 단위 전체 의견
+
+생성 mode=REWRITE를 보존하고 reviewMode=WHOLE/CHANGES를 구분한다. `start_rewrite_review`는 기준/후보 해시·head·파일·활성 생성 부재를 검증하고 블록 LCS로 원문 바이트를 보존한 편집 연산을 만든다. 명확한 이동·참조·제목 구조만 묶고 한도 초과 시 전체 단위로 검증한다. 표시 hunk가 승인 경계를 결정하지 않는다.
+
+스키마 11의 review_plans/review_units/unit_comments는 배치·계획·단위 소속을 고정한다. 계획 등록은 원자적이며 시작 재시도는 같은 계획을 반환한다. 기존 PATCH→CHANGES, 기존 REWRITE→WHOLE로 이관한다. 후보와 연산은 불변이며 원래 revision과 매 조회 시 비교한다.
+
+`reopen_unit_review`는 거절된 그룹 전체의 새 PENDING revision과 현재 회차를 CAS로 만든다. 원래 REJECTED revision을 보존하고 단위 ID/번호·코멘트는 유지한다. 활성 조회는 현재 회차만 읽으며 승인 저장·복구는 기존 저널을 재사용한다. CHANGES에서 전체 적용·후보 수정 우회는 거부한다.
+
+`original_rewrite`는 당시 base→원래 candidate의 읽기 전용 projection이다. 현재 projection은 최신 head→ACCEPTED+유효 PENDING 재구성 결과여서 거절을 제외한다. `add_unit_comment`는 id/batchId/planId/unitId/text만 받으며 삭제·다중 위치도 단위 전체에 연결한다. 기존 인용 앵커를 대체하지 않는다. [상세 검증](rewrite-unit-review.md).

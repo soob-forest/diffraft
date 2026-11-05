@@ -43,7 +43,7 @@ impl Store {
             }
         }
         let groups = if valid { groups(&batch)? } else { Vec::new() };
-        let after = if batch.mode == "REWRITE" {
+        let after = if batch.mode == "REWRITE" && !batch.is_unit_review() {
             batch
                 .candidate_markdown
                 .clone()

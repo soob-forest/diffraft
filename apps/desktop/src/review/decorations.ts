@@ -8,6 +8,9 @@ import {
 } from "@codemirror/view";
 import type { DisplayRow, PaneSide } from "./coordinates";
 import type { GroupMark } from "./group-selection";
+import type { ReviewRow } from "./rows";
+
+const LINE_NUMBER_WIDTH = 4;
 
 class NumberMarker extends GutterMarker {
   elementClass: string;
@@ -52,15 +55,7 @@ export function numberGutter(
   side: PaneSide,
   markers?: Map<string, GroupMark>,
 ) {
-  const starts = new Set<string>();
-  const seen = new Set<string>();
-  for (const display of rows) {
-    const mark = display.row && markers?.get(display.row.key);
-    if (mark && !seen.has(mark.id)) {
-      starts.add(display.row?.key ?? "");
-      seen.add(mark.id);
-    }
-  }
+  const starts = groupRangeStarts(rows, markers);
   return gutter({
     class: `diff-numbers ${side}`,
     lineMarker: (view, line) => {
@@ -68,14 +63,7 @@ export function numberGutter(
       if (!row || row.folded) return new NumberMarker("");
       const sign =
         row.kind === "delete" ? "−" : row.kind === "insert" ? "+" : " ";
-      const number =
-        side === "inline"
-          ? String(
-              row.kind === "delete" ? (row.oldLine ?? "") : (row.newLine ?? ""),
-            ).padStart(4)
-          : String(
-              (side === "before" ? row.oldLine : row.newLine) ?? "",
-            ).padStart(4);
+      const number = lineNumber(row, side);
       return new NumberMarker(
         `${number} ${sign}`,
         starts.has(row.key),
@@ -83,6 +71,13 @@ export function numberGutter(
       );
     },
   });
+}
+function lineNumber(row: ReviewRow, side: PaneSide) {
+  const before =
+    side === "before" || (side === "inline" && row.kind === "delete");
+  return String((before ? row.oldLine : row.newLine) ?? "").padStart(
+    LINE_NUMBER_WIDTH,
+  );
 }
 export function rowDecorations(rows: DisplayRow[], whitespace: boolean) {
   const decorations: Range<Decoration>[] = [];
@@ -134,12 +129,11 @@ export function groupDecorations(
   markers?: Map<string, GroupMark>,
 ) {
   const ranges: Range<Decoration>[] = [];
-  const started = new Set<string>();
+  const starts = groupRangeStarts(rows, markers);
   for (const display of rows) {
     const mark = display.row && markers?.get(display.row.key);
     if (mark) {
-      const first = !started.has(mark.id);
-      started.add(mark.id);
+      const first = starts.has(display.row?.key ?? "");
       ranges.push(
         Decoration.line({
           attributes: {
@@ -153,4 +147,18 @@ export function groupDecorations(
     }
   }
   return EditorView.decorations.of(Decoration.set(ranges, true));
+}
+
+export function groupRangeStarts(
+  rows: DisplayRow[],
+  markers?: Map<string, GroupMark>,
+) {
+  const starts = new Set<string>();
+  let previous: string | undefined;
+  for (const { row } of rows) {
+    const mark = row && markers?.get(row.key);
+    if (row && mark && mark.id !== previous) starts.add(row.key);
+    previous = mark?.id;
+  }
+  return starts;
 }

@@ -64,7 +64,7 @@ fn batch_result(db: &Connection, id: String) -> Result<ConversationResult, AppEr
             "STALE".into()
         } else if pending.iter().any(|p| p.validity == Validity::Conflict) {
             "CONFLICT".into()
-        } else if batch.mode == "REWRITE" || !pending.is_empty() {
+        } else if (batch.mode == "REWRITE" && !batch.is_unit_review()) || !pending.is_empty() {
             "PENDING".into()
         } else if batch.proposals.is_empty() {
             "UNCHANGED".into()

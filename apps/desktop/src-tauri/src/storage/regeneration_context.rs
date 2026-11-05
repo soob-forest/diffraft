@@ -51,6 +51,7 @@ pub(super) fn target(
 ) -> Result<(DocumentSnapshot, ReviewBatch, Proposal), AppError> {
     let head = queries::snapshot(connection, &request.document_id)?;
     let batch = review_queries::batch(connection, &request.batch_id)?;
+    batch.require_editable_candidate()?;
     let base = review_queries::base(connection, &batch)?;
     if batch.document_id != head.id {
         return Err(stale());

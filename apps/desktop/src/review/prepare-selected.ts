@@ -49,7 +49,7 @@ export async function prepareSelectionRequest(
     ),
   };
 }
-async function contentHash(content: string) {
+export async function contentHash(content: string) {
   const digest = await crypto.subtle.digest(
     "SHA-256",
     new TextEncoder().encode(content),

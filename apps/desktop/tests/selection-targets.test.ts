@@ -5,6 +5,7 @@ import { projection } from "./support/review-projection";
 it("keeps whole rewrite candidate selection distinct from confirmed text", () => {
   const value = projection();
   value.batch.mode = "REWRITE";
+  value.batch.reviewMode = "WHOLE";
   value.batch.candidateMarkdown = value.after;
   expect(
     selectedRequestTarget(value, { side: "after", from: 0, to: 1 }).kind,

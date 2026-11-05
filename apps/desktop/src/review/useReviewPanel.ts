@@ -91,6 +91,7 @@ function useApproval({
       setApproval(null);
       actions.setMessage(
         "문서 또는 제안 상태가 바뀌어 전체 승인을 취소했습니다. 최신 내용을 확인해 주세요.",
+        "attention",
       );
     }
   }, [approval, fingerprint, actions.setMessage]);

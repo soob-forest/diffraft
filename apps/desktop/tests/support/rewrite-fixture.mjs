@@ -24,22 +24,22 @@ export async function version(number) {
     async () => (await $(".version-badge").getText()) === `v${number}`,
   );
 }
-export async function prepareRewrite() {
-  await writeFile(join(root, "next-pick"), "rewrite");
+export async function prepareRewrite(name = "rewrite", content = confirmed) {
+  await writeFile(join(root, "next-pick"), name);
   await $("button=문서 열기").click();
   await browser.waitUntil(
-    async () => (await $(".document-toolbar h1").getText()) === "rewrite",
+    async () => (await $(".document-toolbar h1").getText()) === name,
   );
   const workspace = await invoke("get_workspace_snapshot", {
     request: { schemaVersion: 1 },
   });
-  const document = workspace.documents.find((item) => item.title === "rewrite");
+  const document = workspace.documents.find((item) => item.title === name);
   for (let number = 1; number < 14; number++)
     await editor({
       kind: "save",
       documentId: document.id,
       expectedVersion: number,
-      content: confirmed,
+      content,
       operationId: crypto.randomUUID(),
     });
   const task = await editor({
@@ -56,7 +56,7 @@ export async function prepareRewrite() {
   await browser.waitUntil(
     async () => (await $(".document-toolbar h1").getText()) === "새 문서",
   );
-  await $(".sidebar").$("button=rewrite").click();
+  await $(".sidebar").$(`button=${name}`).click();
   await version(14);
   await $("button=변경 검토").click();
   return { document, task };

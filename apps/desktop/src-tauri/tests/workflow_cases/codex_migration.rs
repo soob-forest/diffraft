@@ -10,7 +10,7 @@ use docreview_core::{
 pub fn remove_codex_schema(world: &World) {
     world
         .database()
-        .execute_batch("DROP TABLE selection_jobs; DROP TABLE drafts;")
+        .execute_batch("DROP TABLE unit_comments; DROP TABLE review_units; DROP TABLE review_plans; ALTER TABLE proposal_batches DROP COLUMN review_mode; DROP TABLE selection_jobs; DROP TABLE drafts;")
         .unwrap();
     world.database().execute_batch("DROP TABLE codex_execution_scopes; DROP TABLE codex_sessions; DROP TABLE ai_preferences;").unwrap();
 }

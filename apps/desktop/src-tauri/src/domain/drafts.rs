@@ -46,6 +46,8 @@ impl DraftWrite {
                 "rewrite",
                 "source-scope",
                 "selected-request",
+                "unit-comment",
+                "review-navigation",
             ]
             .contains(&parts[0].as_str())
             || serde_json::to_string(&parts).map_err(|_| invalid())? != self.key

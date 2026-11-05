@@ -8,7 +8,13 @@ import { ReadSequence, reviewFingerprint } from "./state";
 const REFRESH_MS = 1000;
 type Snapshot = { state: TaskReview; projection: ReviewProjection | null };
 const empty: Snapshot = {
-  state: { batches: [], comments: [], generating: false, sequence: 0 },
+  state: {
+    batches: [],
+    comments: [],
+    unitComments: [],
+    generating: false,
+    sequence: 0,
+  },
   projection: null,
 };
 export function useReview(taskId: string, headId: string) {

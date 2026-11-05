@@ -108,7 +108,7 @@ function makeRequest(
     referenceBatchId: reference
       ? (props.review.projection?.batch.id ?? null)
       : null,
-    archivePatch: active?.mode === "PATCH",
+    archivePatch: active?.reviewMode === "CHANGES",
     instruction: instruction.trim(),
     operationId: crypto.randomUUID(),
     retryOf: null,
@@ -214,6 +214,6 @@ async function submitRewrite({
   if (!operation.active.current) return;
   props.review.setBatchId(batch.id);
   operation.setMessage(
-    "새 재작성 후보를 저장했습니다. 비교 후 전체 적용해 주세요.",
+    "새 재작성 후보를 저장했습니다. 변경별로 검토하거나 전체 적용할 수 있습니다.",
   );
 }

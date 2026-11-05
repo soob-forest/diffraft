@@ -4,6 +4,7 @@ import { useReviewSurface } from "../editor/WorkspacePanels";
 import { BatchActions } from "../rewrite/BatchActions";
 import { RewriteForm } from "../rewrite/RewriteForm";
 import { TextDiff } from "./TextDiff";
+import { isUnitReview } from "./unit-review-model";
 import type { Panel } from "./useReviewPanel";
 
 type Props = {
@@ -22,9 +23,10 @@ export function ReviewTaskOptions(props: Props) {
   return (
     <details ref={root} className="review-task-options">
       <summary>작업 옵션</summary>
-      {props.panel.review.projection && (
-        <TextDiff hunks={props.panel.review.projection.hunks} />
-      )}
+      {props.panel.review.projection &&
+        !isUnitReview(props.panel.review.projection.batch) && (
+          <TextDiff hunks={props.panel.review.projection.hunks} />
+        )}
       <RewriteForm
         model={props.document}
         review={props.panel.review}

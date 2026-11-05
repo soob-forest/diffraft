@@ -23,7 +23,7 @@ impl Store {
             "SELECT COUNT(*) FROM (SELECT p.batch_id,p.group_id FROM proposals p JOIN proposal_batches b ON b.id=p.batch_id JOIN versions v ON v.id=b.base_version_id WHERE v.document_id=?1 AND b.status='ACTIVE' AND p.decision='PENDING' GROUP BY p.batch_id,p.group_id)",
             [&document.id], |row| row.get(0)).map_err(database_error)?;
         let pending_rewrites = connection.query_row(
-            "SELECT COUNT(*) FROM proposal_batches b JOIN versions v ON v.id=b.base_version_id WHERE v.document_id=?1 AND b.status='ACTIVE' AND b.mode='REWRITE'",
+            "SELECT COUNT(*) FROM proposal_batches b JOIN versions v ON v.id=b.base_version_id WHERE v.document_id=?1 AND b.status='ACTIVE' AND b.mode='REWRITE' AND b.review_mode='WHOLE'",
             [&document.id], |row| row.get(0)).map_err(database_error)?;
         Ok(ExportSnapshot {
             document,

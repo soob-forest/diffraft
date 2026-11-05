@@ -85,7 +85,7 @@ impl Store {
         let id = self.runtime.id();
         let now = self.runtime.now_ms()?;
         let transaction = connection.transaction().map_err(database_error)?;
-        transaction.execute("INSERT INTO proposal_batches(id,job_id,mode,base_version_id,apply_head_id,status,summary,created_at) VALUES(?1,?2,'PATCH',?3,?3,'ACTIVE',?4,?5)", params![id,job.id,source.scope.version_id,summary,now]).map_err(database_error)?;
+        transaction.execute("INSERT INTO proposal_batches(id,job_id,mode,review_mode,base_version_id,apply_head_id,status,summary,created_at) VALUES(?1,?2,'PATCH','CHANGES',?3,?3,'ACTIVE',?4,?5)", params![id,job.id,source.scope.version_id,summary,now]).map_err(database_error)?;
         if !selection_job {
             archive_previous(&transaction, &source.task_id, &id)?;
         }

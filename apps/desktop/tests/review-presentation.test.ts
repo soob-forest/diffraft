@@ -25,6 +25,7 @@ it("keeps historical, discarded, rewrite and conflict states separate", () => {
   expect(reviewPresentation(value).kind).toBe("discarded");
   value.batch.status = "ACTIVE";
   value.batch.mode = "REWRITE";
+  value.batch.reviewMode = "WHOLE";
   expect(reviewPresentation(value).kind).toBe("rewrite");
   value.currentHeadId = "head2";
   expect(reviewPresentation(value).kind).toBe("stale");

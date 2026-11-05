@@ -61,9 +61,14 @@ export function groupRowMarks(
     const proposal = projection.batch.proposals.find(
       (p) => p.id === group.proposals[0]?.id,
     );
+    const unit = projection.batch.reviewUnits?.find(
+      (unit) => unit.id === group.id,
+    );
     marks.set(row.key, {
       id: group.id,
-      title: proposal?.operation.headingPath.at(-1) || "문서",
+      title: unit
+        ? `변경 ${unit.number} · ${unit.title}`
+        : proposal?.operation.headingPath.at(-1) || "문서",
       selected: group.id === selectedId,
     });
   }

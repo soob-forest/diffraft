@@ -74,6 +74,8 @@ function validateOwner(key: string[], data: Record<string, unknown>) {
   }
 }
 const validators: Record<string, (data: Record<string, unknown>) => void> = {
+  "unit-comment": unitCommentDraft,
+  "review-navigation": reviewNavigationDraft,
   request: requestDraft,
   comment: commentDraft,
   candidate: candidateDraft,
@@ -82,3 +84,26 @@ const validators: Record<string, (data: Record<string, unknown>) => void> = {
   "selected-request": selectedRequestDraft,
   "source-scope": scopeDraft,
 };
+
+function unitCommentDraft(data: Record<string, unknown>) {
+  if (
+    data.version !== 1 ||
+    typeof data.text !== "string" ||
+    typeof data.id !== "string"
+  )
+    throw invalidDraft();
+}
+
+function reviewNavigationDraft(data: Record<string, unknown>) {
+  if (
+    data.version !== 1 ||
+    typeof data.selectedId !== "string" ||
+    typeof data.scrollKey !== "string" ||
+    typeof data.originalScrollKey !== "string" ||
+    !["all", "pending", "processed"].includes(String(data.filter)) ||
+    [data.split, data.full, data.whitespace, data.original].some(
+      (value) => typeof value !== "boolean",
+    )
+  )
+    throw invalidDraft();
+}

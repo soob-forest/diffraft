@@ -77,13 +77,23 @@ function usePanelState(
   const [tab, setTab] = useState("detail");
   const wasOpen = useRef(open.value);
   const detailRequested = useRef(false);
+  const returnFocus = useRef<HTMLElement | null>(null);
   const setOpen = open.set;
   const showDetail = useCallback(() => {
+    const focused = document.activeElement;
+    if (
+      focused instanceof HTMLElement &&
+      focused !== document.body &&
+      !focused.closest(".workspace-panel")
+    )
+      returnFocus.current = focused;
     detailRequested.current = true;
     setTab("detail");
     setOpen(true);
   }, [setOpen]);
   useEffect(() => {
+    if (!open.value && wasOpen.current && returnFocus.current)
+      requestAnimationFrame(() => focusPanelEntry(returnFocus.current));
     if (open.value && !wasOpen.current && !detailRequested.current)
       setTab("task");
     wasOpen.current = open.value;
@@ -91,16 +101,19 @@ function usePanelState(
   }, [open.value]);
   const close = useCallback(() => {
     setOpen(false);
-    requestAnimationFrame(() =>
-      document
-        .querySelector<HTMLButtonElement>(".workspace-controls button")
-        ?.focus(),
-    );
+    requestAnimationFrame(() => focusPanelEntry(returnFocus.current));
   }, [setOpen]);
   useEffect(() => {
     if (mode === "review") setTab("detail");
   }, [mode]);
   return { detail, setDetail, tab, setTab, showDetail, close };
+}
+function focusPanelEntry(entry: HTMLElement | null) {
+  const target =
+    entry?.isConnected && entry.getClientRects().length
+      ? entry
+      : document.querySelector<HTMLButtonElement>(".workspace-controls button");
+  target?.focus();
 }
 function PanelTabs({
   tab,

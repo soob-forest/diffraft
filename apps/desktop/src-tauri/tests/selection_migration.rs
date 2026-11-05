@@ -34,7 +34,7 @@ fn fixture(version: u32) -> (tempfile::TempDir, DocumentSnapshot) {
     let connection =
         rusqlite::Connection::open(root.path().join("data/workspace.sqlite3")).unwrap();
     connection
-        .execute_batch("DROP TABLE selection_jobs;")
+        .execute_batch("DROP TABLE unit_comments; DROP TABLE review_units; DROP TABLE review_plans; ALTER TABLE proposal_batches DROP COLUMN review_mode; DROP TABLE selection_jobs;")
         .unwrap();
     if version == 8 {
         connection.execute_batch("DROP TABLE drafts;").unwrap();
@@ -70,7 +70,7 @@ fn schema_8_and_9_upgrade_preserves_source_tasks_drafts_and_restorable_backups()
             database
                 .pragma_query_value(None, "user_version", |row| row.get::<_, u32>(0))
                 .unwrap(),
-            10
+            11
         );
         let backup = backup(root.path());
         let saved = rusqlite::Connection::open(&backup).unwrap();

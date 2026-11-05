@@ -19,7 +19,7 @@ export function projectionOverlaps(
     target.kind !== "confirmed" ||
     projection.currentHeadId !== target.expectedHeadId ||
     projection.batch.status !== "ACTIVE" ||
-    projection.batch.mode !== "PATCH"
+    projection.batch.reviewMode !== "CHANGES"
   )
     return [];
   return projection.groups.flatMap((group) =>
@@ -45,7 +45,7 @@ export async function readSourceOverlaps(
       "state",
     );
     for (const batch of state.batches.filter(
-      (value) => value.status === "ACTIVE" && value.mode === "PATCH",
+      (value) => value.status === "ACTIVE" && value.reviewMode === "CHANGES",
     )) {
       const projection = await reviewCommand(
         {

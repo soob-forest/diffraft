@@ -18,6 +18,7 @@ import {
   type PaneSide,
 } from "./coordinates";
 import { groupDecorations, numberGutter, rowDecorations } from "./decorations";
+import { diffJumpScroll } from "./diff-jump";
 import type { DiffPaneProps as Props } from "./diff-pane-types";
 import { bindScroll } from "./scroll";
 
@@ -222,8 +223,11 @@ export function DiffPane(props: Props) {
     );
     if (selection) {
       handledJump.current = props.jump.serial;
-      editor.current.dispatch({ selection, scrollIntoView: true });
-      editor.current.focus();
+      editor.current.dispatch({
+        selection,
+        ...diffJumpScroll(props.jump, selection.head),
+      });
+      if (props.jump.focus !== false) editor.current.focus();
     }
   }, [props.jump, props.rows, props.side, editor]);
   useEffect(() => {

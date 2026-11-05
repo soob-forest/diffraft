@@ -22,6 +22,13 @@ export function selectedRequestTarget(
   projection: ReviewProjection,
   selection: LogicalSelection | null,
 ): SelectedTarget {
+  if (
+    projection.batch.mode === "REWRITE" &&
+    projection.batch.reviewMode === "CHANGES"
+  )
+    throw new Error(
+      "변경별 검토에서는 단위 승인·거절·코멘트를 사용해 주세요. 내용 수정은 최신 확정본에서 새 요청으로 진행합니다.",
+    );
   if (projection.batch.status !== "ACTIVE")
     throw new Error(
       "이전 기록은 읽기 전용입니다. 최신 검토에서 새 요청을 준비해 주세요.",

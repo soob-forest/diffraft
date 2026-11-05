@@ -22,6 +22,10 @@ pub(super) fn shared(
     value.insert("pinnedRules".into(), rules.into());
     value.insert("summary".into(), summary.into());
     value.insert("commonRules".into(), common.into());
+    value.insert(
+        "unitComments".into(),
+        super::unit_comments::context(connection, task)?,
+    );
     value.insert("historyAfterSequence".into(), sequence.into());
     value.insert(
         "messages".into(),

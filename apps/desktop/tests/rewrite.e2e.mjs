@@ -63,8 +63,12 @@ describe("전체 재작성과 복원", () => {
       await $(".rewrite-comparison-heading").getText(),
       /확정본 v14/,
     );
+    assert.doesNotMatch(
+      (await $("button=이 재작성안 적용").getAttribute("class")) ?? "",
+      /primary/,
+    );
     assert.match(
-      await $("button=이 재작성안 적용").getAttribute("class"),
+      await $("button=변경별 검토 시작").getAttribute("class"),
       /primary/,
     );
     assert.equal(await $("button=선택한 변경 승인").isExisting(), false);

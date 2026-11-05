@@ -35,6 +35,7 @@ pub struct BatchSummary {
     pub id: String,
     pub base_version_id: String,
     pub mode: String,
+    pub review_mode: super::unit_review::ReviewMode,
     pub status: String,
     pub summary: String,
 }
@@ -44,6 +45,7 @@ pub struct BatchSummary {
 pub struct TaskReview {
     pub batches: Vec<BatchSummary>,
     pub comments: Vec<ReviewComment>,
+    pub unit_comments: Vec<super::unit_review::UnitComment>,
     pub generating: bool,
     pub sequence: u32,
 }
@@ -63,6 +65,23 @@ pub struct ReviewRequest {
     deny_unknown_fields
 )]
 pub enum ReviewAction {
+    OriginalRewrite {
+        batch_id: String,
+    },
+    StartRewriteReview {
+        request: super::unit_review::StartRewriteReview,
+    },
+    ReopenUnitReview {
+        request: super::unit_review::ReopenUnitReview,
+    },
+    AddUnitComment {
+        comment: super::unit_review::AddUnitComment,
+    },
+    SetUnitCommentStatus {
+        id: String,
+        expected_revision: u32,
+        resolved: bool,
+    },
     PrepareSelection {
         request: super::selection_request::SelectionRequest,
     },
@@ -129,5 +148,6 @@ pub enum ReviewReply {
     Document(DocumentSnapshot),
     Batch(ReviewBatch),
     Comment(ReviewComment),
+    UnitComment(super::unit_review::UnitComment),
     Proposal(Proposal),
 }

@@ -45,6 +45,10 @@ if (
     "layout",
     "history",
     "rewrite",
+    "rewrite-review",
+    "rewrite-review-restart",
+    "rewrite-review-keyboard",
+    "review-followup",
     "rewrite-cancel",
     "navigation",
     "navigation-restart",
@@ -70,13 +74,17 @@ const application = fileURLToPath(
   ),
 );
 const TEST_TIMEOUT_MS =
-  phase === "ux-native"
-    ? 650_000
-    : phase === "codex-native"
-      ? 120_000
-      : phase === "ux-recovery"
-        ? 75_000
-        : 30_000;
+  phase === "rewrite-review"
+    ? 180_000
+    : phase === "review-followup"
+      ? 60_000
+      : phase === "ux-native"
+        ? 650_000
+        : phase === "codex-native"
+          ? 120_000
+          : phase === "ux-recovery"
+            ? 75_000
+            : 30_000;
 await assertE2EBuild(application);
 await assertOwnedRoot(testRoot);
 

@@ -20,6 +20,7 @@ pub fn spec() -> Result<ProcessSpec, AppError> {
             | "PATCH_SCOPE"
             | "REGENERATE_DELAY"
             | "REWRITE"
+            | "REWRITE_UNITS"
             | "REWRITE_DELAY"
             | "EXPLAIN"
             | "EXPLAIN_DELAY"

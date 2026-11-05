@@ -11,6 +11,7 @@ import {
   ReadSequence,
   reviewFingerprint,
 } from "../src/review/state";
+import { projection as fixture } from "./support/review-projection";
 
 const row = (kind: string, from: number): ReviewRow => ({
   kind,
@@ -44,14 +45,20 @@ describe("review UI coordinates and ordering", () => {
     expect(reads.current(current)).toBe(false);
   });
   it("invalidates confirmations for revision, head or generation changes, not projection IDs", () => {
-    const projection = {
+    const projection: ReviewProjection = {
+      ...fixture(),
       id: "view1",
       currentHeadId: "v12",
       batch: {
+        ...fixture().batch,
         id: "B01",
         status: "ACTIVE",
+        reviewMode: "CHANGES",
+        reviewPlan: null,
+        reviewUnits: [],
         proposals: [
           {
+            ...fixture().batch.proposals[0],
             id: "D01",
             revision: 1,
             groupId: "G01",
@@ -60,11 +67,17 @@ describe("review UI coordinates and ordering", () => {
           },
         ],
       },
-    } as ReviewProjection;
+    };
     expect(reviewFingerprint({ ...projection, id: "view2" })).toBe(
       reviewFingerprint(projection),
     );
-    const state = { generating: false, batches: [], comments: [], sequence: 1 };
+    const state = {
+      generating: false,
+      batches: [],
+      comments: [],
+      unitComments: [],
+      sequence: 1,
+    };
     const fingerprint = confirmationFingerprint(projection, state, false);
     expect(
       confirmationFingerprint(

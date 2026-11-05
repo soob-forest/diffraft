@@ -6,13 +6,16 @@ use crate::domain::{
 use rusqlite::{Connection, OptionalExtension, Row, params};
 
 pub fn batch(connection: &Connection, id: &str) -> Result<ReviewBatch, AppError> {
-    let mut batch = connection.query_row(
-        "SELECT b.id,j.task_id,t.document_id,b.base_version_id,b.apply_head_id,b.status,b.mode,b.summary,b.candidate_markdown FROM proposal_batches b JOIN jobs j ON b.job_id=j.id JOIN tasks t ON j.task_id=t.id WHERE b.id=?1",
-        [id], |row| Ok(ReviewBatch {
+    let (mut batch, mode) = connection.query_row(
+        "SELECT b.id,j.task_id,t.document_id,b.base_version_id,b.apply_head_id,b.status,b.mode,b.summary,b.candidate_markdown,b.review_mode FROM proposal_batches b JOIN jobs j ON b.job_id=j.id JOIN tasks t ON j.task_id=t.id WHERE b.id=?1",
+        [id], |row| Ok((ReviewBatch {
             id: row.get(0)?, task_id: row.get(1)?, document_id: row.get(2)?, base_version_id: row.get(3)?, apply_head_id: row.get(4)?, status: row.get(5)?, mode: row.get(6)?, summary: row.get(7)?, candidate_markdown: row.get(8)?, proposals: Vec::new(),
-        }),
+            review_mode: Default::default(), review_plan: None, review_units: Vec::new(),
+        }, row.get::<_,String>(9)?)),
     ).optional().map_err(database_error)?.ok_or_else(|| AppError::invalid("제안 묶음을 찾을 수 없습니다."))?;
+    batch.review_mode = crate::domain::unit_review::ReviewMode::parse(&mode)?;
     batch.proposals = proposals(connection, id)?;
+    super::unit_review_queries::attach(connection, &mut batch)?;
     Ok(batch)
 }
 
@@ -27,7 +30,7 @@ pub fn base(connection: &Connection, batch: &ReviewBatch) -> Result<String, AppE
 }
 
 fn proposals(connection: &Connection, id: &str) -> Result<Vec<Proposal>, AppError> {
-    let mut statement = connection.prepare("SELECT id,revision,group_id,block_anchor,decision,validity FROM proposals WHERE batch_id=?1 AND decision!='SUPERSEDED' ORDER BY created_at,id").map_err(database_error)?;
+    let mut statement = connection.prepare("SELECT p.id,p.revision,p.group_id,p.block_anchor,p.decision,p.validity FROM proposals p LEFT JOIN review_units u ON u.id=p.group_id AND u.batch_id=p.batch_id WHERE p.batch_id=?1 AND ((u.id IS NULL AND p.decision!='SUPERSEDED') OR (u.id IS NOT NULL AND p.revision=u.review_revision)) ORDER BY p.created_at,p.id").map_err(database_error)?;
     let rows = statement
         .query_map([id], proposal_row)
         .map_err(database_error)?;
