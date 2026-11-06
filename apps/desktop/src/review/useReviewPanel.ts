@@ -3,6 +3,7 @@ import type { DocumentModel } from "../editor/useDocument";
 import type { ConversationResult } from "../generated/ConversationResult";
 import type { ReviewGroup } from "../generated/ReviewGroup";
 import type { ReviewProjection } from "../generated/ReviewProjection";
+import { useDocumentGeneration } from "../generation/generation-activity";
 import type { Approval } from "./ApprovalDialog";
 import type { LogicalSelection } from "./coordinates";
 import { groupAtSelection, groupJumpSelection } from "./group-selection";
@@ -35,13 +36,11 @@ export function useReviewPanel(props: Props) {
   const [regenerating, setRegenerating] = useState(false);
   const navigation = useNavigation(review.projection);
   const detail = useDetail(navigation.selected?.id ?? "");
-  const blocked = Boolean(
-    props.document.status.error ||
-      props.document.status.dirty ||
-      props.document.status.saving ||
-      review.state.generating ||
-      regenerating ||
-      review.error,
+  const generating = useDocumentGeneration(props.document.state.document.id);
+  const blocked = reviewBlocked(
+    props.document,
+    review,
+    regenerating || generating,
   );
   const approval = useApproval({
     review,
@@ -50,6 +49,7 @@ export function useReviewPanel(props: Props) {
     blocked,
   });
   return {
+    requestedResult: props.requestedResult,
     review,
     history,
     selectedRequest,
@@ -244,4 +244,19 @@ function chooseGroup(
     selection: target,
     serial: (previous?.serial ?? 0) + 1,
   }));
+}
+
+function reviewBlocked(
+  document: DocumentModel,
+  review: ReturnType<typeof useReview>,
+  regenerating: boolean,
+) {
+  return Boolean(
+    document.status.error ||
+      document.status.dirty ||
+      document.status.saving ||
+      review.state.generating ||
+      regenerating ||
+      review.error,
+  );
 }

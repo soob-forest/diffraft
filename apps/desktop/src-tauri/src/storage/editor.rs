@@ -18,6 +18,7 @@ use std::{fs::OpenOptions, os::unix::fs::OpenOptionsExt, path::Path};
 
 const MAX_GOAL_BYTES: usize = 4096;
 const MAX_RULES_BYTES: usize = 16 * 1024;
+const DEFAULT_TASK_NAME: &str = "새 작업";
 
 impl Store {
     pub fn workspace(&self) -> Result<AppSnapshot, AppError> {
@@ -57,8 +58,8 @@ impl Store {
         let connection = self.connection()?;
         queries::snapshot(&connection, &task.document_id)?;
         let changed = connection.execute(
-            "INSERT INTO tasks(id,document_id,goal,pinned_rules,created_at,summary_event_seq) VALUES(?1,?2,?3,?4,?5,?6) ON CONFLICT(id) DO UPDATE SET goal=excluded.goal,pinned_rules=excluded.pinned_rules WHERE tasks.document_id=excluded.document_id",
-            params![task.id, task.document_id, task.goal, task.pinned_rules, self.runtime.now_ms()?, queries::next_sequence(&connection)? - 1],
+            "INSERT INTO tasks(id,document_id,goal,pinned_rules,created_at,summary_event_seq,name) VALUES(?1,?2,?3,?4,?5,?6,COALESCE(?7,?8)) ON CONFLICT(id) DO UPDATE SET goal=excluded.goal,pinned_rules=excluded.pinned_rules,name=COALESCE(?7,tasks.name) WHERE tasks.document_id=excluded.document_id",
+            params![task.id, task.document_id, task.goal, task.pinned_rules, self.runtime.now_ms()?, queries::next_sequence(&connection)? - 1, task.name, if task.goal.trim().is_empty() { DEFAULT_TASK_NAME } else { &task.goal }],
         ).map_err(database_error)?;
         if changed != 1 {
             return Err(AppError::invalid("다른 문서의 작업을 변경할 수 없습니다."));
@@ -118,22 +119,28 @@ pub(super) fn read_state(
 fn validate_task(task: &TaskSnapshot) -> Result<(), AppError> {
     validate_id(&task.id)?;
     validate_id(&task.document_id)?;
-    if task.goal.trim().is_empty()
-        || task.goal.len() > MAX_GOAL_BYTES
+    if task.name.as_ref().is_some_and(|name| {
+        name.trim().is_empty() || name.len() > MAX_GOAL_BYTES || name.contains('\0')
+    }) {
+        return Err(AppError::invalid(
+            "작업 이름은 내용이 있는 4,096바이트 이내로 입력해 주세요.",
+        ));
+    }
+    if task.goal.len() > MAX_GOAL_BYTES
         || task.pinned_rules.len() > MAX_RULES_BYTES
         || task.goal.contains('\0')
         || task.pinned_rules.contains('\0')
         || !task.summary.is_empty()
     {
         return Err(AppError::invalid(
-            "작업 목표는 1~4,096바이트, 고정 조건은 16 KiB 이내로 입력해 주세요. 요약은 직접 변경할 수 없습니다.",
+            "지속 방향은 4,096바이트, 유지 조건은 16 KiB 이내로 입력해 주세요. 요약은 직접 변경할 수 없습니다.",
         ));
     }
     Ok(())
 }
 
 fn tasks(connection: &rusqlite::Connection, document: &str) -> Result<Vec<TaskSnapshot>, AppError> {
-    let mut statement = connection.prepare("SELECT id,document_id,goal,pinned_rules,summary FROM tasks WHERE document_id=?1 ORDER BY created_at,id").map_err(database_error)?;
+    let mut statement = connection.prepare("SELECT id,document_id,goal,pinned_rules,summary,name FROM tasks WHERE document_id=?1 ORDER BY created_at,id").map_err(database_error)?;
     statement
         .query_map([document], |row| {
             Ok(TaskSnapshot {
@@ -142,6 +149,7 @@ fn tasks(connection: &rusqlite::Connection, document: &str) -> Result<Vec<TaskSn
                 goal: row.get(2)?,
                 pinned_rules: row.get(3)?,
                 summary: row.get(4)?,
+                name: row.get(5)?,
             })
         })
         .map_err(database_error)?

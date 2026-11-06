@@ -61,8 +61,8 @@ export async function prepareFollowupReview(name) {
 export async function closeFollowupDetail() {
   if (await $("button=본문으로 돌아가기").isDisplayed())
     await $("button=본문으로 돌아가기").click();
-  else if (await $("button=작업 패널 접기").isDisplayed())
-    await $("button=작업 패널 접기").click();
+  else if (await $("button=요청·상세 접기").isDisplayed())
+    await $("button=요청·상세 접기").click();
   await settleUnitDisplay();
 }
 

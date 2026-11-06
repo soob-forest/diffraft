@@ -55,7 +55,7 @@ async function verifyResumeReviewAndExport() {
     await $(".unit-comments textarea").getValue(),
     "재실행 뒤 이어 쓸 의견",
   );
-  await $("button=코멘트 저장").click();
+  await $("button=코멘트 등록").click();
   await browser.waitUntil(
     async () => (await $(".unit-comments textarea").getValue()) === "",
   );

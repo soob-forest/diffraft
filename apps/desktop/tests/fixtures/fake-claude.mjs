@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import { readFile, writeFile } from "node:fs/promises";
 import { layoutResponse } from "./layout.mjs";
 import { selectedModel } from "./model-arguments.mjs";
+import { verifyQuestion } from "./verify-question.mjs";
 
 const examples = new URL("../../../../docs/examples/", import.meta.url);
 const mode = process.argv[2];
@@ -32,6 +33,7 @@ if (mode === "malformed" || mode === "MALFORMED_DELAY") {
   process.exit(0);
 }
 const request = JSON.parse(input);
+verifyQuestion(request);
 const resumeIndex = process.argv.indexOf("--resume");
 let sessionId =
   resumeIndex >= 0
@@ -140,8 +142,7 @@ if (
     .replace("출발 전 10분", "출발 전 20분")
     .replace("완료한 준비는", "여행 기록을 마치면 완료한 준비는");
 } else if (mode === "REWRITE" || mode === "REWRITE_DELAY") {
-  if (mode === "REWRITE_DELAY")
-    await new Promise((resolve) => setTimeout(resolve, REPLY_DELAY_MS));
+  if (mode === "REWRITE_DELAY") await pauseRewrite();
   response.mode = "REWRITE";
   response.summary = "상황별 실행 가이드";
   response.candidate_markdown = await readFile(
@@ -181,3 +182,29 @@ if (mode === "EXPLAIN_CANCEL_RACE") {
   await writeFile("generation-ready", request.taskId);
   setInterval(() => {}, 1000);
 } else process.stdout.write(output);
+
+async function holdRewrite() {
+  await writeFile("rewrite-ready", "ready");
+  const deadline = Date.now() + 10_000;
+  while (Date.now() < deadline) {
+    try {
+      await readFile("rewrite-release");
+      return;
+    } catch (error) {
+      if (error.code !== "ENOENT") throw error;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 20));
+  }
+  throw new Error("synthetic rewrite release timeout");
+}
+
+async function pauseRewrite() {
+  try {
+    await readFile("rewrite-hold");
+  } catch (error) {
+    if (error.code !== "ENOENT") throw error;
+    await new Promise((resolve) => setTimeout(resolve, REPLY_DELAY_MS));
+    return;
+  }
+  await holdRewrite();
+}

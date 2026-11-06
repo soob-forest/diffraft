@@ -9,6 +9,9 @@ use super::document::{DocumentSnapshot, VersionSummary};
 pub struct TaskSnapshot {
     pub id: String,
     pub document_id: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[ts(optional)]
+    pub name: Option<String>,
     pub goal: String,
     pub pinned_rules: String,
     pub summary: String,

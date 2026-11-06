@@ -12,29 +12,31 @@ import {
   prepareRequest,
   prepareRetry,
 } from "./request";
+import { useRequestInvalidation } from "./request-invalidation";
+import { submitDraft } from "./submit-request";
 import { useRequestDraft } from "./useRequestDraft";
 
 export function useGeneration(props: GenerationProps) {
   const drafts = useDraftPersistence();
   const draft = useRequestDraft(props.model.state.document.id, props.taskId);
-  const { mode, instruction } = draft;
   const { pending, setPending } = draft;
   const operation = useGenerationOperation(props);
-  const prepare = () =>
-    operation.run(async () => {
-      if (draft.locked) return;
-      const prepared = await prepareRequest(props, mode, instruction);
-      await drafts.flush();
-      if (operation.active.current) setPending(prepared);
-    });
-  const generate = () =>
-    operation.run(() => submitDraft(draft, operation.send, drafts.flush));
-  const retry = (attempt: GenerationAttempt) =>
-    operation.run(async () => {
-      await drafts.flush();
-      await operation.send(await prepareRetry(props, attempt));
-    });
+  const { prepare, generate, retry } = requestActions(
+    props,
+    draft,
+    drafts,
+    operation,
+  );
   usePendingValidity({ props, pending, setPending, operation });
+  useRequestInvalidation(() => {
+    operation.contextRevision.current += 1;
+    if (pending) {
+      setPending(null);
+      operation.setMessage(
+        "조건 또는 AI 설정이 바뀌었습니다. 요청 내용을 다시 확인해 주세요.",
+      );
+    }
+  });
   useInitialPreparation(draft, prepare);
   return {
     ...draft,
@@ -52,28 +54,6 @@ export function useGeneration(props: GenerationProps) {
   };
 }
 
-async function submitDraft(
-  draft: ReturnType<typeof useRequestDraft>,
-  send: (request: SavedGenerationRequest) => Promise<void>,
-  flush: () => Promise<void>,
-) {
-  if (draft.locked || !draft.pending) return;
-  const pending = draft.pending;
-  const submitted = draft.beginSubmitted();
-  try {
-    await flush();
-    await send(
-      pending.kind === "rewrite"
-        ? { kind: "rewrite", value: pending.request }
-        : { kind: "generate", value: pending.request },
-    );
-    draft.clearSubmitted(submitted);
-  } catch (reason) {
-    draft.clearPending(submitted);
-    throw reason;
-  }
-}
-
 function usePendingValidity({
   props,
   pending,
@@ -89,6 +69,8 @@ function usePendingValidity({
     if (
       pending &&
       (props.model.status.dirty ||
+        props.model.status.error ||
+        props.model.status.saving ||
         props.model.autosave.document.versionId !==
           pending.request.expectedHeadId)
     ) {
@@ -100,6 +82,8 @@ function usePendingValidity({
   }, [
     pending,
     props.model.status.dirty,
+    props.model.status.error,
+    props.model.status.saving,
     props.model.autosave.document.versionId,
     operation.setMessage,
     setPending,
@@ -111,6 +95,7 @@ function useGenerationOperation(props: GenerationProps) {
   const [message, setMessage] = useState("");
   const running = useRef(false);
   const active = useRef(true);
+  const contextRevision = useRef(0);
   useEffect(() => {
     active.current = true;
     return () => {
@@ -147,7 +132,7 @@ function useGenerationOperation(props: GenerationProps) {
     );
     if (result === "proposal") props.onProposal();
   };
-  return { busy, message, setMessage, run, send, active };
+  return { busy, message, setMessage, run, send, active, contextRevision };
 }
 
 function useInitialPreparation(
@@ -191,4 +176,45 @@ function editRequest(
   } catch (reason) {
     context.setMessage(errorMessage(reason));
   }
+}
+
+function requestActions(
+  props: GenerationProps,
+  draft: ReturnType<typeof useRequestDraft>,
+  drafts: ReturnType<typeof useDraftPersistence>,
+  operation: ReturnType<typeof useGenerationOperation>,
+) {
+  const { mode, instruction, setPending } = draft;
+  const prepare = () =>
+    operation.run(async () => {
+      if (draft.locked) return;
+      const revision = operation.contextRevision.current;
+      const prepared = await prepareRequest(
+        props,
+        mode,
+        instruction,
+        draft.snapshot,
+      );
+      await drafts.flush();
+      if (revision !== operation.contextRevision.current)
+        throw new Error(
+          "조건 또는 AI 설정이 바뀌었습니다. 요청 내용을 다시 확인해 주세요.",
+        );
+      if (operation.active.current) setPending(prepared);
+    });
+  const generate = () =>
+    operation.run(() =>
+      submitDraft(
+        draft,
+        operation.send,
+        drafts.flush,
+        () => operation.active.current,
+      ),
+    );
+  const retry = (attempt: GenerationAttempt) =>
+    operation.run(async () => {
+      await drafts.flush();
+      await operation.send(await prepareRetry(props, attempt));
+    });
+  return { prepare, generate, retry };
 }

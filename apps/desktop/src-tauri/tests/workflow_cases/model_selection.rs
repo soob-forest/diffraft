@@ -16,6 +16,7 @@ use std::{
 
 pub(super) fn request(world: &World, task: &str, model: ModelSelection) -> GenerateRequest {
     GenerateRequest {
+        question: None,
         model: model.into(),
         document_id: world.document.id.clone(),
         task_id: task.into(),
@@ -239,7 +240,7 @@ fn v6_upgrade_preserves_history_and_marks_old_execution_model_unknown() {
         .configure_database_for_test(|db| {
             assert_eq!(
                 db.pragma_query_value(None, "user_version", |row| row.get::<_, u32>(0))?,
-                11
+                12
             );
             assert_eq!(
                 db.query_row("SELECT requested_model FROM job_executions", [], |row| {

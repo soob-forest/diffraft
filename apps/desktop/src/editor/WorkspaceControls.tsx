@@ -57,7 +57,7 @@ export function WorkspaceControls({
         aria-controls="task-panel"
         onClick={() => setTasksOpen((value) => !value)}
       >
-        {tasksOpen ? "작업 패널 접기" : "작업·AI 요청 열기"}
+        {tasksOpen ? "요청·상세 접기" : "AI 요청·변경 상세 열기"}
       </button>
     </div>
   );

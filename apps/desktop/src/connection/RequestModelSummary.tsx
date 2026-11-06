@@ -34,7 +34,12 @@ export function RequestModelSummary() {
   return (
     <div className="request-model-summary">
       <span>새 요청의 AI: {label}</span>
-      <ConnectionSettings label="AI 변경" onClose={() => void reload()} />
+      <ConnectionSettings
+        label="AI 변경"
+        onClose={() => {
+          void reload();
+        }}
+      />
     </div>
   );
 }

@@ -26,6 +26,7 @@ export type DiffPaneProps = {
   onSelectionIssue?: (value: string) => void;
   onSelectionPosition?: (position: SelectionPosition | null) => void;
   onEditSelection?: () => void;
+  onDismissSelection?: () => void;
   onGroupSelect?: (id: string) => void;
   onExpand: (key: string) => void;
   onMove: (direction: number) => void;

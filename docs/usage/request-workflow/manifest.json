@@ -1,0 +1,227 @@
+{
+  "build": {
+    "id": "05a59e436eb900b6-e2e",
+    "sourceHash": "05a59e436eb900b6c9575f01e1adc1efca2017377d19e576cbd61bd250301cd6",
+    "binaryHash": "c3ace2f98babdc35a2236c98a909570c6deab7569da6ec3e8a1b2591ba29b1bf",
+    "profile": "e2e",
+    "version": "0.1.0",
+    "builtAt": "2026-11-05T13:28:31.563Z"
+  },
+  "windowBasis": "outer",
+  "limits": [
+    "사용자 지정: 현재 화면에서 가능한 검사만 진행. 1440×900은 macOS가 1440×892로 제한하므로 실제 창·viewport를 측정에 기록; 정확한 900px 높이는 미확인."
+  ],
+  "sizes": [
+    [
+      1440,
+      900
+    ],
+    [
+      1280,
+      800
+    ],
+    [
+      800,
+      600
+    ]
+  ],
+  "zoom": [
+    1,
+    1.5,
+    2
+  ],
+  "grids": [
+    {
+      "state": "first-request",
+      "metadata": "first-request-layout.json",
+      "cases": 9
+    },
+    {
+      "state": "proposal-question",
+      "metadata": "proposal-question-layout.json",
+      "cases": 9
+    },
+    {
+      "state": "unit-question",
+      "metadata": "unit-question-layout.json",
+      "cases": 9
+    },
+    {
+      "state": "completed",
+      "metadata": "completed-layout.json",
+      "cases": 9
+    },
+    {
+      "state": "short-review",
+      "metadata": "short-review-layout.json",
+      "cases": 9
+    }
+  ],
+  "screenshots": [
+    {
+      "file": "first-request-1440-1.png",
+      "label": "첫 확인 취소 후 같은 작업에서 요청을 이어 쓰는 상태",
+      "sha256": "7f7256b1fe4af09bc83b1b91ea6bc85adae2a3b96de9b750d54cbd32ef44c74f",
+      "pixels": [
+        2880,
+        1784
+      ],
+      "capturedAt": "2026-11-05T13:46:03.428Z",
+      "measurement": {
+        "file": "first-request-layout.json",
+        "index": 0
+      }
+    },
+    {
+      "file": "proposal-question-1440-1.png",
+      "label": "선택한 후보의 전후 내용을 고정한 질문",
+      "sha256": "92657adf293473f60395edecc1b3d5b4ff780334e79edaaf54e0a0ce35c1eddc",
+      "pixels": [
+        2880,
+        1784
+      ],
+      "capturedAt": "2026-11-05T13:46:21.826Z",
+      "measurement": {
+        "file": "proposal-question-layout.json",
+        "index": 0
+      }
+    },
+    {
+      "file": "unit-question-1440-1.png",
+      "label": "변경 단위 전체를 대상으로 하는 질문",
+      "sha256": "a6ac4a903904581f1e147104f07ce510fed44f5fe3f5294e3e6fd5186eb46d81",
+      "pixels": [
+        2880,
+        1784
+      ],
+      "capturedAt": "2026-11-05T13:46:36.859Z",
+      "measurement": {
+        "file": "unit-question-layout.json",
+        "index": 0
+      }
+    },
+    {
+      "file": "completed-1440-1.png",
+      "label": "실제 결정 수를 보여 주는 검토 완료",
+      "sha256": "1c9ce96b480942fd09333ffc65cdefb182eee96feac7b7fbc013ba62a0f59e3a",
+      "pixels": [
+        2880,
+        1784
+      ],
+      "capturedAt": "2026-11-05T13:31:05.797Z",
+      "measurement": {
+        "file": "completed-layout.json",
+        "index": 0
+      }
+    },
+    {
+      "file": "unit-1280-1-selected.png",
+      "label": "선택한 변경 본문과 결정 행동",
+      "sha256": "1500cf6b229cd5392b3e565b1369e3c73633dcb9898c19693980df0be83da313",
+      "pixels": [
+        2560,
+        1600
+      ],
+      "capturedAt": "2026-11-05T13:41:20.608Z",
+      "measurement": {
+        "file": "unit-1280-1-selected.json"
+      }
+    },
+    {
+      "file": "unit-800-2-error.png",
+      "label": "800×600·200%에서 코멘트 등록 오류와 재시도",
+      "sha256": "95d275f7613f0d1f997e44c5963276d19e54f5a00848c46c7e4deeae53d5f16d",
+      "pixels": [
+        1600,
+        1200
+      ],
+      "capturedAt": "2026-11-05T13:42:32.599Z",
+      "measurement": {
+        "file": "unit-800-2-error.json"
+      }
+    },
+    {
+      "file": "unit-800-2-processed.png",
+      "label": "800×600·200%에서 처리한 변경 읽기",
+      "sha256": "c1bcef3b4b7758e2aa19e5431b245477bdb43864cfd27280446cef8669e17a69",
+      "pixels": [
+        1600,
+        1200
+      ],
+      "capturedAt": "2026-11-05T13:41:55.199Z",
+      "measurement": {
+        "file": "unit-800-2-processed.json"
+      }
+    },
+    {
+      "file": "short-review-800-2.png",
+      "label": "800×600·200%에서 짧은 삭제·추가와 결정 동시 읽기",
+      "sha256": "9fb4328afbb44c751c2428a5669b8be80f30143a3034ce2d940784c613e15bc7",
+      "pixels": [
+        1600,
+        1200
+      ],
+      "capturedAt": "2026-11-05T13:40:54.147Z",
+      "measurement": {
+        "file": "short-review-layout.json",
+        "index": 8
+      }
+    },
+    {
+      "file": "followup-source-resumed.png",
+      "label": "다른 본문 클릭으로 닫은 원문 초안을 같은 인용과 지시로 이어쓰기",
+      "sha256": "a0a23d41fccbf830e9727bf173e0fa1540a170da91f71ee29aee1ade73a9b625",
+      "pixels": [
+        2880,
+        1782
+      ],
+      "capturedAt": "2026-11-05T13:45:48.400Z",
+      "measurement": {
+        "scenario": "request-followup"
+      }
+    },
+    {
+      "file": "followup-candidate-resumed.png",
+      "label": "후보 클릭으로 미전송 확인을 해제하고 같은 선택 수정 초안 이어쓰기",
+      "sha256": "b0df8b7df992faf3b9e74e07c97977bf1103698b64a981fe268652175fc81fd8",
+      "pixels": [
+        2880,
+        1782
+      ],
+      "capturedAt": "2026-11-05T13:45:50.745Z",
+      "measurement": {
+        "scenario": "request-followup"
+      }
+    },
+    {
+      "file": "followup-dismiss-save-failed.png",
+      "label": "저장 실패로 클릭 취소를 보류하고 입력과 복구 행동 유지",
+      "sha256": "b139b1131490d6c15a54d993bb489865026417964581aa42ba7f73568af7ccae",
+      "pixels": [
+        2880,
+        1782
+      ],
+      "capturedAt": "2026-11-05T13:45:51.883Z",
+      "measurement": {
+        "scenario": "request-followup"
+      }
+    },
+    {
+      "file": "followup-model-renewed.png",
+      "label": "설정 조회는 확인을 유지하고 모델 저장 뒤 최신 모델 재확인·전송",
+      "sha256": "5af102db95273d2b535e93abf772bb8c7c78e7cb00daa25144813701e92ad92f",
+      "pixels": [
+        2880,
+        1782
+      ],
+      "capturedAt": "2026-11-05T13:45:46.861Z",
+      "measurement": {
+        "scenario": "request-followup"
+      }
+    }
+  ],
+  "manualAcceptance": {
+    "AC15": "미실행",
+    "AC16": "미실행"
+  }
+}

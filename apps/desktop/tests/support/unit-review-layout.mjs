@@ -133,7 +133,7 @@ export async function checkUnitCommentErrorLayout() {
         assert.match(await $(".unit-comments").getText(), /저장할 수 없습니다/);
         assert.equal(
           await $(".unit-comments button[type=submit]").getText(),
-          "코멘트 다시 저장",
+          "코멘트 다시 등록",
         );
       }
   } finally {
@@ -169,8 +169,8 @@ function assertScrollRestored(before, after) {
 async function closeDetail() {
   if (await $("button=본문으로 돌아가기").isDisplayed())
     await $("button=본문으로 돌아가기").click();
-  else if (await $("button=작업 패널 접기").isDisplayed())
-    await $("button=작업 패널 접기").click();
+  else if (await $("button=요청·상세 접기").isDisplayed())
+    await $("button=요청·상세 접기").click();
   await settleUnitLayout();
 }
 

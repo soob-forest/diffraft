@@ -3,8 +3,10 @@ import { createPortal } from "react-dom";
 import { NavigationSlot } from "../editor/NavigationSlots";
 import type { DocumentModel } from "../editor/useDocument";
 import { useReviewSurface } from "../editor/WorkspacePanels";
+import { QuestionTarget } from "../generation/QuestionTarget";
 import { BatchActions } from "../rewrite/BatchActions";
 import { AppliedVersion } from "./AppliedVersion";
+import { ChangeQuestionEntry } from "./ChangeQuestionEntry";
 import { UnitComments } from "./UnitComments";
 import { UnitReviewDiff } from "./UnitReviewDiff";
 import { UnitReviewNavigation } from "./UnitReviewNavigation";
@@ -99,6 +101,10 @@ function UnitReviewDetail({
       {surface?.detail &&
         createPortal(
           <>
+            {controller.requestedQuestion && (
+              <QuestionTarget question={controller.requestedQuestion} />
+            )}
+            <UnitFollowup projection={projection} controller={controller} />
             {navigation.selected && (
               <UnitComments
                 key={navigation.selected.id}
@@ -180,6 +186,45 @@ function UnitBatchOptions({
           versionId={panel.actions.appliedVersion}
         />
       )}
+    </>
+  );
+}
+
+function UnitFollowup({
+  projection,
+  controller,
+}: {
+  projection: NonNullable<Panel["review"]["projection"]>;
+  controller: UnitReviewController;
+}) {
+  const surface = useReviewSurface();
+  const { navigation, blocked } = controller;
+  return (
+    <>
+      {" "}
+      {navigation.selected && (
+        <ChangeQuestionEntry
+          blocked={blocked}
+          request={{
+            documentId: projection.batch.documentId,
+            taskId: projection.batch.taskId,
+            batchId: projection.batch.id,
+            expectedHeadId: projection.currentHeadId,
+            subject: {
+              kind: "unit",
+              id: navigation.selected.id,
+              revision: navigation.selected.reviewRevision,
+            },
+          }}
+        />
+      )}
+      <p>
+        변경별 검토에서는 후보를 직접 수정하지 않습니다. 확정본에서 수정할
+        원문을 다시 선택해 주세요.
+      </p>
+      <button type="button" onClick={() => surface?.showSource()}>
+        확정본에서 새 요청
+      </button>
     </>
   );
 }

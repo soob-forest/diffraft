@@ -2,13 +2,16 @@ import { invoke } from "@tauri-apps/api/core";
 import type { AiPreferences } from "../generated/AiPreferences";
 import type { AiSettingsAction } from "../generated/AiSettingsAction";
 import type { ProviderModel } from "../generated/ProviderModel";
+import { requestInputChanged } from "../generation/request-invalidation";
 import { SCHEMA_VERSION } from "../ipc";
 import { MODEL_LABELS } from "./model";
 
-export function aiSettings(action: AiSettingsAction) {
-  return invoke<AiPreferences>("ai_settings_command", {
+export async function aiSettings(action: AiSettingsAction) {
+  const saved = await invoke<AiPreferences>("ai_settings_command", {
     request: { schemaVersion: SCHEMA_VERSION, action },
   });
+  if (action.kind !== "read") requestInputChanged();
+  return saved;
 }
 export function resolveModel() {
   return invoke<ProviderModel>("resolve_request_model", {

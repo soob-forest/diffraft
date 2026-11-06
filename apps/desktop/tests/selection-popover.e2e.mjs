@@ -5,6 +5,10 @@ import { createTask, terminal } from "./support/generation-fixture.mjs";
 import { editor, invoke, prepare, root } from "./support/review-fixture.mjs";
 import { chooseGroup } from "./support/review-ui.mjs";
 import { selectSource } from "./support/source-ui.mjs";
+import {
+  foregroundUnitDisplay,
+  readUnitDisplayState,
+} from "./support/unit-review-display.mjs";
 import { selectDiffText } from "./support/ux-ui.mjs";
 
 let fixture;
@@ -154,9 +158,17 @@ async function sourceOverlap() {
   await $("button=원문").click();
 }
 describe("선택 위치의 팝오버와 원문 부분 요청", () => {
+  beforeEach(async () => {
+    await foregroundUnitDisplay(1);
+  });
   afterEach(async function () {
-    if (this.currentTest.state === "failed")
+    if (this.currentTest.state === "failed") {
       await browser.saveScreenshot(".artifacts/selection-popover/failure.png");
+      await writeFile(
+        ".artifacts/selection-popover/failure-display.json",
+        JSON.stringify(await readUnitDisplayState()),
+      );
+    }
   });
   it(
     "diff 팝오버의 수정·코멘트와 인용을 연결하고 상단 중복을 제거한다",

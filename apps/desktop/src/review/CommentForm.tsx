@@ -46,7 +46,7 @@ export function CommentForm(props: Props) {
             !form.text.trim()
           }
         >
-          코멘트 저장
+          코멘트 등록
         </button>
         <CommentStatus form={form} blocked={props.blocked} />
         <CommentNextStep
@@ -171,13 +171,13 @@ function CommentStatus({ form, blocked }: { form: Form; blocked: boolean }) {
     <>
       {blocked && (
         <p role="status">
-          문서 저장과 진행 중인 요청·검토 상태를 확인한 뒤 코멘트를 저장할 수
+          문서 저장과 진행 중인 요청·검토 상태를 확인한 뒤 코멘트를 등록할 수
           있습니다. 초안은 유지됩니다.
         </p>
       )}
       {form.message && <p role="status">{form.message}</p>}
       <p className="comment-save-help">
-        저장만으로 AI 요청이 시작되지 않습니다.
+        등록만으로 AI 요청이 시작되지 않습니다.
       </p>
     </>
   );
@@ -197,9 +197,9 @@ export function CommentNextStep({
   const disabled = blocked || busy || Boolean(text);
   return (
     <div className="comment-next-step">
-      <h4>저장 후 다음 행동</h4>
+      <h4>등록 후 다음 행동</h4>
       <p>
-        이 변경의 저장된 코멘트를 반영해 다시 제안받을 수 있습니다. 새 후보도
+        이 변경의 등록된 코멘트를 반영해 다시 제안받을 수 있습니다. 새 후보도
         승인 전에는 원문을 바꾸지 않습니다.
       </p>
       <button
@@ -213,7 +213,7 @@ export function CommentNextStep({
       </button>
       {disabled && (
         <p role="status">
-          미저장 코멘트와 진행 중인 저장·요청을 확인해 주세요. 코멘트 저장 완료
+          미등록 코멘트와 진행 중인 저장·요청을 확인해 주세요. 코멘트 등록 완료
           후 이동할 수 있습니다.
         </p>
       )}

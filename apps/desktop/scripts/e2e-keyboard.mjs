@@ -7,6 +7,11 @@ export async function prepareKeyboard(scenarios, app) {
     scenarios.some(
       (phases) =>
         phases.includes("codex-keyboard") ||
+        phases.includes("request-workflow") ||
+        phases.includes("request-followup") ||
+        phases.includes("selection-popover") ||
+        phases.includes("ux-reliability") ||
+        phases.includes("review") ||
         phases.includes("rewrite-review") ||
         phases.includes("ux-local") ||
         phases.includes("review-followup") ||

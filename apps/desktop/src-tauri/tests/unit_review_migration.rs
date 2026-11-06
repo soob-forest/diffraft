@@ -3,7 +3,7 @@ mod fixture;
 mod support;
 use docreview_core::{domain::unit_review::ReviewMode, storage::Store};
 use fixture::UnitWorld;
-const DOWNGRADE: &str = "DROP TABLE unit_comments; DROP TABLE review_units; DROP TABLE review_plans; ALTER TABLE proposal_batches DROP COLUMN review_mode; PRAGMA user_version=10;";
+const DOWNGRADE: &str = "DROP TABLE first_request_drafts; ALTER TABLE tasks DROP COLUMN name; DROP TABLE unit_comments; DROP TABLE review_units; DROP TABLE review_plans; ALTER TABLE proposal_batches DROP COLUMN review_mode; PRAGMA user_version=10;";
 
 #[test]
 fn schema_10_upgrade_preserves_candidates_jobs_and_source_with_backup() {
@@ -31,7 +31,7 @@ fn schema_10_upgrade_preserves_candidates_jobs_and_source_with_backup() {
         assert_eq!(
             db.pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
                 .unwrap(),
-            11
+            12
         );
         assert_backup(&data);
         assert_eq!(

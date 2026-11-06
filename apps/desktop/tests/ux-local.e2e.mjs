@@ -154,10 +154,10 @@ async function verifyLocalCandidateEdit() {
     fixture.base,
   );
   await browser.waitUntil(async () =>
-    (await $(".proposal-details").getText()).includes("새 후보 · r3 · 미승인"),
+    (await $(".proposal-details").getText()).includes("수정안 3 · 미승인"),
   );
   await $("button=선택한 변경 승인").waitForEnabled();
-  await $("button=이전 후보와 비교").click();
+  await $("button=이전 수정안과 비교").click();
   await $(".historical-diff .diff-pane").waitForDisplayed();
   assert.equal(await $("button=선택한 변경 승인").isDisplayed(), false);
   await browser.saveScreenshot(".artifacts/ux/proposal-history.png");
@@ -224,18 +224,11 @@ async function verifyFirstTaskConfirmation() {
   await browser.waitUntil(
     async () => (await $(".document-toolbar h1").getText()) === "새 문서",
   );
-  await $(".task-conditions textarea[required]").waitForDisplayed();
-  await $(".task-conditions textarea[required]").setValue(
-    "첫 요청을 함께 작성",
+  await $(".first-request .request-form textarea").waitForDisplayed();
+  await $(".first-request .request-form textarea").setValue(
+    "사실을 유지하고 간결하게 안내",
   );
-  await $(
-    '.task-conditions textarea[placeholder="예: 수치를 유지하고 이 안내를 간결하게 다듬어 주세요."]',
-  ).setValue("사실을 유지하고 간결하게 안내");
-  assert.equal(
-    await $(".task-conditions textarea[required]").getValue(),
-    "첫 요청을 함께 작성",
-  );
-  await $("button=작업 만들고 요청 확인").click();
+  await $(".first-request").$("button=요청 내용 확인").click();
   await $(".generation-dialog").waitForDisplayed();
   await browser.saveScreenshot(".artifacts/ux/first-request-confirm.png");
   await $("button=요청 취소").click();

@@ -73,10 +73,13 @@ export async function showOriginalUnitComparison() {
   assert.equal(await $(".unit-options-popup:popover-open").isExisting(), false);
 }
 export async function openRemainingApproval(count) {
-  await openUnitMenu();
-  const button = $(".unit-options-popup:popover-open").$(
-    `button=남은 변경 ${count}개 승인…`,
-  );
+  let button = $(".unit-bulk-accept");
+  if (!(await button.isDisplayed())) {
+    await openUnitMenu();
+    button = $(".unit-options-popup:popover-open").$(
+      `button=남은 ${count}개 승인…`,
+    );
+  }
   await button.waitForEnabled();
   await button.click();
   await $(".approval-dialog[open]").waitForDisplayed();

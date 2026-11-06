@@ -73,21 +73,15 @@ function useWorkspace(
   const conflict = useConflict(model);
   const [taskId, setTaskId] = useState(initial.selectedTaskId ?? "");
   const scope = useRequestScope(model.editorEpoch, initial.document.id, taskId);
-  const sourceRequest = useSourceRequest({
-    model,
+  const sourceRequest = useWorkspaceSource(model, {
     taskId,
     taskFlush,
-    onResult: entry.openResult,
-    onTask: (task) => {
-      model.taskSaved(task);
-      setTaskId(task.id);
-    },
-    show: () => {
-      setMode("source");
-      setTasksOpen(true);
-    },
+    setTaskId,
+    entry,
+    setMode,
+    setTasksOpen,
   });
-  useFlush(flushRef, taskFlush, model);
+  useFlush(flushRef, taskFlush, model, sourceRequest.firstConditions);
   return {
     ...workspaceNavigation({
       model,
@@ -112,8 +106,7 @@ function useWorkspace(
       if (value !== taskId) entry.clearResult();
       setTaskId(value);
     },
-    goal:
-      model.state.tasks.find((task) => task.id === taskId)?.goal || "새 작업",
+    goal: taskName(model, taskId),
   };
 }
 
@@ -121,6 +114,7 @@ function useFlush(
   flushRef: FlushRef,
   taskFlush: FlushRef,
   model: ReturnType<typeof useDocument>,
+  firstConditions: FlushRef,
 ) {
   const { autosave, gate } = model;
   useEffect(() => {
@@ -128,14 +122,47 @@ function useFlush(
       gate.assertIdle();
       await autosave.flushForLeave();
       gate.assertIdle();
+      await firstConditions.current?.();
       await taskFlush.current?.();
     };
     return () => {
       flushRef.current = null;
     };
-  }, [flushRef, taskFlush, autosave, gate]);
+  }, [flushRef, taskFlush, autosave, gate, firstConditions]);
 }
 
 function widePanel() {
   return window.innerWidth > SINGLE_PANEL_WIDTH;
+}
+
+function useWorkspaceSource(
+  model: ReturnType<typeof useDocument>,
+  ui: {
+    taskId: string;
+    taskFlush: FlushRef;
+    setTaskId: (id: string) => void;
+    entry: ReturnType<typeof useReviewEntry>;
+    setMode: (mode: DocumentMode) => void;
+    setTasksOpen: (value: boolean) => void;
+  },
+) {
+  return useSourceRequest({
+    model,
+    taskId: ui.taskId,
+    taskFlush: ui.taskFlush,
+    onResult: ui.entry.openResult,
+    onTask: (task) => {
+      model.taskSaved(task);
+      ui.setTaskId(task.id);
+    },
+    show: () => {
+      ui.setMode("source");
+      ui.setTasksOpen(true);
+    },
+  });
+}
+
+function taskName(model: ReturnType<typeof useDocument>, taskId: string) {
+  const task = model.state.tasks.find((task) => task.id === taskId);
+  return task?.name ?? task?.goal ?? "새 작업";
 }

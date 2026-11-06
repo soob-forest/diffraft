@@ -5,19 +5,20 @@ import { selectionCharacterCount } from "./selection-count";
 import type { Panel } from "./useReviewPanel";
 import type { useSelectedRequest } from "./useSelectedRequest";
 
+type SelectedFieldsProps = {
+  selection: ReturnType<typeof useSelectedRequest>;
+  comments?: Panel["review"]["state"]["comments"];
+  busy: boolean;
+  canPrepare?: boolean;
+  prepare: () => void;
+};
 export function SelectedFields({
   selection,
   comments = [],
   busy,
   canPrepare = true,
   prepare,
-}: {
-  selection: ReturnType<typeof useSelectedRequest>;
-  comments?: Panel["review"]["state"]["comments"];
-  busy: boolean;
-  canPrepare?: boolean;
-  prepare: () => void;
-}) {
+}: SelectedFieldsProps) {
   const draft = selection.draft,
     value = draft.value,
     target = value.target;
@@ -118,13 +119,15 @@ function SelectedScope({
           ? `원문${target.sourceVersion ? ` · v${target.sourceVersion}` : " · 확정본 기준"}`
           : target.kind === "rewrite"
             ? "전체 재작성 후보"
-            : `제안 내용 · r${target.expectedRevision}`}{" "}
+            : target.expectedRevision > 1
+              ? `수정안 ${target.expectedRevision}`
+              : "제안 내용"}{" "}
         · 선택한 {selectionCharacterCount(target.selection.quote)}자 · 대상 고정
       </p>
       <QuotePreview text={target.selection.quote} label="수정할 인용" />
       <p>
         {target.kind === "rewrite"
-          ? "이 부분만 다듬은 새 전체 후보입니다. 확정본 반영은 전체 적용으로 진행합니다."
+          ? "이 부분만 다듬은 새 전체 후보입니다. 전체 적용 또는 변경별 검토가 가능합니다."
           : target.kind === "confirmed"
             ? "현재 확정본 기준의 새 부분 제안입니다. 기존 미승인 묶음은 유지됩니다. 한 묶음을 승인하면 다른 묶음의 기준은 변경됩니다."
             : "이 부분만 다시 다듬습니다. 확정본 반영은 연결된 변경 그룹 단위입니다."}

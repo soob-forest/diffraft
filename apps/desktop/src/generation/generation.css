@@ -75,3 +75,39 @@
   justify-content: flex-end;
   gap: 8px;
 }
+.task-management,
+.task-condition-details {
+  margin-top: 20px;
+}
+.task-condition-details label,
+.first-request label {
+  display: grid;
+  gap: 6px;
+  margin-block: 12px;
+}
+.task-condition-details :is(input, textarea),
+.first-request :is(input, textarea, select) {
+  width: 100%;
+  min-width: 0;
+  font: inherit;
+}
+.question-target {
+  margin-block: 12px;
+  line-height: 1.6;
+}
+.question-target pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  max-height: 220px;
+  overflow: auto;
+}
+.request-effects {
+  color: #405367;
+  font-size: 14px;
+  line-height: 1.65;
+}
+.request-form label:has(select) {
+  display: grid;
+  gap: 6px;
+  margin-block: 12px;
+}

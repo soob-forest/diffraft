@@ -55,6 +55,7 @@ fn explain(store: &Store, task: &str) {
         store,
         &CliLauncher::Installed,
         GenerateRequest {
+            question: None,
             model: Default::default(),
             document_id: head.id,
             task_id: task.into(),
@@ -81,6 +82,7 @@ fn synthetic_store(directory: &Path) -> (Store, String, PathBuf) {
     let document = store.open_document(&path).unwrap();
     let task = store
         .put_task(TaskSnapshot {
+            name: None,
             id: id(),
             document_id: document.id,
             goal: "Compatibility".into(),

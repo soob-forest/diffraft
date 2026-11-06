@@ -9,6 +9,7 @@ vi.mock("react", () => ({
   useState: (initial: unknown) => [initial, () => {}],
 }));
 vi.mock("../src/drafts/SessionDrafts", () => ({
+  useDraftPersistence: () => ({ store: context.store }),
   useSessionDraft: (key: string, initial: unknown) => ({
     value: context.store.read(key, initial),
     locked: context.store.isBlocked(key),
@@ -72,4 +73,25 @@ it("restores a pinned source after restart but rejects changed source", () => {
   expect(restored.selection).toMatchObject({ from: 3, to: 5 });
   expect(restored.value(source)).toEqual({ kind: "selection", from: 3, to: 5 });
   expect(() => restored.value("변경된 원문")).toThrow(/원문/);
+});
+
+it("pins a section independently of the live editor selection and restores it", () => {
+  const scope = useRequestScope(0, "document", "task");
+  scope.captureSection(12);
+  const restored = useRequestScope(0, "document", "task");
+  expect(restored.selection).toEqual({ from: 12, to: 12, cursor: 12 });
+  expect(restored.value("saved source")).toEqual({
+    kind: "section",
+    cursor: 12,
+  });
+});
+
+it("requires explicit confirmation for an older unpinned section draft", () => {
+  context.store.write('["source-scope","document","task"]', {
+    kind: "section",
+    captured: null,
+  });
+  expect(() => useRequestScope(0, "document", "task").value("source")).toThrow(
+    /섹션/,
+  );
 });

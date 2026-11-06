@@ -85,7 +85,7 @@ function useCommentSave({
       await persistComment(props, side, submitted);
       draft.replace(submitted, empty);
       setMessage(
-        "코멘트를 저장했습니다. AI 재제안은 ‘코멘트 반영 재제안 작성’에서 요청해 주세요.",
+        "코멘트를 등록했습니다. AI 재제안은 ‘코멘트 반영 재제안 작성’에서 요청해 주세요.",
       );
       props.onSaved();
     } catch (error) {

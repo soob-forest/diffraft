@@ -37,8 +37,10 @@ function Comment({
             : "열림"}
       </strong>
       <small>
-        {comment.anchor.side === "before" ? "변경 전" : "변경 후"} · 원래 후보 r
-        {comment.anchor.proposalRevision}
+        {comment.anchor.side === "before" ? "변경 전" : "변경 후"}
+        {comment.anchor.proposalRevision > 1
+          ? ` · 수정안 ${comment.anchor.proposalRevision}`
+          : ""}
       </small>
       <blockquote>{comment.anchor.quote}</blockquote>
       <p>{comment.text}</p>

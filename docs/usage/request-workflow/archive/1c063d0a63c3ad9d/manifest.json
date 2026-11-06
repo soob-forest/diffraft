@@ -1,0 +1,172 @@
+{
+  "build": {
+    "id": "1c063d0a63c3ad9d-e2e",
+    "sourceHash": "1c063d0a63c3ad9d1beccfd85dab79891e255472c9a7905e2b008a7b9e8ba02a",
+    "binaryHash": "9912f55c484d183da485c394659d6fbcca86a89518ebc51c955f863093093f01",
+    "profile": "e2e",
+    "version": "0.1.0",
+    "builtAt": "2026-11-05T06:12:56.652Z"
+  },
+  "windowBasis": "outer",
+  "sizes": [
+    [
+      1440,
+      900
+    ],
+    [
+      1280,
+      800
+    ],
+    [
+      800,
+      600
+    ]
+  ],
+  "zoom": [
+    1,
+    1.5,
+    2
+  ],
+  "grids": [
+    {
+      "state": "first-request",
+      "metadata": "first-request-layout.json",
+      "cases": 9
+    },
+    {
+      "state": "proposal-question",
+      "metadata": "proposal-question-layout.json",
+      "cases": 9
+    },
+    {
+      "state": "unit-question",
+      "metadata": "unit-question-layout.json",
+      "cases": 9
+    },
+    {
+      "state": "completed",
+      "metadata": "completed-layout.json",
+      "cases": 9
+    },
+    {
+      "state": "short-review",
+      "metadata": "short-review-layout.json",
+      "cases": 9
+    }
+  ],
+  "screenshots": [
+    {
+      "file": "first-request-1440-1.png",
+      "label": "첫 확인 취소 후 같은 작업에서 요청을 이어 쓰는 상태",
+      "sha256": "05bf0561911e3d939ba128fa0450733c7ebb6f81c78a7d4fe368494709fe380f",
+      "pixels": [
+        2880,
+        1800
+      ],
+      "capturedAt": "2026-11-05T06:15:15.444Z",
+      "measurement": {
+        "file": "first-request-layout.json",
+        "index": 0
+      }
+    },
+    {
+      "file": "proposal-question-1440-1.png",
+      "label": "선택한 후보의 전후 내용을 고정한 질문",
+      "sha256": "8a1e9c0fb2a8e9b305d4e7b02b90a6cf2f3d792e912a9e804fc4209ce75b6595",
+      "pixels": [
+        2880,
+        1800
+      ],
+      "capturedAt": "2026-11-05T06:15:30.527Z",
+      "measurement": {
+        "file": "proposal-question-layout.json",
+        "index": 0
+      }
+    },
+    {
+      "file": "unit-question-1440-1.png",
+      "label": "변경 단위 전체를 대상으로 하는 질문",
+      "sha256": "d5d13e541c1ef865b45edf4d2dcf1d1383cc4b19ac671e611537386b5ffab88d",
+      "pixels": [
+        2880,
+        1800
+      ],
+      "capturedAt": "2026-11-05T06:15:42.365Z",
+      "measurement": {
+        "file": "unit-question-layout.json",
+        "index": 0
+      }
+    },
+    {
+      "file": "completed-1440-1.png",
+      "label": "실제 결정 수를 보여 주는 검토 완료",
+      "sha256": "7f07ab1248203d74a13d1071a0f21167bc28c0aea6d004967a6a7ec131a7ee0f",
+      "pixels": [
+        2880,
+        1800
+      ],
+      "capturedAt": "2026-11-05T06:17:40.380Z",
+      "measurement": {
+        "file": "completed-layout.json",
+        "index": 0
+      }
+    },
+    {
+      "file": "unit-1280-1-selected.png",
+      "label": "선택한 변경 본문과 결정 행동",
+      "sha256": "d5ad4a85926886d74e7455f62c492895e166d0cddf0071219b30ac80ab3a9140",
+      "pixels": [
+        2560,
+        1600
+      ],
+      "capturedAt": "2026-11-05T06:13:44.071Z",
+      "measurement": {
+        "file": "unit-1280-1-selected.json"
+      }
+    },
+    {
+      "file": "unit-800-2-error.png",
+      "label": "800×600·200%에서 코멘트 등록 오류와 재시도",
+      "sha256": "03d435f3d4506c93b63038573573b93c532bd80087b5dfe59b57a2fbf046c7f3",
+      "pixels": [
+        1600,
+        1200
+      ],
+      "capturedAt": "2026-11-05T06:14:43.419Z",
+      "measurement": {
+        "file": "unit-800-2-error.json"
+      }
+    },
+    {
+      "file": "unit-800-2-processed.png",
+      "label": "800×600·200%에서 처리한 변경 읽기",
+      "sha256": "86601e5086aabc8bfbc09e98c612e19a7913e39975fc2718f2909276072df5ec",
+      "pixels": [
+        1600,
+        1200
+      ],
+      "capturedAt": "2026-11-05T06:14:15.378Z",
+      "measurement": {
+        "file": "unit-800-2-processed.json"
+      }
+    },
+    {
+      "file": "short-review-800-2.png",
+      "label": "800×600·200%에서 짧은 삭제·추가와 결정 동시 읽기",
+      "sha256": "c3bb6410c92d8e0c94514c762445fb4529ec7b574464e5cd02b681a161b6c1c8",
+      "pixels": [
+        1600,
+        1200
+      ],
+      "capturedAt": "2026-11-05T06:13:23.907Z",
+      "measurement": {
+        "file": "short-review-layout.json",
+        "index": 8
+      }
+    }
+  ],
+  "manualAcceptance": {
+    "AC15": "미실행",
+    "AC16": "미실행"
+  }
+}

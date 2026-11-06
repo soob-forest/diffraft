@@ -6,11 +6,15 @@ export function RegenerateForm(props: RegenerationProps) {
   const form = useRegeneration(props);
   return (
     <details className="regenerate-form">
-      <summary>코멘트 반영·다시 제안</summary>
+      <summary>이 변경 더 고치기</summary>
+      <strong className="regenerate-target">
+        대상 · {props.proposal.operation.headingPath.at(-1) || "문서"}의 수정안
+        {props.proposal.revision > 1 ? ` ${props.proposal.revision}` : ""}
+      </strong>
       <p className="muted">
-        이 변경의 원문·후보·코멘트와 아래 지시, 작업 목표·고정 조건·기존
-        대화·결정을 전달합니다. 문서 전체를 추가로 보내지 않습니다. 새 후보는
-        승인 전까지 확정본에 반영되지 않습니다.
+        이 변경의 원문·수정안·코멘트와 이번 요청, 계속 참고할 방향·유지할
+        조건·기존 대화·결정을 전달합니다. 문서 전체를 추가로 보내지 않습니다. 새
+        후보는 승인 전까지 확정본에 반영되지 않습니다.
       </p>
       <DraftLocked locked={form.locked} />
       <form
@@ -21,7 +25,7 @@ export function RegenerateForm(props: RegenerationProps) {
         }}
       >
         <label>
-          재제안 지시
+          이번 요청
           <textarea
             rows={3}
             value={form.instruction}
@@ -56,10 +60,10 @@ function RegenerationActions({
         disabled={form.busy || blocked || !form.instruction.trim()}
       >
         {form.busy
-          ? "재제안 중…"
+          ? "요청 중…"
           : form.pending
-            ? "확인 후 재제안"
-            : "재제안 요청"}
+            ? "확인 후 요청"
+            : "요청 내용 확인"}
       </button>
       {form.pending && (
         <button type="button" disabled={form.busy} onClick={form.cancel}>

@@ -68,7 +68,9 @@ function ConfirmationScope({
 }) {
   const label =
     prepared.kind === "regenerate"
-      ? `제안 내용 · r${prepared.value.request.expectedRevision}`
+      ? prepared.value.request.expectedRevision > 1
+        ? `수정안 ${prepared.value.request.expectedRevision}`
+        : "제안 내용"
       : context.editableSource === "rewrite_candidate"
         ? "전체 재작성 후보"
         : `원문${context.confirmed?.version ? ` · v${context.confirmed.version}` : ""}`;

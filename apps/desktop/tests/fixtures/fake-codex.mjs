@@ -9,6 +9,7 @@ import {
   configuration,
   disabled,
 } from "./fake-codex-settings.mjs";
+import { verifyQuestion } from "./verify-question.mjs";
 
 const mode = process.argv[2];
 const args = process.argv.slice(3);
@@ -242,6 +243,7 @@ function finishTurn(params) {
   } catch {
     input = { mode: "EXPLAIN" };
   }
+  verifyQuestion(input);
   const output = response(input);
   const item = {
     type: "agentMessage",

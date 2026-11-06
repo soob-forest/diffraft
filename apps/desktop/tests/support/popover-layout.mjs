@@ -1,6 +1,5 @@
 import assert from "node:assert/strict";
 import { writeFile } from "node:fs/promises";
-import { resizeContent } from "./tobe-fixture.mjs";
 
 export async function popupLayouts(select, boundary, name) {
   const measurements = [];
@@ -11,7 +10,12 @@ export async function popupLayouts(select, boundary, name) {
       [800, 600],
     ]) {
       await zoom(1);
-      await resizeContent(width, height);
+      await browser.setWindowSize(width, height);
+      const actualWindow = await browser.getWindowSize();
+      const availableHeight = await browser.execute(() => screen.availHeight);
+      assert.equal(actualWindow.width, width);
+      assert.ok(actualWindow.height >= Math.min(height, availableHeight) - 1);
+      assert.ok(actualWindow.height <= height);
       for (const scale of [1, 1.5, 2]) {
         await zoom(scale);
         const toggle = $(".workspace-controls button");
@@ -30,7 +34,7 @@ export async function popupLayouts(select, boundary, name) {
         await browser.saveScreenshot(
           `.artifacts/selection-popover/${name}-${width}-${scale}.png`,
         );
-        measurements.push({ width, height, scale, ...result });
+        measurements.push({ width, height, actualWindow, scale, ...result });
       }
     }
     await writeFile(
@@ -39,7 +43,7 @@ export async function popupLayouts(select, boundary, name) {
     );
   } finally {
     await zoom(1);
-    await resizeContent(1440, 900);
+    await browser.setWindowSize(1440, 900);
   }
 }
 async function popupGeometry(boundary) {

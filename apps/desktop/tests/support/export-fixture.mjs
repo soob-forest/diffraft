@@ -81,7 +81,7 @@ export async function addReviewComment() {
   await $(".comment-form textarea").setValue(
     "여행자의 준비 내용를 명시해 주세요.",
   );
-  await $("button=코멘트 저장").click();
+  await $("button=코멘트 등록").click();
   await browser.waitUntil(async () =>
     (await $(".comment-list").getText()).includes("여행자"),
   );

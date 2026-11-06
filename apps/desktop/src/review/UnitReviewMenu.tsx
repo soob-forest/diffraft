@@ -59,13 +59,8 @@ function UnitMenuContents(props: Props & { close: () => void }) {
   const counts = unitCounts(props.projection.batch);
   return (
     <>
-      <UnitInformation {...props} />
-      <UnitViewOptions navigation={props.navigation} close={props.close} />
-      <p>
-        비교 본문에서 F7은 다음 변경, Shift+F7은 이전 변경으로 이동합니다. 현재
-        표시 필터를 따릅니다.
-      </p>
       <button
+        className="unit-bulk-menu"
         type="button"
         disabled={
           props.blocked || !counts.pending || props.navigation.value.original
@@ -75,8 +70,14 @@ function UnitMenuContents(props: Props & { close: () => void }) {
           props.panel.confirm();
         }}
       >
-        남은 변경 {counts.pending}개 승인…
+        남은 {counts.pending}개 승인…
       </button>
+      <UnitInformation {...props} />
+      <UnitViewOptions navigation={props.navigation} close={props.close} />
+      <p>
+        비교 본문에서 F7은 다음 변경, Shift+F7은 이전 변경으로 이동합니다. 현재
+        표시 필터를 따릅니다.
+      </p>
       <p>
         승인하면 원문에 바로 저장됩니다. 미승인 변경은 원문에 포함되지 않습니다.
       </p>

@@ -9,16 +9,23 @@ type Active = React.RefObject<boolean>;
 export async function prepareSelected(
   props: SelectedGenerationProps,
   active: Active,
+  isCurrent: () => boolean = () => true,
 ) {
-  const submitted = props.selection.draft.value,
+  const previous = props.selection.draft.value;
+  const submitted = { ...previous, prepareOnOpen: false },
     target = submitted.target;
   if (!target) throw new Error("수정할 부분을 선택해 주세요.");
   const error = draftError(submitted.instruction);
   if (error) throw new Error(error);
+  props.selection.draft.replace(previous, submitted);
   await props.selection.draft.flush();
   await props.prepare();
   if (!active.current) return;
   const prepared = await prepareSelectionRequest(target, submitted);
+  if (!isCurrent())
+    throw new Error(
+      "조건 또는 AI 설정이 바뀌었습니다. 요청 내용을 다시 확인해 주세요.",
+    );
   if (active.current)
     props.selection.draft.replace(submitted, { ...submitted, prepared });
 }

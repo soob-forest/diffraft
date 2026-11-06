@@ -21,9 +21,9 @@ async function reviewState(taskId) {
 }
 async function start(mode) {
   await writeFile(join(root, "next-generation"), mode);
-  await $("button=재제안 요청").click();
-  await $("button=확인 후 재제안").waitForDisplayed();
-  await $("button=확인 후 재제안").click();
+  await $(".regenerate-form button[type=submit]").click();
+  await $(".regenerate-form").$("button=확인 후 요청").waitForDisplayed();
+  await $(".regenerate-form").$("button=확인 후 요청").click();
 }
 describe("코멘트를 반영한 재제안", () => {
   it("삭제 쪽 선택과 코멘트 대상이 보기 전환 뒤에도 유지된다", async () => {
@@ -50,7 +50,7 @@ describe("코멘트를 반영한 재제안", () => {
     await $(".comment-form textarea").setValue(
       "실행 주체를 명확하게 해 주세요.",
     );
-    await $("button=코멘트 저장").click();
+    await $("button=코멘트 등록").click();
     await browser.waitUntil(async () =>
       (await $(".comment-list").getText()).includes("실행 주체"),
     );
@@ -69,7 +69,7 @@ describe("코멘트를 반영한 재제안", () => {
     );
     assert.match(
       await $(".candidate-form summary").getProperty("textContent"),
-      /r1/,
+      /후보 직접 수정/,
     );
     assert.equal(await $(".regenerate-form textarea").getValue(), instruction);
     const state = await reviewState(fixture.task.id);
@@ -82,7 +82,7 @@ describe("코멘트를 반영한 재제안", () => {
   });
   it("생성 중 승인을 막고 성공한 r2만 미승인 후보로 보존한다", async () => {
     await browser.waitUntil(
-      async () => await $("button=재제안 요청").isEnabled(),
+      async () => await $(".regenerate-form button[type=submit]").isEnabled(),
     );
     await start("REGENERATE_DELAY");
     assert.equal(await $("button=선택한 변경 승인").isEnabled(), false);
@@ -93,7 +93,7 @@ describe("코멘트를 반영한 재제안", () => {
     await $("button=나란히").click();
     await browser.waitUntil(async () =>
       (await $(".candidate-form summary").getProperty("textContent")).includes(
-        "r2",
+        "수정안 2",
       ),
     );
     const state = await reviewState(fixture.task.id);

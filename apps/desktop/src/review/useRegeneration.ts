@@ -5,6 +5,7 @@ import { useSessionDraft } from "../drafts/SessionDrafts";
 import type { Proposal } from "../generated/Proposal";
 import type { RegenerateRequest } from "../generated/RegenerateRequest";
 import type { ReviewProjection } from "../generated/ReviewProjection";
+import { useRequestInvalidation } from "../generation/request-invalidation";
 import { errorMessage, SCHEMA_VERSION } from "../ipc";
 
 export type RegenerationProps = {
@@ -18,6 +19,7 @@ export type RegenerationProps = {
 
 export function useRegeneration(props: RegenerationProps) {
   const state = useRegenerationState(props);
+  const contextRevision = useRegenerationInvalidation(state);
   const { instruction, pending, running, setPending, setBusy, setMessage } =
     state;
   async function submit() {
@@ -27,11 +29,17 @@ export function useRegeneration(props: RegenerationProps) {
     setBusy(true);
     props.onBusy(true);
     setMessage("");
+    const revision = contextRevision.current;
     try {
       await state.flush();
       await props.prepare();
       if (!pending) {
-        setPending(await prepareRevision(props, instruction));
+        const prepared = await prepareRevision(props, instruction);
+        if (revision !== contextRevision.current)
+          throw new Error(
+            "조건 또는 AI 설정이 바뀌었습니다. 요청 내용을 다시 확인해 주세요.",
+          );
+        setPending(prepared);
         return;
       }
       assertCurrentRevision(pending, props);
@@ -56,6 +64,23 @@ export function useRegeneration(props: RegenerationProps) {
     }
   }
   return { ...state, submit };
+}
+
+function useRegenerationInvalidation(
+  state: ReturnType<typeof useRegenerationState>,
+) {
+  const revision = useRef(0);
+  useRequestInvalidation(() => {
+    if (state.running.current && state.pending) return;
+    revision.current += 1;
+    const current = state.draft.value;
+    if (!current.pending) return;
+    state.draft.replace(current, { ...current, pending: null });
+    state.setMessage(
+      "조건 또는 AI 설정이 바뀌었습니다. 요청 내용을 다시 확인해 주세요.",
+    );
+  });
+  return revision;
 }
 
 function useRegenerationState(props: RegenerationProps) {

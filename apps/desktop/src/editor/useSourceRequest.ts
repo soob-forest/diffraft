@@ -7,7 +7,9 @@ import { currentResult } from "../review/result-destination";
 import { useSelectedRequest } from "../review/useSelectedRequest";
 import type { FlushRef } from "./DocumentWorkspace";
 import type { PopoverPosition } from "./SelectionPopover";
+import { closeSourceRequest } from "./source-request-close";
 import { sourceOperations } from "./source-request-operations";
+import { activeSourceTarget } from "./source-request-store";
 import type { CapturedSourceSelection } from "./source-selection";
 import type { DocumentModel } from "./useDocument";
 import { useSourceGeneration } from "./useSourceGeneration";
@@ -25,6 +27,7 @@ export type SourceSelectionAction = {
   captured: CapturedSourceSelection;
 };
 export function useSourceRequest(props: SourceRequestProps) {
+  const firstConditions = useRef<(() => Promise<void>) | null>(null);
   const drafts = useDraftPersistence(),
     state = useSourceRequestState(props.taskId);
   const selection = useSelectedRequest(
@@ -48,30 +51,65 @@ export function useSourceRequest(props: SourceRequestProps) {
     selection.setActive(false);
     state.setReturnSerial((value) => value + 1);
   };
-  const form = useSourceGeneration({
+  const prepare = operations.prepare;
+  const form = useSourceForm(props, state, selection, prepare, close);
+  return {
+    ...state,
+    firstConditions,
+    selection,
+    pinned,
+    form,
+    open: (value: CapturedSourceSelection) =>
+      state.run(() => operations.open(value)),
+    acceptTask: (task: TaskSnapshot) =>
+      acceptFirstTask({ props, drafts, selection, state, close }, task),
+    resume: operations.resume,
+    close: () => closeSourceRequest(state.run, firstConditions, close),
+    dismiss: () =>
+      dismissSourceRequest(
+        state,
+        selection,
+        firstConditions,
+        drafts,
+        form.busy,
+      ),
+  };
+}
+function dismissSourceRequest(
+  state: ReturnType<typeof useSourceRequestState>,
+  selection: ReturnType<typeof useSelectedRequest>,
+  firstConditions: React.RefObject<(() => Promise<void>) | null>,
+  drafts: ReturnType<typeof useDraftPersistence>,
+  busy: boolean,
+) {
+  return state.run(async () => {
+    if (busy) return;
+    await firstConditions.current?.();
+    await drafts.flush();
+    if (!(await selection.dismiss())) return;
+    state.setVisible(false);
+    state.setPopup(null);
+    state.setCaptured(null);
+  });
+}
+function useSourceForm(
+  props: SourceRequestProps,
+  state: ReturnType<typeof useSourceRequestState>,
+  selection: ReturnType<typeof useSelectedRequest>,
+  prepare: () => Promise<void>,
+  close: () => void,
+) {
+  return useSourceGeneration({
     documentId: props.model.state.document.id,
     taskId: props.taskId,
     selection,
-    prepare: operations.prepare,
+    prepare,
     onBusy: state.setBusy,
     onSaved: (result) => {
       close();
       props.onResult(currentResult(result, true));
     },
   });
-  return {
-    ...state,
-    selection,
-    pinned,
-    form,
-    open: (value: CapturedSourceSelection) =>
-      state.run(() => operations.open(value)),
-    createTask: (goal: string, instruction: string) =>
-      state.run(() => operations.createTask(goal, instruction)),
-    prepare: operations.prepare,
-    resume: operations.resume,
-    close,
-  };
 }
 function useSourceRequestState(taskId: string) {
   const [popup, setPopup] = useState<SourceSelectionAction | null>(null);
@@ -81,8 +119,7 @@ function useSourceRequestState(taskId: string) {
   const [visible, setVisible] = useState(false);
   const [message, setMessage] = useState(""),
     [returnSerial, setReturnSerial] = useState(0);
-  const [firstDraft, setFirstDraft] = useState({ goal: "", instruction: "" });
-  const taskIdentity = useRef(crypto.randomUUID()),
+  const taskIdentity = useRef<string>(crypto.randomUUID()),
     previousTask = useRef(taskId);
   const operation = useSourceOperation(setMessage);
   useLayoutEffect(() => {
@@ -95,7 +132,6 @@ function useSourceRequestState(taskId: string) {
     }
     if (previousTask.current && !taskId) {
       taskIdentity.current = crypto.randomUUID();
-      setFirstDraft({ goal: "", instruction: "" });
     }
     previousTask.current = taskId;
   }, [taskId]);
@@ -112,8 +148,6 @@ function useSourceRequestState(taskId: string) {
     returnSerial,
     setReturnSerial,
     taskIdentity,
-    firstDraft,
-    setFirstDraft,
   };
 }
 function usePinnedSource(
@@ -156,3 +190,26 @@ function useSourceOperation(setMessage: (value: string) => void) {
   return { busy, setBusy, run };
 }
 export type SourceRequest = ReturnType<typeof useSourceRequest>;
+
+function acceptFirstTask(
+  {
+    props,
+    drafts,
+    selection,
+    state,
+    close,
+  }: {
+    props: SourceRequestProps;
+    drafts: ReturnType<typeof useDraftPersistence>;
+    selection: ReturnType<typeof useSelectedRequest>;
+    state: ReturnType<typeof useSourceRequestState>;
+    close: () => void;
+  },
+  task: TaskSnapshot,
+) {
+  state.taskIdentity.current = task.id;
+  props.onTask(task);
+  if (activeSourceTarget(drafts.store, task.documentId, task.id))
+    selection.setActive(true);
+  else close();
+}

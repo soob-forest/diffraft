@@ -31,16 +31,7 @@ impl Store {
             None
         };
         messages.reverse();
-        for message in &mut messages {
-            if message.role == "ASSISTANT" {
-                message.result = message
-                    .job_id
-                    .as_deref()
-                    .map(|job| super::conversation_results::result_ref(&connection, job))
-                    .transpose()?
-                    .flatten();
-            }
-        }
+        attach_targets(&connection, &mut messages)?;
         let last_attempt = last_attempt(&connection, task)?;
         let provider = last_attempt.as_ref().map(|attempt| match &attempt.request {
             SavedGenerationRequest::Generate(request) => request.model.provider(),
@@ -75,6 +66,7 @@ fn messages(
                 created_at: row.get(4)?,
                 job_id: row.get(5)?,
                 result: None,
+                question: None,
             })
         })
         .map_err(database_error)?
@@ -134,3 +126,26 @@ fn last_attempt(
 }
 
 type AttemptRow = (String, String, String, Option<String>, String, String);
+
+fn attach_targets(
+    connection: &Connection,
+    messages: &mut [ConversationMessage],
+) -> Result<(), AppError> {
+    for message in messages {
+        message.question = message
+            .job_id
+            .as_deref()
+            .map(|job| super::change_questions::saved(connection, job))
+            .transpose()?
+            .flatten();
+        if message.role == "ASSISTANT" {
+            message.result = message
+                .job_id
+                .as_deref()
+                .map(|job| super::conversation_results::result_ref(connection, job))
+                .transpose()?
+                .flatten();
+        }
+    }
+    Ok(())
+}

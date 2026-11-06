@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { requestInputChanged } from "../generation/request-invalidation";
 import { errorMessage } from "../ipc";
 import { editorCommand } from "./api";
 import type { FlushRef } from "./DocumentWorkspace";
@@ -112,7 +113,10 @@ export function CommonRules(props: Props) {
           rows={3}
           value={form.value}
           disabled={form.busy}
-          onChange={(event) => form.setValue(event.target.value)}
+          onChange={(event) => {
+            requestInputChanged();
+            form.setValue(event.target.value);
+          }}
         />
       </label>
       <button type="button" disabled={form.busy} onClick={form.save}>

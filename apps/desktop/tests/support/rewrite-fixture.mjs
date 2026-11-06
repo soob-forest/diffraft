@@ -1,4 +1,4 @@
-import { readFile, writeFile } from "node:fs/promises";
+import { readFile, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { editor, examples, invoke, root } from "./review-fixture.mjs";
 import { openReviewOptions } from "./review-ui.mjs";
@@ -63,25 +63,42 @@ export async function prepareRewrite(name = "rewrite", content = confirmed) {
 }
 export async function requestRewrite(reference = false) {
   await openReviewOptions();
-  if ((await $(".rewrite-form").getAttribute("open")) === null)
-    await $(".rewrite-form summary").click();
-  await browser.waitUntil(
-    async () => await $(".rewrite-form textarea").isEnabled(),
-  );
-  await $(".rewrite-form textarea").setValue(
+  await $(
+    `button=${reference ? "이 후보를 참고해 다른 방향 만들기" : "확정본 전체에서 새 초안 요청"}`,
+  ).click();
+  await $(".request-form textarea").waitForDisplayed();
+  await $(".request-form textarea").waitForEnabled();
+  await $(".request-form textarea").setValue(
     "상황별로 바로 실행할 수 있게 전체 문서를 정리해 주세요.",
   );
-  await $(
-    `button=${reference ? "이 후보의 다른 방향 요청" : "현재 확정본 재작성"}`,
-  ).click();
-  await $(".rewrite-request-dialog").waitForDisplayed();
-  await browser.waitUntil(
-    async () => await $(".rewrite-request-dialog .primary").isEnabled(),
-  );
+  await $(".request-form").$("button=요청 내용 확인").click();
+  await $(".generation-dialog").waitForDisplayed();
+  await $(".generation-dialog").$("button=확인 후 요청").waitForEnabled();
 }
 export async function start(mode) {
   await writeFile(join(root, "next-generation"), mode);
-  await $(".rewrite-request-dialog .primary").click();
+  await $(".generation-dialog").$("button=확인 후 요청").click();
+}
+export async function holdRewriteRequest(inspect) {
+  await rm(join(root, "rewrite-ready"), { force: true });
+  await rm(join(root, "rewrite-release"), { force: true });
+  await writeFile(join(root, "rewrite-hold"), "hold");
+  await start("REWRITE_DELAY");
+  try {
+    await browser.waitUntil(async () => {
+      try {
+        return (
+          (await readFile(join(root, "rewrite-ready"), "utf8")) === "ready"
+        );
+      } catch (error) {
+        if (error.code === "ENOENT") return false;
+        throw error;
+      }
+    });
+    return await inspect();
+  } finally {
+    await writeFile(join(root, "rewrite-release"), "release");
+  }
 }
 export async function waitCandidate(taskId, count) {
   await browser.waitUntil(async () => {
@@ -89,7 +106,7 @@ export async function waitCandidate(taskId, count) {
     return !state.generating && state.batches.length === count;
   });
   await browser.waitUntil(
-    async () => !(await $(".rewrite-request-dialog").isExisting()),
+    async () => !(await $(".generation-dialog").isExisting()),
   );
   await $('[data-testid="comparison-stats"]').waitForDisplayed();
   return (await reviewState(taskId)).batches.find(
@@ -97,6 +114,7 @@ export async function waitCandidate(taskId, count) {
   );
 }
 export async function choose(id) {
+  await openReviewOptions();
   await browser.execute((value) => {
     const select = document.querySelector(".review-header select");
     select.value = value;

@@ -22,7 +22,7 @@ export function ReviewTaskOptions(props: Props) {
   }, [props.rewriteRequest]);
   return (
     <details ref={root} className="review-task-options">
-      <summary>작업 옵션</summary>
+      <summary>다른 요청·제안 관리</summary>
       {props.panel.review.projection &&
         !isUnitReview(props.panel.review.projection.batch) && (
           <TextDiff hunks={props.panel.review.projection.hunks} />

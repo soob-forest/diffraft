@@ -1,8 +1,16 @@
 import { foregroundUnitApplication } from "./unit-review-key-events.mjs";
 
 const displayTimeoutMs = 1000;
+const visibilityTimeoutMs = 5000;
+const testWindowPosition = { x: 24, y: 48 };
 
 export async function foregroundUnitDisplay(zoom) {
+  await browser.setWindowRect(
+    testWindowPosition.x,
+    testWindowPosition.y,
+    null,
+    null,
+  );
   const pid = await browser.execute(async (scale) => {
     const window = globalThis.__TAURI__.window.getCurrentWindow();
     await window.unminimize();
@@ -12,10 +20,13 @@ export async function foregroundUnitDisplay(zoom) {
     return globalThis.__TAURI__.core.invoke("e2e_process_id", {});
   }, zoom);
   const windows = foregroundUnitApplication(pid);
+  await browser.execute(() =>
+    globalThis.__TAURI__.window.getCurrentWindow().setFocus(),
+  );
   await browser.waitUntil(
     () => browser.execute(() => document.visibilityState === "visible"),
     {
-      timeout: displayTimeoutMs,
+      timeout: visibilityTimeoutMs,
       timeoutMsg: `검증한 테스트 앱의 실제 전면 활성화 후에도 WebView가 표시되지 않습니다: ${JSON.stringify(windows)}`,
     },
   );
@@ -68,6 +79,12 @@ export async function settleUnitDisplay() {
 }
 
 async function restoreUnitDisplay() {
+  await browser.setWindowRect(
+    testWindowPosition.x,
+    testWindowPosition.y,
+    null,
+    null,
+  );
   const pid = await browser.execute(async () => {
     const window = globalThis.__TAURI__.window.getCurrentWindow();
     await window.unminimize();
@@ -76,13 +93,16 @@ async function restoreUnitDisplay() {
     return globalThis.__TAURI__.core.invoke("e2e_process_id", {});
   });
   const windows = foregroundUnitApplication(pid);
+  await browser.execute(() =>
+    globalThis.__TAURI__.window.getCurrentWindow().setFocus(),
+  );
   await browser.waitUntil(
     async () => {
       const state = await readUnitDisplayState();
       return state.visibility === "visible" && state.nativeVisible;
     },
     {
-      timeout: displayTimeoutMs,
+      timeout: visibilityTimeoutMs,
       timeoutMsg: `가려진 테스트 창의 표시를 복원할 수 없습니다: ${JSON.stringify(windows)}`,
     },
   );

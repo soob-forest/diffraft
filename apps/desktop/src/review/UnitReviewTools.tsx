@@ -47,6 +47,7 @@ export function UnitReviewTools(props: UnitToolsProps) {
         </h3>
         <UnitActions {...props} />
       </div>
+      <UnitCoupling {...props} />
       <UnitProgress {...props} />
       {props.navigation.value.original && (
         <OriginalNotice navigation={props.navigation} />
@@ -202,6 +203,16 @@ function UnitProgress(props: UnitToolsProps) {
       <span className="unit-counts">
         승인 {counts.accepted} · 거절 {counts.rejected} · 남은 {counts.pending}
       </span>
+      <button
+        className="unit-bulk-accept"
+        type="button"
+        disabled={
+          props.blocked || !counts.pending || props.navigation.value.original
+        }
+        onClick={() => props.panel.confirm()}
+      >
+        남은 {counts.pending}개 승인…
+      </button>
       <UnitFilter navigation={props.navigation} />
       <span
         className={feedback.important ? "unit-review-alert" : "unit-feedback"}
@@ -212,5 +223,18 @@ function UnitProgress(props: UnitToolsProps) {
       </span>
       <UnitReviewMenu {...props} feedback={feedback.text} />
     </div>
+  );
+}
+
+function UnitCoupling({ projection, navigation }: UnitToolsProps) {
+  const unit = navigation.selected;
+  const group = projection.groups.find((group) => group.id === unit?.id);
+  if (!unit || unit.proposals.length < 2) return null;
+  const count = group?.beforeRanges.length ?? unit.proposals.length;
+  return (
+    <details className="unit-coupling">
+      <summary>연결된 {count}곳을 함께 승인합니다</summary>
+      <p>{unit.reason}</p>
+    </details>
   );
 }

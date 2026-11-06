@@ -10,6 +10,7 @@ import {
   openComment,
   showSummary,
 } from "./support/review-ui.mjs";
+import { inspectWorkflowState } from "./support/workflow-state-layout.mjs";
 
 const revised = "여행자는 준비물과 다음 여행 계획을 여행 기록에 남깁니다.";
 let reviewDocument;
@@ -105,7 +106,7 @@ describe("네이티브 변경 검토", () => {
       ),
     );
     await $(".comment-form textarea").setValue("책임 주체를 명시해 주세요.");
-    await $("button=코멘트 저장").click();
+    await $("button=코멘트 등록").click();
     await browser.waitUntil(async () =>
       (await $(".comment-list").getText()).includes("책임 주체"),
     );
@@ -114,7 +115,7 @@ describe("네이티브 변경 검토", () => {
     await $("button=후보 저장").click();
     await browser.waitUntil(async () =>
       (await $(".candidate-form summary").getProperty("textContent")).includes(
-        "r2",
+        "수정안 2",
       ),
     );
     assert.match(await $(".comment-list").getText(), /연결 위치 확인 필요/);
@@ -141,6 +142,11 @@ describe("네이티브 변경 검토", () => {
       /검토 완료[\s\S]*승인 2개 · 거절 1개/,
     );
     assert.equal(await $("button=확정본 보기").isExisting(), true);
+    await inspectWorkflowState(
+      "completed",
+      ".review-panel > div.review-message[role=status]",
+      ".review-panel > div.review-message[role=status] button",
+    );
     await $("button=원문").click();
     await $('[data-testid="source-editor"]').click();
     await browser.keys([Key.Command, "z"]);

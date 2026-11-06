@@ -50,7 +50,7 @@ export function UnitComments(props: Props) {
           );
         }}
       />
-      <h4>저장된 코멘트 · {props.comments.length}</h4>
+      <h4>등록된 코멘트 · {props.comments.length}</h4>
       {!props.comments.length && (
         <p className="muted">
           아직 코멘트가 없습니다. 의견 없이도 승인하거나 거절할 수 있습니다.
@@ -129,10 +129,10 @@ function UnitCommentForm({
         }
       >
         {form.busy
-          ? "코멘트 저장 중…"
+          ? "코멘트 등록 중…"
           : form.feedback.retryRegistration
-            ? "코멘트 다시 저장"
-            : "코멘트 저장"}
+            ? "코멘트 다시 등록"
+            : "코멘트 등록"}
       </button>
       <DraftStatus
         summary={{

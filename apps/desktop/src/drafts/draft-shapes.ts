@@ -25,6 +25,11 @@ export function range(value: unknown) {
 export function scopeDraft(data: Record<string, unknown>) {
   if (!["whole", "section", "selection"].includes(String(data.kind)))
     throw invalidDraft();
+  if (
+    data.cursor !== undefined &&
+    (!Number.isSafeInteger(data.cursor) || Number(data.cursor) < 0)
+  )
+    throw invalidDraft();
   if (data.captured === null) return;
   const captured = object(data.captured),
     value = object(captured.value),
@@ -51,6 +56,10 @@ function selectedTarget(target: Record<string, unknown>) {
     if (typeof target[field] !== "string") throw invalidDraft();
   if (target.kind !== "confirmed" && typeof target.batchId !== "string")
     throw invalidDraft();
+  selectedTargetRange(target);
+  if (target.kind === "candidate") candidateIdentity(target);
+}
+function selectedTargetRange(target: Record<string, unknown>) {
   if (
     target.sourceVersion !== undefined &&
     !Number.isSafeInteger(target.sourceVersion)
@@ -65,7 +74,6 @@ function selectedTarget(target: Record<string, unknown>) {
     ) !== selection.quote
   )
     throw invalidDraft();
-  if (target.kind === "candidate") candidateIdentity(target);
 }
 function prepared(data: Record<string, unknown>) {
   let snapshot = object(data.prepared);
@@ -92,23 +100,38 @@ export function requestDraft(data: Record<string, unknown>) {
     typeof data.instruction !== "string"
   )
     throw invalidDraft();
-  if (data.instructions !== undefined) {
-    const values = object(data.instructions);
-    if (
-      Object.entries(values).some(
-        ([key, value]) =>
-          !["PATCH", "EXPLAIN", "REWRITE"].includes(key) ||
-          typeof value !== "string",
-      )
-    )
-      throw invalidDraft();
-  }
+  requestTargetFields(data);
+  if (data.instructions !== undefined) requestInstructions(data.instructions);
   if (
     data.prepareOnOpen !== undefined &&
     typeof data.prepareOnOpen !== "boolean"
   )
     throw invalidDraft();
   if (data.pending != null) pendingRequest(data.pending);
+}
+function requestTargetFields(data: Record<string, unknown>) {
+  if (data.question !== undefined) changeQuestion(data.question);
+  if (
+    data.referenceBatchId !== undefined &&
+    typeof data.referenceBatchId !== "string"
+  )
+    throw invalidDraft();
+  if (
+    data.editMode !== undefined &&
+    !["PATCH", "REWRITE"].includes(String(data.editMode))
+  )
+    throw invalidDraft();
+}
+function requestInstructions(instructions: unknown) {
+  const values = object(instructions);
+  if (
+    Object.entries(values).some(
+      ([key, value]) =>
+        !["PATCH", "EXPLAIN", "REWRITE"].includes(key) ||
+        typeof value !== "string",
+    )
+  )
+    throw invalidDraft();
 }
 export function savedRequest(value: unknown) {
   const request = object(value),
@@ -203,5 +226,48 @@ function pendingRequest(value: unknown) {
     !Number.isSafeInteger(scope.version)
   )
     throw invalidDraft();
+  if (
+    pending.reviewSequence !== undefined &&
+    (!Number.isSafeInteger(pending.reviewSequence) ||
+      Number(pending.reviewSequence) < 0)
+  )
+    throw invalidDraft();
   savedRequest(pending.request);
+}
+
+function changeQuestion(value: unknown) {
+  const question = object(value),
+    subject = object(question.subject);
+  for (const field of [
+    "documentId",
+    "taskId",
+    "batchId",
+    "baseVersionId",
+    "label",
+    "contentHash",
+  ])
+    if (typeof question[field] !== "string") throw invalidDraft();
+  questionSubject(subject);
+  if (!Array.isArray(question.changes) || !question.changes.length)
+    throw invalidDraft();
+  for (const change of question.changes) questionChange(object(change));
+}
+function questionSubject(subject: Record<string, unknown>) {
+  if (!["proposal", "unit", "whole"].includes(String(subject.kind)))
+    throw invalidDraft();
+  if (
+    subject.kind !== "whole" &&
+    (typeof subject.id !== "string" ||
+      !Number.isSafeInteger(subject.revision) ||
+      Number(subject.revision) < 1)
+  )
+    throw invalidDraft();
+}
+function questionChange(data: Record<string, unknown>) {
+  if (
+    typeof data.id !== "string" ||
+    typeof data.before !== "string" ||
+    typeof data.after !== "string"
+  )
+    throw invalidDraft();
 }

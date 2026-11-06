@@ -1,7 +1,9 @@
 import type { ConversationResult } from "../generated/ConversationResult";
 import type { GenerationAttempt } from "../generated/GenerationAttempt";
 import type { TaskConversation } from "../generated/TaskConversation";
+import { questionDestination } from "../review/result-destination";
 import { AttemptRecovery } from "./AttemptRecovery";
+import { QuestionTarget } from "./QuestionTarget";
 import "./conversation-layout.css";
 
 type Props = {
@@ -65,6 +67,8 @@ function ConversationMessages({
           <time dateTime={new Date(message.createdAt).toISOString()}>
             {new Date(message.createdAt).toLocaleString()}
           </time>
+          {message.question && <QuestionTarget question={message.question} />}
+          <QuestionResult message={message} onResult={onResult} />
           <p>{message.content}</p>
           {message.result && (
             <div>
@@ -77,8 +81,8 @@ function ConversationMessages({
                   }}
                 >
                   이 요청의 변경 보기
-                  {message.result.revision
-                    ? ` · r${message.result.revision}`
+                  {message.result.revision && message.result.revision > 1
+                    ? ` · 수정안 ${message.result.revision}`
                     : ""}
                 </button>
               )}
@@ -125,4 +129,29 @@ function sessionLabel(state: TaskConversation["session"]) {
   if (state === "MISSING")
     return "이전 AI 연결을 찾지 못했습니다. 다음 요청은 저장한 작업 맥락으로 새 대화를 시작합니다.";
   return "저장한 작업 맥락으로 새 AI 대화를 시작합니다.";
+}
+
+function QuestionResult({
+  message,
+  onResult,
+}: {
+  message: TaskConversation["messages"][number];
+  onResult?: Props["onResult"];
+}) {
+  return (
+    <>
+      {" "}
+      {message.question && onResult && (
+        <button
+          type="button"
+          onClick={() => {
+            const q = message.question;
+            if (q) onResult(questionDestination(q));
+          }}
+        >
+          질문한 제안 보기
+        </button>
+      )}
+    </>
+  );
 }

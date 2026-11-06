@@ -1,6 +1,7 @@
 import { invoke } from "@tauri-apps/api/core";
 import type { ModelSelection } from "../generated/ModelSelection";
 import type { ModelSettingsAction } from "../generated/ModelSettingsAction";
+import { requestInputChanged } from "../generation/request-invalidation";
 import { SCHEMA_VERSION } from "../ipc";
 
 export const MODEL_LABELS: Record<ModelSelection, string> = {
@@ -9,10 +10,12 @@ export const MODEL_LABELS: Record<ModelSelection, string> = {
   opus: "Opus",
   haiku: "Haiku",
 };
-export function modelSettings(action: ModelSettingsAction) {
-  return invoke<ModelSelection>("model_settings_command", {
+export async function modelSettings(action: ModelSettingsAction) {
+  const saved = await invoke<ModelSelection>("model_settings_command", {
     request: { schemaVersion: SCHEMA_VERSION, action },
   });
+  if (action.kind !== "read") requestInputChanged();
+  return saved;
 }
 export function readModel() {
   return modelSettings({ kind: "read" });

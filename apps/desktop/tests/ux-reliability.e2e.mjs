@@ -2,7 +2,11 @@ import assert from "node:assert/strict";
 import { mkdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { Key } from "webdriverio";
-import { showTaskPanel, terminal } from "./support/generation-fixture.mjs";
+import {
+  chooseRequestMode,
+  showTaskPanel,
+  terminal,
+} from "./support/generation-fixture.mjs";
 import { editor, invoke, prepare, root } from "./support/review-fixture.mjs";
 import { chooseGroup } from "./support/review-ui.mjs";
 
@@ -28,20 +32,20 @@ async function requestKindRecovery() {
   await mkdir(".artifacts/draft-reliability", { recursive: true });
   fixture = await prepare("conflict-review");
   await showTaskPanel();
-  await $(".request-kind").$("button=전체 재작성").click();
+  await chooseRequestMode("REWRITE");
   await $(".request-form textarea").setValue("전체 재작성 실패 지시");
   await $(".request-form").$("button=요청 내용 확인").click();
   await $(".generation-dialog").waitForDisplayed();
   await writeFile(join(root, "next-generation"), "malformed");
   await $(".generation-dialog").$("button=확인 후 요청").click();
   assert.equal((await terminal(fixture.task.id)).lastAttempt.status, "FAILED");
-  await $(".request-kind").$("button=설명").waitForEnabled();
-  await $(".request-kind").$("button=설명").click();
+  await $(".request-kind").$("button=질문하기").waitForEnabled();
+  await $(".request-kind").$("button=질문하기").click();
   await $(".request-form textarea").setValue("설명 초안 유지");
   await $(".attempt-recovery").$("button=내용을 수정해 새로 요청").click();
   await assertRewriteDraft();
   await $(".request-form textarea").setValue("새 재작성 초안");
-  await $(".request-kind").$("button=설명").click();
+  await $(".request-kind").$("button=질문하기").click();
   assert.equal(await $(".request-form textarea").getValue(), "설명 초안 유지");
   await $(".attempt-recovery").$("button=내용을 수정해 새로 요청").click();
   await $("button=현재 초안 유지").click();
@@ -64,7 +68,7 @@ async function sourceScopeRecovery() {
   );
   await $("button=원문").click();
   await showTaskPanel();
-  await $(".request-kind").$("button=부분 수정").click();
+  await chooseRequestMode("PATCH");
   await $('[data-testid="source-editor"]').click();
   await browser.keys([Key.Command, Key.Home]);
   await browser.keys([
@@ -108,12 +112,11 @@ async function firstRequestRecovery() {
     async () => (await $(".document-toolbar h1").getText()) === "새 문서",
   );
   await showTaskPanel();
-  await $(".task-conditions textarea[required]").waitForDisplayed();
-  await $(".task-conditions textarea[required]").setValue("취소한 첫 요청");
-  await $(
-    '.task-conditions textarea[placeholder="예: 수치를 유지하고 이 안내를 간결하게 다듬어 주세요."]',
-  ).setValue("첫 확인 취소 지시");
-  await $("button=작업 만들고 요청 확인").click();
+  await $(".first-request .request-form textarea").waitForDisplayed();
+  await $(".first-request .request-form textarea").setValue(
+    "첫 확인 취소 지시",
+  );
+  await $(".first-request").$("button=요청 내용 확인").click();
   await $(".generation-dialog").waitForDisplayed();
   await $(".generation-dialog").$("button=요청 취소").click();
   const workspace = await invoke("get_workspace_snapshot", {
@@ -175,12 +178,7 @@ describe("요청 복원과 초안 격리", () => {
 });
 
 async function assertRewriteDraft() {
-  assert.equal(
-    await $(".request-kind")
-      .$("button=전체 재작성")
-      .getAttribute("aria-pressed"),
-    "true",
-  );
+  assert.equal(await $('select[aria-label="수정 방식"]').getValue(), "REWRITE");
   assert.equal(
     await $(".request-form textarea").getValue(),
     "전체 재작성 실패 지시",

@@ -121,10 +121,7 @@ describe("선택 수정의 화면·결과 전환", () => {
       await $(`.proposal-card[data-proposal-id="${first.id}"]`).isDisplayed(),
       true,
     );
-    assert.match(
-      await $(".proposal-details").getText(),
-      /새 후보 · r2 · 미승인/,
-    );
+    assert.match(await $(".proposal-details").getText(), /수정안 2 · 미승인/);
     assert.match(await $(".selected-group").getText(), /1\. 출발 준비/);
     await browser.saveScreenshot(
       ".artifacts/selection-transitions/exact-result.png",

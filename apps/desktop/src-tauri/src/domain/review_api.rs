@@ -65,6 +65,9 @@ pub struct ReviewRequest {
     deny_unknown_fields
 )]
 pub enum ReviewAction {
+    PrepareQuestion {
+        request: super::change_question::QuestionRequest,
+    },
     OriginalRewrite {
         batch_id: String,
     },
@@ -139,6 +142,7 @@ pub enum ReviewAction {
 #[derive(Debug, Serialize, Deserialize, JsonSchema, TS)]
 #[serde(tag = "kind", content = "value", rename_all = "snake_case")]
 pub enum ReviewReply {
+    PreparedQuestion(super::change_question::ChangeQuestion),
     PreparedSelection(super::selection_request::PreparedSelection),
     PreparedRegeneration(super::regeneration::PreparedRegeneration),
     Historical(ProposalComparison),

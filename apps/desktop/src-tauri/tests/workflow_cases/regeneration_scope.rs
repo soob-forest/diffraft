@@ -19,6 +19,7 @@ fn selected_patch(world: &World) -> ReviewBatch {
     let job = world
         .store
         .begin_generation(GenerateRequest {
+            question: None,
             model: Default::default(),
             document_id: world.document.id.clone(),
             task_id: task,

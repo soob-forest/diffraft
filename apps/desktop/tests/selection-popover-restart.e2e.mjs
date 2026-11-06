@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { Key } from "webdriverio";
+import { verifyFirstSourceDismiss } from "./support/request-preparation-boundaries.mjs";
 import { editor, invoke, root } from "./support/review-fixture.mjs";
 import { selectSource } from "./support/source-ui.mjs";
 
@@ -49,6 +50,7 @@ describe("첫 원문 선택 요청과 변경된 원문", () => {
   });
   it("작업 생성 취소·재진입을 보존하고 작업을 하나만 만들며 자동 실행하지 않는다", async () => {
     await firstSourceSetup();
+    await verifyFirstSourceDismiss();
     await createFirstSourceTask();
   });
   it("원문이 바뀌면 오래된 대상을 실행하지 않고 지시를 보존한다", async () => {
@@ -117,18 +119,21 @@ async function firstSourceSetup() {
   await $(".source-selection-panel textarea").waitForDisplayed();
 }
 async function createFirstSourceTask() {
-  const fields = await $$(".source-selection-panel textarea");
-  await fields[0].setValue("첫 선택 목표");
-  await fields[1].setValue("선택만 간결하게");
+  await $(".source-selection-panel .request-form textarea").setValue(
+    "선택만 간결하게",
+  );
   await $(".source-selection-panel").$("button=원문으로 돌아가기").click();
   await selectSource("보존할 문장입니다.");
   await $(".selection-context").$("button=이 부분 수정").click();
   assert.equal(
-    await $(".source-selection-panel textarea").getValue(),
-    "첫 선택 목표",
+    await $(".source-selection-panel .request-form textarea").getValue(),
+    "선택만 간결하게",
   );
-  await $("button=작업 만들고 선택 수정 계속").doubleClick();
-  await $(".source-selection-panel .quote-text").waitForDisplayed();
+  await $(
+    ".source-selection-panel .request-form button[type=submit]",
+  ).doubleClick();
+  await $(".selection-confirmation").waitForDisplayed();
+  await browser.keys(Key.Escape);
   assert.equal(
     await $(".source-selection-panel textarea").getValue(),
     "선택만 간결하게",

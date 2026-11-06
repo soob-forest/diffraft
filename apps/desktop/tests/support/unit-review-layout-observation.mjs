@@ -30,7 +30,16 @@ export async function captureUnitLayout(name, context) {
   const selection = await readSelectedRows();
   const scroll = await readUnitScroll();
   const build = JSON.parse(await readFile(".artifacts/build-e2e.json", "utf8"));
-  const observation = { context, geometry, controls, selection, scroll, build };
+  const actualWindow = await browser.getWindowSize();
+  const observation = {
+    context,
+    actualWindow,
+    geometry,
+    controls,
+    selection,
+    scroll,
+    build,
+  };
   await mkdir(layoutDirectory, { recursive: true });
   await writeFile(
     `${layoutDirectory}/${name}.json`,

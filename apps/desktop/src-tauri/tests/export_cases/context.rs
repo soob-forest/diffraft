@@ -32,6 +32,7 @@ fn changing_working_file_does_not_send_local_paths_to_ai() {
     let job = world
         .store
         .begin_generation(GenerateRequest {
+            question: None,
             model: Default::default(),
             document_id: saved.document.id,
             task_id: task,

@@ -63,6 +63,7 @@ pub fn add_task(world: &World, document: &str) -> String {
     let task = world
         .store
         .put_task(TaskSnapshot {
+            name: None,
             id: world.runtime.id(),
             document_id: document.into(),
             goal: "여행 안내 검토".into(),

@@ -4,10 +4,23 @@ import { DraftStatus } from "../drafts/SessionDrafts";
 import type { useGeneration } from "./useGeneration";
 
 type Props = {
-  form: ReturnType<typeof useGeneration>;
+  form: RequestFormModel;
   blocked: boolean;
   children: ReactNode;
 };
+export type RequestFormModel = Pick<
+  ReturnType<typeof useGeneration>,
+  | "mode"
+  | "instruction"
+  | "busy"
+  | "locked"
+  | "prepare"
+  | "setMode"
+  | "setInstruction"
+  | "editMode"
+  | "question"
+  | "referenceBatchId"
+>;
 export function RequestForm({ form, blocked, children }: Props) {
   return (
     <form
@@ -49,13 +62,9 @@ function RequestFields({ form, blocked, children }: Props) {
     <>
       <RequestKinds form={form} blocked={blocked} />
       {form.mode === "REWRITE" ? (
-        <p>
-          전체 문서를 참고로 전달하고 새 전체 후보를 만듭니다. 적용은 전체 문서
-          단위입니다.
-        </p>
-      ) : (
-        children
-      )}
+        <p>새 전체 초안을 만듭니다. 전체 적용 또는 변경별 검토가 가능합니다.</p>
+      ) : null}
+      {children}
       <label>
         이번 요청
         <textarea
@@ -64,7 +73,11 @@ function RequestFields({ form, blocked, children }: Props) {
           disabled={blocked}
           required
           onChange={(event) => form.setInstruction(event.target.value)}
-          placeholder="예: 수치를 유지하고 간결하게 다듬어 주세요."
+          placeholder={
+            form.mode === "EXPLAIN"
+              ? "예: 이 표현을 사용한 이유는?"
+              : "예: 수치를 유지하고 짧게 다듬어 주세요."
+          }
         />
       </label>
     </>
@@ -73,31 +86,45 @@ function RequestFields({ form, blocked, children }: Props) {
 
 function RequestKinds({ form, blocked }: Pick<Props, "form" | "blocked">) {
   return (
-    <fieldset className="request-kind" aria-label="요청 종류">
-      <button
-        type="button"
-        aria-pressed={form.mode === "PATCH"}
-        disabled={blocked}
-        onClick={() => form.setMode("PATCH")}
-      >
-        부분 수정
-      </button>
-      <button
-        type="button"
-        aria-pressed={form.mode === "EXPLAIN"}
-        disabled={blocked}
-        onClick={() => form.setMode("EXPLAIN")}
-      >
-        설명
-      </button>
-      <button
-        type="button"
-        aria-pressed={form.mode === "REWRITE"}
-        disabled={blocked}
-        onClick={() => form.setMode("REWRITE")}
-      >
-        전체 재작성
-      </button>
-    </fieldset>
+    <>
+      <fieldset className="request-kind" aria-label="요청 목적">
+        <button
+          type="button"
+          aria-pressed={form.mode !== "EXPLAIN"}
+          disabled={blocked || Boolean(form.question)}
+          onClick={() =>
+            form.setMode(
+              form.mode === "EXPLAIN" ? (form.editMode ?? "PATCH") : form.mode,
+            )
+          }
+        >
+          수정 제안 받기
+        </button>
+        <button
+          type="button"
+          aria-pressed={form.mode === "EXPLAIN"}
+          disabled={blocked}
+          onClick={() => form.setMode("EXPLAIN")}
+        >
+          질문하기
+        </button>
+      </fieldset>
+      {form.mode !== "EXPLAIN" && (
+        <label>
+          수정 방식
+          <select
+            aria-label="수정 방식"
+            disabled={blocked}
+            value={form.mode}
+            onChange={(event) =>
+              form.setMode(event.target.value as "PATCH" | "REWRITE")
+            }
+          >
+            <option value="PATCH">기존 문장 다듬기</option>
+            <option value="REWRITE">새 전체 초안 만들기</option>
+          </select>
+        </label>
+      )}
+    </>
   );
 }

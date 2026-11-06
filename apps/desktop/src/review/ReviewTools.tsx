@@ -35,14 +35,16 @@ export function ReviewPrimary({
           }}
         />
       </details>
-      <button
-        className="bulk-approval"
-        type="button"
-        disabled={panel.blocked || !projection.groups.length}
-        onClick={panel.confirm}
-      >
-        남은 제안 전체 승인
-      </button>
+      {projection.groups.length > 0 && (
+        <button
+          className="bulk-approval"
+          type="button"
+          disabled={panel.blocked || !projection.groups.length}
+          onClick={panel.confirm}
+        >
+          남은 제안 전체 승인
+        </button>
+      )}
     </>
   );
 }

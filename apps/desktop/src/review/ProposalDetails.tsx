@@ -2,6 +2,7 @@ import { type ReactNode, useEffect, useRef } from "react";
 import type { Proposal } from "../generated/Proposal";
 import type { ReviewProjection } from "../generated/ReviewProjection";
 import { CandidateForm } from "./CandidateForm";
+import { ChangeQuestionEntry } from "./ChangeQuestionEntry";
 import { CommentForm } from "./CommentForm";
 import { QuotePreview } from "./QuotePreview";
 import { quotePreviewOffset } from "./quote-context";
@@ -30,12 +31,6 @@ export function ProposalDetails(props: Props) {
           proposal={proposal}
         />
       ))}
-      {props.panel.detail.kind === "summary" && (
-        <div className="task-continuation">
-          <strong>현재 작업 이어가기</strong>
-          <p>위의 ‘작업·대화’에서 조건과 AI 요청을 열 수 있습니다.</p>
-        </div>
-      )}
     </section>
   );
 }
@@ -46,7 +41,7 @@ function ProposalCard(props: Props & { proposal: Proposal }) {
   const formProps = {
     proposal,
     projection,
-    blocked: panel.blocked,
+    blocked: panel.blocked || !proposalEditable(projection, proposal),
     onSaved: panel.review.refresh,
   };
   return (
@@ -83,6 +78,7 @@ function ProposalSummary({
   panel,
   proposal,
   conditions,
+  projection,
 }: Props & { proposal: Proposal }) {
   return (
     <div className="proposal-summary">
@@ -96,7 +92,7 @@ function ProposalSummary({
       <CandidateState proposal={proposal} />
       <div className="review-conditions">
         <strong>유지할 조건</strong>
-        <p>{conditions || "고정 조건 없음"}</p>
+        <p>{conditions || "추가 조건 없음"}</p>
       </div>
       <QuotePreview
         text={proposal.operation.after}
@@ -107,14 +103,16 @@ function ProposalSummary({
           proposal.operation.after,
         )}
       />
-      <button
-        type="button"
-        className="comment-entry"
-        onClick={() => panel.openDetail("comment", proposal.id)}
-      >
-        코멘트 작성
-      </button>
-      <ProposalSecondary panel={panel} proposal={proposal} />
+      <ProposalFollowup
+        panel={panel}
+        projection={projection}
+        proposal={proposal}
+      />
+      <ProposalSecondary
+        panel={panel}
+        proposal={proposal}
+        projection={projection}
+      />
     </div>
   );
 }
@@ -125,12 +123,12 @@ function CandidateState({ proposal }: { proposal: Proposal }) {
   return (
     <>
       <p className="selected-scope-badge">
-        {proposal.revision > 1 ? "새 후보" : "제안 내용"} · r{proposal.revision}{" "}
-        · 미승인
+        {proposal.revision > 1 ? `수정안 ${proposal.revision}` : "제안 내용"} ·
+        미승인
       </p>
       {proposal.revision > 1 && (
         <p>
-          이전 후보와 비교하거나 다시 다듬을 수 있습니다. 확정본 반영은 별도
+          이전 수정안과 비교하거나 다시 다듬을 수 있습니다. 확정본 반영은 별도
           승인으로 진행합니다.
         </p>
       )}
@@ -187,7 +185,8 @@ function useDetailReturn({ panel }: Props) {
 function ProposalSecondary({
   panel,
   proposal,
-}: Pick<Props, "panel"> & { proposal: Proposal }) {
+  projection,
+}: Pick<Props, "panel" | "projection"> & { proposal: Proposal }) {
   return (
     <div className="proposal-secondary">
       {proposal.revision > 1 && (
@@ -202,21 +201,64 @@ function ProposalSecondary({
             })
           }
         >
-          이전 후보와 비교
+          이전 수정안과 비교
         </button>
       )}
       <button
         type="button"
+        disabled={panel.blocked || !proposalEditable(projection, proposal)}
         onClick={() => panel.openDetail("candidate", proposal.id)}
       >
         직접 후보 수정
       </button>
+    </div>
+  );
+}
+
+function ProposalFollowup({
+  panel,
+  projection,
+  proposal,
+}: Pick<Props, "panel" | "projection"> & { proposal: Proposal }) {
+  return (
+    <>
+      {" "}
       <button
         type="button"
+        className="comment-entry"
+        onClick={() => panel.openDetail("comment", proposal.id)}
+      >
+        코멘트 작성
+      </button>
+      <button
+        type="button"
+        disabled={panel.blocked || !proposalEditable(projection, proposal)}
         onClick={() => panel.openDetail("regenerate", proposal.id)}
       >
-        이 변경 다시 제안
+        더 고치기
       </button>
-    </div>
+      <ChangeQuestionEntry
+        blocked={panel.blocked}
+        request={{
+          documentId: projection.batch.documentId,
+          taskId: projection.batch.taskId,
+          batchId: projection.batch.id,
+          expectedHeadId: projection.currentHeadId,
+          subject: {
+            kind: "proposal",
+            id: proposal.id,
+            revision: proposal.revision,
+          },
+        }}
+      />
+    </>
+  );
+}
+
+function proposalEditable(projection: ReviewProjection, proposal: Proposal) {
+  return (
+    projection.batch.status === "ACTIVE" &&
+    proposal.decision === "PENDING" &&
+    proposal.validity === "VALID"
   );
 }

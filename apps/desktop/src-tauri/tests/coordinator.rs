@@ -84,6 +84,7 @@ fn cancellation_serializes_before_registration_and_preserves_confirmed_file() {
 fn begin_job(store: &Store, document_id: &str) -> docreview_core::domain::review::ReviewJob {
     store
         .put_task(TaskSnapshot {
+            name: None,
             id: FIRST.into(),
             document_id: document_id.into(),
             goal: "Review".into(),

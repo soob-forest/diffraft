@@ -65,6 +65,7 @@ function setup() {
       setSelection: vi.fn(),
       dragSelection: { from: 0, to: 0, cursor: 0 },
       capture: vi.fn(),
+      captureSection: vi.fn(),
       value: () => ({ kind: "whole" }),
     },
   };

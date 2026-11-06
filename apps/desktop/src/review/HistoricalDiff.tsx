@@ -10,10 +10,16 @@ export function HistoricalDiff({
   return (
     <section className="historical-diff" aria-label="이전 제안 읽기 전용 비교">
       <div className="review-message">
-        <strong>이전 제안 · r{history.target.revision} · 읽기 전용</strong>
+        <strong>
+          이전 제안
+          {history.target.revision > 1
+            ? ` · 수정안 ${history.target.revision}`
+            : ""}{" "}
+          · 읽기 전용
+        </strong>
         <p>
           {history.target.previousRevision
-            ? `이전 후보 r${history.target.previousRevision}와 비교`
+            ? `이전 수정안 ${history.target.previousRevision}와 비교`
             : "제안 당시 기준 원문과 비교"}{" "}
           · 이 화면에서는 승인하지 않습니다.
         </p>

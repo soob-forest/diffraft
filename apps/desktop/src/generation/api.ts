@@ -5,6 +5,7 @@ import type { ReviewBatch } from "../generated/ReviewBatch";
 import type { SavedGenerationRequest } from "../generated/SavedGenerationRequest";
 import type { TaskConversation } from "../generated/TaskConversation";
 import { SCHEMA_VERSION } from "../ipc";
+import { generationActivity } from "./generation-activity";
 
 export function taskConversation(taskId: string, before: number | null = null) {
   return invoke<TaskConversation>("task_conversation", {
@@ -15,6 +16,18 @@ export function taskConversation(taskId: string, before: number | null = null) {
 }
 
 export async function sendRequest(
+  saved: SavedGenerationRequest,
+  onResult?: (result: ConversationResult) => void,
+): Promise<"proposal" | "explanation"> {
+  const finish = generationActivity.begin(saved.value.documentId);
+  try {
+    return await executeRequest(saved, onResult);
+  } finally {
+    finish();
+  }
+}
+
+async function executeRequest(
   saved: SavedGenerationRequest,
   onResult?: (result: ConversationResult) => void,
 ): Promise<"proposal" | "explanation"> {

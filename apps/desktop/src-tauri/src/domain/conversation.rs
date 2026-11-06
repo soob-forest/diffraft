@@ -38,6 +38,9 @@ pub struct ConversationMessage {
     pub job_id: Option<String>,
     #[serde(default)]
     pub result: Option<ConversationResult>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[ts(optional)]
+    pub question: Option<super::change_question::ChangeQuestion>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, TS)]

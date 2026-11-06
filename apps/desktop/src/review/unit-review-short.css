@@ -6,6 +6,33 @@ body:has(.unit-review:not([hidden])) {
   min-width: 0;
 }
 @media (max-height: 400px) {
+  .unit-review {
+    --unit-group-heading-height: 18px;
+  }
+  .review-panel.unit-review .diff-pane .cm-content {
+    padding-top: 0;
+  }
+  .unit-review .diff-pane .change-group-start::before {
+    height: var(--unit-group-heading-height);
+    padding: 0;
+    font-size: 12px;
+    line-height: var(--unit-group-heading-height);
+  }
+  .unit-review .diff-pane .group-number {
+    padding-top: var(--unit-group-heading-height);
+  }
+  .unit-review .diff-gutter-delete:has(.group-number) {
+    background: linear-gradient(
+      white 0 var(--unit-group-heading-height),
+      #fdedec var(--unit-group-heading-height)
+    );
+  }
+  .unit-review .diff-gutter-insert:has(.group-number) {
+    background: linear-gradient(
+      white 0 var(--unit-group-heading-height),
+      #e8f5ec var(--unit-group-heading-height)
+    );
+  }
   .document-workspace[data-mode="review"] .unit-review-tools {
     position: sticky;
     top: 0;

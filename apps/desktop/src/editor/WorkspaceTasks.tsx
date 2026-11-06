@@ -5,6 +5,18 @@ import type { FlushRef } from "./DocumentWorkspace";
 import type { RequestScope } from "./request-scope";
 import { TaskPanel } from "./TaskPanel";
 import type { useDocument } from "./useDocument";
+
+type Props = {
+  model: ReturnType<typeof useDocument>;
+  taskFlush: FlushRef;
+  taskId: string;
+  onSelect: (value: string) => void;
+  scope: RequestScope;
+  onProposal: () => void;
+  onRewrite: () => void;
+  onResult: (result: ConversationResult) => void;
+  onSelectedDraft: (surface: SelectionSurface) => void;
+};
 export function DocumentTasks({
   model,
   taskFlush,
@@ -15,19 +27,11 @@ export function DocumentTasks({
   onRewrite,
   onResult,
   onSelectedDraft,
-}: {
-  model: ReturnType<typeof useDocument>;
-  taskFlush: FlushRef;
-  taskId: string;
-  onSelect: (value: string) => void;
-  scope: RequestScope;
-  onProposal: () => void;
-  onRewrite: () => void;
-  onResult: (result: ConversationResult) => void;
-  onSelectedDraft: (surface: SelectionSurface) => void;
-}) {
+}: Props) {
   return (
     <TaskPanel
+      model={model}
+      scope={scope}
       gate={model.gate}
       disabled={model.mutating}
       flushRef={taskFlush}

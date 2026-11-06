@@ -8,7 +8,7 @@ use rusqlite::{OptionalExtension, params};
 impl Store {
     pub fn read_drafts(&self) -> Result<Vec<DraftRecord>, AppError> {
         let connection = self.connection()?;
-        let mut statement=connection.prepare("SELECT key,schema_version,revision,value_json,updated_at FROM drafts ORDER BY updated_at,key").map_err(database_error)?;
+        let mut statement=connection.prepare("SELECT key,schema_version,revision,value_json,updated_at FROM drafts UNION ALL SELECT key,schema_version,revision,value_json,updated_at FROM first_request_drafts ORDER BY updated_at,key").map_err(database_error)?;
         statement
             .query_map([], |row| {
                 Ok(DraftRecord {
@@ -25,6 +25,9 @@ impl Store {
     }
     pub fn write_draft(&self, request: DraftWrite) -> Result<DraftRecord, AppError> {
         let parts = request.validate()?;
+        if parts[0] == "first-request" {
+            return self.write_first_request(request, &parts);
+        }
         let mut connection = self.connection()?;
         let transaction = connection.transaction().map_err(database_error)?;
         let belongs: bool = transaction

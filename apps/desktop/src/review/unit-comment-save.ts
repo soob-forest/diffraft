@@ -46,7 +46,7 @@ export async function saveUnitComment({
       kind: "registered",
       stage,
       submitted,
-      message: "코멘트 저장됨. 제안 내용은 그대로입니다.",
+      message: "코멘트 등록됨. 제안 내용은 그대로입니다.",
     };
   } catch (reason) {
     return { kind: "failed", stage, submitted, message: errorMessage(reason) };

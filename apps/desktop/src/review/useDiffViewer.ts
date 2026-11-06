@@ -28,6 +28,7 @@ export type Props = {
   onSelection: (value: LogicalSelection | null) => void;
   onSelectionIssue?: (value: string) => void;
   onEditSelection?: () => void;
+  onDismissSelection?: () => void;
   selectionTools?: ReactNode;
   onGroupSelect?: (id: string) => void;
   onMove: (direction: number) => void;
@@ -107,6 +108,8 @@ function useDiffPanes({
     onSelection: props.onSelection,
     onSelectionIssue: props.onSelectionIssue,
     onEditSelection: props.onEditSelection,
+    onDismissSelection:
+      props.active !== false ? props.onDismissSelection : undefined,
     onSelectionPosition: props.selectionTools
       ? setSelectionPosition
       : undefined,

@@ -70,7 +70,12 @@ export function CandidateForm(props: Props) {
   const form = useCandidate(props);
   return (
     <details className="candidate-form">
-      <summary>후보 직접 수정 · r{props.proposal.revision}</summary>
+      <summary>
+        후보 직접 수정
+        {props.proposal.revision > 1
+          ? ` · 수정안 ${props.proposal.revision}`
+          : ""}
+      </summary>
       <p className="muted">후보를 저장해도 확정본은 바뀌지 않습니다.</p>
       <DraftLocked locked={form.locked} />
       <form

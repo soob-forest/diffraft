@@ -8,6 +8,7 @@ import {
   type ViewUpdate,
 } from "@codemirror/view";
 import { useEffect, useLayoutEffect, useRef } from "react";
+import { selectionDismiss } from "../editor/selection-dismiss";
 import { selectionGesture } from "../editor/selection-gesture";
 import { alignmentExtension } from "./alignment";
 import {
@@ -121,6 +122,10 @@ function paneEvents(
       },
     ]),
     pointerEvents(current),
+    selectionDismiss({
+      enabled: () => Boolean(current.current.onDismissSelection),
+      dismiss: () => current.current.onDismissSelection?.(),
+    }),
     selectionGesture({
       enabled: () => current.current.selectionActionsEnabled !== false,
       show: (view, focus) => {

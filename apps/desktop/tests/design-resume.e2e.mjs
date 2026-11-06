@@ -26,7 +26,7 @@ describe("SC07 독립 재개 분기 준비", () => {
     await $(".comment-form textarea").setValue(
       "실행 주체를 명확하게 해 주세요.",
     );
-    await $("button=코멘트 저장").click();
+    await $("button=코멘트 등록").click();
     await browser.waitUntil(async () =>
       (await $(".comment-list").getText()).includes("실행 주체"),
     );
@@ -35,12 +35,12 @@ describe("SC07 독립 재개 분기 준비", () => {
       "코멘트를 반영해 실행 주체를 명시해 주세요.",
     );
     await writeFile(join(root, "next-generation"), "REGENERATE");
-    await $("button=재제안 요청").click();
-    await $("button=확인 후 재제안").waitForDisplayed();
-    await $("button=확인 후 재제안").click();
+    await $(".regenerate-form button[type=submit]").click();
+    await $(".regenerate-form").$("button=확인 후 요청").waitForDisplayed();
+    await $(".regenerate-form").$("button=확인 후 요청").click();
     await browser.waitUntil(async () =>
       (await $(".candidate-form summary").getProperty("textContent")).includes(
-        "r2",
+        "수정안 2",
       ),
     );
     assert.equal(await $(".version-badge").getText(), "v13");

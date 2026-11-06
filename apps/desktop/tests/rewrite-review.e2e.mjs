@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
+import { checkShortUnitLayouts } from "./support/request-workflow-short-layout.mjs";
 import {
   confirmed,
   prepareRewrite,
@@ -106,15 +107,16 @@ async function createInitialReview() {
   assert.equal(view.batch.mode, "REWRITE");
   assert.equal(await $("button=이 재작성안 적용").isExisting(), false);
   await measureUnitReviewAfter();
+  await checkShortUnitLayouts();
   await showUnitComment();
   assert.equal(await $(".unit-comments blockquote").isExisting(), false);
   assert.equal(await $(".unit-comments select").isExisting(), false);
   await $(".unit-comments textarea").setValue("도입부는 이 방향이 좋습니다.");
-  await $("button=코멘트 저장").click();
+  await $("button=코멘트 등록").click();
   await browser.waitUntil(
     async () => (await $(".unit-comments textarea").getValue()) === "",
   );
-  assert.match(await $(".unit-comments").getText(), /저장된 코멘트 · 1/);
+  assert.match(await $(".unit-comments").getText(), /등록된 코멘트 · 1/);
   assert.equal(await readFile(join(root, "rewrite.md"), "utf8"), confirmed);
 }
 
@@ -166,7 +168,7 @@ async function verifyRegistrationFailure() {
     "CREATE TRIGGER deny_unit_comment BEFORE INSERT ON unit_comments BEGIN SELECT RAISE(ABORT,'fixture'); END;",
   ]);
   try {
-    await $("button=코멘트 저장").click();
+    await $("button=코멘트 등록").click();
     await browser.waitUntil(async () =>
       (await $(".unit-comments [role=status]").getText()).includes(
         "저장할 수 없습니다",

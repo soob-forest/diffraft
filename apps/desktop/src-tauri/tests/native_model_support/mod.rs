@@ -54,6 +54,7 @@ impl World {
         checked(settings::save(store.directory(), cli));
         let head = checked(store.open_document(&path));
         let task = checked(store.put_task(TaskSnapshot {
+            name: None,
             id: uuid::Uuid::new_v4().to_string(),
             document_id: head.id.clone(),
             goal: "Synthetic model compatibility".into(),
@@ -91,6 +92,7 @@ impl World {
 
     pub fn request(&self, model: ModelSelection, mode: ResponseMode) -> GenerateRequest {
         GenerateRequest {
+            question: None,
             model: model.into(),
             document_id: self.head.id.clone(),
             task_id: self.task.clone(),

@@ -1,15 +1,22 @@
 import { type ReactNode, useState } from "react";
+import { useDraftPersistence } from "../drafts/SessionDrafts";
 import type { TaskSnapshot } from "../generated/TaskSnapshot";
 import { errorMessage } from "../ipc";
 import { editorCommand } from "./api";
 import { CommonRules } from "./CommonRules";
 import type { FlushRef } from "./DocumentWorkspace";
+import { FirstRequest } from "./FirstRequest";
+import { firstRequestEntries } from "./first-request";
 import type { OperationGate } from "./operation-gate";
+import type { RequestScope } from "./request-scope";
 import { TaskChooser } from "./TaskChooser";
 import { TaskForm } from "./TaskForm";
 import { useConditionFlush } from "./useConditionFlush";
+import type { DocumentModel } from "./useDocument";
 
 interface Props {
+  model: DocumentModel;
+  scope: RequestScope;
   gate: OperationGate;
   documentId: string;
   tasks: TaskSnapshot[];
@@ -26,27 +33,41 @@ export function TaskPanel(props: Props) {
   const conditionFlush = useConditionFlush(props.flushRef);
   const { choose, error } = useTaskChoice(props);
   const task = props.tasks.find((value) => value.id === selected);
+  const { store } = useDraftPersistence();
+  const pending = firstRequestEntries(store, props.documentId).some(
+    ({ value }) => value.taskId === selected,
+  );
   const conditions = (
     <TaskConditions props={props} conditionFlush={conditionFlush} task={task} />
   );
   return (
     <section className="task-panel" aria-label="작업" inert={props.disabled}>
-      <TaskChooser
-        disabled={Boolean(props.disabled)}
-        tasks={props.tasks}
-        selected={selected}
-        onChoose={(id) => {
-          void choose(id);
-        }}
-      />
-      {error && <p role="alert">{error}</p>}
-      {!task && (
-        <p>
-          작업은 같은 목표로 요청과 검토를 이어가는 공간입니다. 목표를 입력하고
-          작업을 만든 뒤 첫 요청을 보내세요.
-        </p>
+      {task && !pending ? (
+        props.children(conditions)
+      ) : (
+        <FirstRequest
+          model={props.model}
+          taskId={selected || undefined}
+          scope={props.scope}
+          conditionFlush={conditionFlush.rules}
+          onTask={(value) => {
+            props.onSaved(value);
+            props.onSelect(value.id);
+          }}
+        />
       )}
-      {task ? props.children(conditions) : conditions}
+      <details className="task-management">
+        <summary>작업 관리</summary>
+        <TaskChooser
+          disabled={Boolean(props.disabled)}
+          tasks={props.tasks}
+          selected={selected}
+          onChoose={(id) => {
+            void choose(id);
+          }}
+        />
+      </details>
+      {error && <p role="alert">{error}</p>}
     </section>
   );
 }

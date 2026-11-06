@@ -66,6 +66,9 @@ func activateApplication(_ app: NSRunningApplication) {
     while NSWorkspace.shared.frontmostApplication?.processIdentifier != app.processIdentifier && Date() < deadline {
         RunLoop.current.run(until: Date().addingTimeInterval(0.02))
     }
+    guard NSWorkspace.shared.frontmostApplication?.processIdentifier == app.processIdentifier else {
+        fail("검증한 테스트 앱을 전면으로 전환하지 못했습니다.")
+    }
 }
 
 func postCommand(_ command: KeyCommand, _ pid: pid_t, _ path: String, _ source: CGEventSource) {
@@ -97,24 +100,6 @@ func postTestKey(_ event: CGEvent, _ command: KeyCommand, _ pid: pid_t) {
     }
 }
 
-func raiseApplicationWindow(_ app: NSRunningApplication) {
-    let target = AXUIElementCreateApplication(app.processIdentifier)
-    var result: CFTypeRef?
-    guard AXUIElementCopyAttributeValue(target, kAXWindowsAttribute as CFString, &result) == .success,
-          let windows = result as? [AXUIElement], let window = windows.first else {
-        fail("검증한 테스트 앱의 창을 찾을 수 없습니다.")
-    }
-    guard AXUIElementPerformAction(window, kAXRaiseAction as CFString) == .success else {
-        fail("검증한 테스트 창을 앞으로 가져올 수 없습니다.")
-    }
-    var origin = CGPoint(x: 24, y: 48)
-    if let position = AXValueCreate(.cgPoint, &origin) {
-        guard AXUIElementSetAttributeValue(window, kAXPositionAttribute as CFString, position) == .success else {
-            fail("검증한 테스트 창을 화면 안으로 이동할 수 없습니다.")
-        }
-    }
-}
-
 func windowEvidence(_ pid: pid_t) -> String {
     let windows = CGWindowListCopyWindowInfo(.optionAll, kCGNullWindowID) as? [[String: Any]] ?? []
     let owned = windows.filter { ($0[kCGWindowOwnerPID as String] as? NSNumber)?.int32Value == pid }
@@ -140,7 +125,6 @@ let app = verifiedApplication(pid, args[2])
 guard AXIsProcessTrusted() else { fail("실제 키보드 검사에 macOS 접근성 권한이 필요합니다.") }
 activateApplication(app)
 if focusOnly {
-    raiseApplicationWindow(app)
     print(windowEvidence(pid))
 }
 if !commands.isEmpty {

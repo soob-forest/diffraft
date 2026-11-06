@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import type { DocumentModel } from "../editor/useDocument";
 import { useReviewSurface } from "../editor/WorkspacePanels";
 import type { ReviewProjection } from "../generated/ReviewProjection";
+import { destinationQuestion } from "./result-destination";
 import { reviewFingerprint } from "./state";
 import {
   nextPendingUnit,
@@ -18,6 +19,11 @@ export function useUnitReviewController(
   projection: ReviewProjection,
 ) {
   const navigation = useUnitNavigation(projection);
+  const requestedQuestion = useQuestionNavigation(
+    panel,
+    navigation,
+    projection,
+  );
   const focus = useDecisionFocus(panel, navigation, document.mutating);
   const commentFocus = useCommentFocus(navigation.selected?.id);
   const reopen = useReopenedNavigation(panel, navigation, focus.title);
@@ -37,6 +43,7 @@ export function useUnitReviewController(
   });
   return {
     navigation,
+    requestedQuestion,
     invalid,
     blocked,
     attention: Boolean(
@@ -159,4 +166,35 @@ function useCommentFocus(unitId: string | undefined) {
       surface?.showDetail();
     },
   };
+}
+
+function useQuestionNavigation(
+  panel: Panel,
+  navigation: UnitNavigation,
+  projection: ReviewProjection,
+) {
+  const question = destinationQuestion(panel.requestedResult, projection);
+  const handled = useRef<Panel["requestedResult"]>(null);
+  const surface = useReviewSurface();
+  useEffect(() => {
+    if (
+      question?.subject.kind !== "unit" ||
+      handled.current === panel.requestedResult
+    )
+      return;
+    const id = question.subject.id;
+    const unit = projection.batch.reviewUnits.find((unit) => unit.id === id);
+    if (!unit) return;
+    handled.current = panel.requestedResult;
+    navigation.update({
+      filter: "all",
+      selectedId: unit.id,
+      original: unitDecision(projection.batch, unit) !== "PENDING",
+    });
+    surface?.showDetail();
+  }, [question, panel.requestedResult, projection.batch, navigation, surface]);
+  return question?.subject.kind === "unit" &&
+    question.subject.id === navigation.selected?.id
+    ? question
+    : undefined;
 }

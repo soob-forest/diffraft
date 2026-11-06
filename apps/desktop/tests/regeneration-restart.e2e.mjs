@@ -15,7 +15,7 @@ describe("재제안 이후 앱 재시작", () => {
     await chooseGroup(3);
     assert.match(
       await $(".candidate-form summary").getProperty("textContent"),
-      /r2/,
+      /수정안 2/,
     );
     const state = await editor({
       kind: "read",

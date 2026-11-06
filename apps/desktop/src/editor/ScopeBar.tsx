@@ -15,15 +15,22 @@ function useScope({ model, requestScope }: Props) {
   const latest = useRef(0);
   const pin = async () => {
     const sequence = ++latest.current;
+    const cursor = requestScope.dragSelection.cursor;
     try {
       const { scope, captured } = await confirmRequestScope({
         model,
         requestScope,
+        selection: kind === "section" ? { kind: "section", cursor } : undefined,
       });
       if (sequence === latest.current) {
         if (captured) requestScope.capture(captured);
+        if (kind === "section") requestScope.captureSection(cursor);
         setScope(scope);
-        setPinnedSelection(selectionKey);
+        setPinnedSelection(
+          kind === "section"
+            ? JSON.stringify([kind, { from: cursor, to: cursor, cursor }])
+            : selectionKey,
+        );
         model.setError("");
       }
     } catch (error) {
@@ -56,10 +63,10 @@ export function ScopeBar(props: Props) {
   const [expanded, setExpanded] = useState(false);
   const summary = scopeSummary(props, scope.kind);
   return (
-    <section className="scope-bar" aria-label="요청 범위">
+    <section className="scope-bar" aria-label="요청 대상">
       <DraftLocked locked={props.requestScope.locked} />
       <div className="scope-heading">
-        <strong>요청 범위</strong>
+        <strong>요청 대상</strong>
         <button
           type="button"
           aria-expanded={expanded}
@@ -107,7 +114,7 @@ function scopeSummary(props: Props, kind: string) {
       .filter((item) => item.fromUtf16 <= selection.cursor)
       .at(-1)?.title ?? "문서 시작";
   return kind === "whole"
-    ? "전체 문서"
+    ? "확정본 전체"
     : kind === "section"
       ? `현재 섹션 · ${heading}`
       : selection.to > selection.from

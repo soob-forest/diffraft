@@ -1,45 +1,25 @@
+import { useDraftPersistence } from "../drafts/SessionDrafts";
+import { chooseRequestTarget, requestKey } from "../generation/request-targets";
+import { errorMessage } from "../ipc";
 import { DocumentMain } from "./DocumentMain";
 import type { WorkspaceState } from "./DocumentWorkspace";
 import { SourceRequestPanel } from "./SourceRequestPanel";
 import { WorkspacePanels } from "./WorkspacePanels";
 import { DocumentTasks } from "./WorkspaceTasks";
 export function WorkspaceBody({ state }: { state: WorkspaceState }) {
-  const {
-    model,
-    mode,
-    setMode,
-    tasksOpen,
-    setTasksOpen,
-    taskFlush,
-    taskId,
-    entry,
-  } = state;
+  const { store } = useDraftPersistence();
+  const { mode, tasksOpen, setTasksOpen } = state;
   return (
     <WorkspacePanels
       mode={mode}
+      showSource={() => openConfirmedRequest(state, store)}
       source={
         state.sourceRequest.visible ? <WorkspaceSource state={state} /> : null
       }
       open={{ value: tasksOpen, set: setTasksOpen }}
       tasks={<WorkspaceTasks state={state} />}
     >
-      <DocumentMain
-        model={model}
-        mode={mode}
-        setMode={setMode}
-        taskId={taskId}
-        rewriteRequest={entry.rewriteRequest}
-        requestedResult={entry.result}
-        onResult={entry.openResult}
-        selectedDraftRequest={entry.selectedDraftRequest}
-        onRequestOpen={() => setTasksOpen(true)}
-        onReviewTask={state.openReviewTask}
-        scope={state.scope}
-        sourceRequest={state.sourceRequest}
-        flushTask={async () => {
-          await taskFlush.current?.();
-        }}
-      />
+      <WorkspaceMain state={state} />
     </WorkspacePanels>
   );
 }
@@ -52,6 +32,7 @@ function WorkspaceSource({ state }: { state: WorkspaceState }) {
       key={taskId}
       request={state.sourceRequest}
       model={model}
+      scope={state.scope}
       taskId={taskId}
       onOverlap={state.openSourceOverlap}
     />
@@ -75,4 +56,55 @@ function WorkspaceTasks({ state }: { state: WorkspaceState }) {
       }}
     />
   );
+}
+
+function WorkspaceMain({ state }: { state: WorkspaceState }) {
+  const { model, mode, setMode, taskId, entry, setTasksOpen, taskFlush } =
+    state;
+  return (
+    <DocumentMain
+      model={model}
+      mode={mode}
+      setMode={setMode}
+      taskId={taskId}
+      rewriteRequest={entry.rewriteRequest}
+      requestedResult={entry.result}
+      onResult={entry.openResult}
+      selectedDraftRequest={entry.selectedDraftRequest}
+      onRequestOpen={() => setTasksOpen(true)}
+      onReviewTask={state.openReviewTask}
+      scope={state.scope}
+      sourceRequest={state.sourceRequest}
+      flushTask={async () => {
+        await taskFlush.current?.();
+      }}
+    />
+  );
+}
+
+function openConfirmedRequest(
+  state: WorkspaceState,
+  store: ReturnType<typeof useDraftPersistence>["store"],
+) {
+  const { model, taskId, setMode, setTasksOpen } = state;
+  try {
+    chooseRequestTarget(
+      store,
+      requestKey(model.state.document.id, taskId),
+      { question: undefined, referenceBatchId: undefined },
+      "PATCH",
+    );
+    state.scope.setKind("selection");
+    state.scope.setSelection({ from: 0, to: 0, cursor: 0 });
+    state.sourceRequest.close();
+    setMode("source");
+    setTasksOpen(false);
+    requestAnimationFrame(() =>
+      document
+        .querySelector<HTMLElement>(".source-editor .cm-content")
+        ?.focus(),
+    );
+  } catch (reason) {
+    model.setError(errorMessage(reason));
+  }
 }

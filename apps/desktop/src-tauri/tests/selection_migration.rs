@@ -13,6 +13,7 @@ fn fixture(version: u32) -> (tempfile::TempDir, DocumentSnapshot) {
     let task = uuid::Uuid::new_v4().to_string();
     store
         .put_task(TaskSnapshot {
+            name: None,
             id: task.clone(),
             document_id: document.id.clone(),
             goal: "기존 작업".into(),
@@ -34,7 +35,7 @@ fn fixture(version: u32) -> (tempfile::TempDir, DocumentSnapshot) {
     let connection =
         rusqlite::Connection::open(root.path().join("data/workspace.sqlite3")).unwrap();
     connection
-        .execute_batch("DROP TABLE unit_comments; DROP TABLE review_units; DROP TABLE review_plans; ALTER TABLE proposal_batches DROP COLUMN review_mode; DROP TABLE selection_jobs;")
+        .execute_batch("DROP TABLE first_request_drafts; ALTER TABLE tasks DROP COLUMN name; DROP TABLE unit_comments; DROP TABLE review_units; DROP TABLE review_plans; ALTER TABLE proposal_batches DROP COLUMN review_mode; DROP TABLE selection_jobs;")
         .unwrap();
     if version == 8 {
         connection.execute_batch("DROP TABLE drafts;").unwrap();
@@ -70,7 +71,7 @@ fn schema_8_and_9_upgrade_preserves_source_tasks_drafts_and_restorable_backups()
             database
                 .pragma_query_value(None, "user_version", |row| row.get::<_, u32>(0))
                 .unwrap(),
-            11
+            12
         );
         let backup = backup(root.path());
         let saved = rusqlite::Connection::open(&backup).unwrap();

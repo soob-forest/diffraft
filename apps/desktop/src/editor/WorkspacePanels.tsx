@@ -8,11 +8,14 @@ import {
   useState,
 } from "react";
 import type { DocumentMode } from "./DocumentToolbar";
+import "./panel-navigation.css";
 
 type Surface = {
   detail: HTMLDivElement | null;
   detailVisible: boolean;
   showDetail: () => void;
+  showRequest: () => void;
+  showSource: () => void;
   close: () => void;
 };
 const ReviewSurface = createContext<Surface | null>(null);
@@ -20,19 +23,22 @@ export function useReviewSurface() {
   return useContext(ReviewSurface);
 }
 
+type WorkspacePanelProps = {
+  children: ReactNode;
+  tasks: ReactNode;
+  source?: ReactNode;
+  showSource: () => void;
+  mode: DocumentMode;
+  open: { value: boolean; set: (value: boolean) => void };
+};
 export function WorkspacePanels({
   children,
   tasks,
   source,
   mode,
   open,
-}: {
-  children: ReactNode;
-  tasks: ReactNode;
-  source?: ReactNode;
-  mode: DocumentMode;
-  open: { value: boolean; set: (value: boolean) => void };
-}) {
+  showSource,
+}: WorkspacePanelProps) {
   const { detail, setDetail, tab, setTab, showDetail, close } = usePanelState(
     mode,
     open,
@@ -42,6 +48,12 @@ export function WorkspacePanels({
       value={{
         detail,
         showDetail,
+        showSource,
+        showRequest: () => {
+          showDetail();
+          setTab("task");
+          requestAnimationFrame(focusRequest);
+        },
         close,
         detailVisible: open.value && mode === "review" && tab === "detail",
       }}
@@ -51,12 +63,14 @@ export function WorkspacePanels({
         id="task-panel"
         className="workspace-panel"
         hidden={!open.value}
-        aria-label="작업과 변경 상세"
+        aria-label="변경과 AI 요청"
       >
-        {mode === "review" && <PanelTabs tab={tab} setTab={setTab} />}
-        <button type="button" className="panel-return" onClick={close}>
-          본문으로 돌아가기
-        </button>
+        <div className="workspace-panel-navigation">
+          {mode === "review" && <PanelTabs tab={tab} setTab={setTab} />}
+          <button type="button" className="panel-return" onClick={close}>
+            본문으로 돌아가기
+          </button>
+        </div>
         <PanelContents
           mode={mode}
           tab={tab}
@@ -138,7 +152,7 @@ function PanelTabs({
         aria-controls="review-detail"
         onClick={() => setTab("detail")}
       >
-        변경 상세
+        이 변경
       </button>
       <button
         type="button"
@@ -149,7 +163,7 @@ function PanelTabs({
         aria-controls="task-content"
         onClick={() => setTab("task")}
       >
-        작업·대화
+        AI 요청·대화
       </button>
     </div>
   );
@@ -160,6 +174,7 @@ function movePanelTab(
   tab: string,
   setTab: (value: string) => void,
 ) {
+  if (event.nativeEvent.isComposing || event.repeat) return;
   if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
   event.preventDefault();
   const next =
@@ -205,7 +220,7 @@ function PanelContents({
       />
       {mode === "source" && source}
       <section
-        aria-label="작업과 대화"
+        aria-label="AI 요청과 대화"
         id="task-content"
         role={mode === "review" ? "tabpanel" : undefined}
         aria-labelledby={mode === "review" ? "task-content-tab" : undefined}
@@ -218,4 +233,11 @@ function PanelContents({
       </section>
     </>
   );
+}
+
+function focusRequest() {
+  const inputs = document.querySelectorAll<HTMLTextAreaElement>(
+    ".workspace-panel:not([hidden]) .request-form textarea:not(:disabled)",
+  );
+  [...inputs].find((input) => input.getClientRects().length)?.focus();
 }

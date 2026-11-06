@@ -9,7 +9,9 @@ import { ApprovalDialog } from "./ApprovalDialog";
 import { CommentList } from "./CommentList";
 import { CurrentResultNotice } from "./CurrentResultNotice";
 import { HistoricalDiff } from "./HistoricalDiff";
+import { reviewPresentation } from "./presentation";
 import { ReviewComparison } from "./ReviewComparison";
+import { ReviewCompletion } from "./ReviewCompletion";
 import { Processed, ProposalDetails } from "./ReviewContent";
 import { ReviewStatus } from "./ReviewStatus";
 import { ReviewTaskOptions } from "./ReviewTaskOptions";
@@ -20,6 +22,7 @@ import { SelectionRequestEntry } from "./SelectionRequestEntry";
 import { UnitReview } from "./UnitReview";
 import { isUnitReview } from "./unit-review-model";
 import { type Panel, useReviewPanel } from "./useReviewPanel";
+import { WholeFollowup } from "./WholeFollowup";
 import "./review.css";
 import "./selection.css";
 
@@ -43,7 +46,10 @@ export function ReviewPanel(props: Props) {
   if (!props.taskId)
     return (
       <div className="review-empty" hidden={!props.active}>
-        검토할 작업을 먼저 만들거나 선택해 주세요.
+        <p>아직 제안이 없습니다. AI에게 첫 요청을 작성해 주세요.</p>
+        <button type="button" onClick={props.onRequest}>
+          첫 요청 작성
+        </button>
       </div>
     );
   if (panel.review.projection && isUnitReview(panel.review.projection.batch))
@@ -92,14 +98,21 @@ function StandardReviewPanel({ panel, ...props }: Props & { panel: Panel }) {
           versions={props.document.state.versions}
         />
       )}
-      <div className="review-current" hidden={Boolean(panel.history.target)}>
-        <ReviewDisplay
-          panel={panel}
-          active={props.active}
-          document={props.document}
-        />
-      </div>
-      <HistoricalDiff history={panel.history} />
+      <ReviewCompletion
+        completed={
+          reviewPresentation(panel.review.projection).kind === "completed"
+        }
+        historyOpen={Boolean(panel.history.target)}
+      >
+        <div className="review-current" hidden={Boolean(panel.history.target)}>
+          <ReviewDisplay
+            panel={panel}
+            active={props.active}
+            document={props.document}
+          />
+        </div>
+        <HistoricalDiff history={panel.history} />
+      </ReviewCompletion>
       <ReviewExtras panel={panel} {...props} />
       <PendingApproval panel={panel} />
     </section>
@@ -187,6 +200,12 @@ function ReviewDisplay({
         versions={document.state.versions}
         selection={{
           onSelection: panel.setSelection,
+          onDismissSelection:
+            panel.selectedRequest.active && !panel.blocked
+              ? () => {
+                  void panel.selectedRequest.dismiss();
+                }
+              : undefined,
           onSelectionIssue: panel.setSelectionIssue,
           onEditSelection: () => {
             panel.startSelectedRequest();
@@ -213,6 +232,11 @@ function ReviewDetails({ panel, ...props }: Props & { panel: Panel }) {
   return (
     <>
       <SelectedRequestForm panel={panel} onResult={props.onResult} />
+      {projection?.batch.mode === "REWRITE" &&
+        projection.batch.reviewMode === "WHOLE" &&
+        !panel.selectedRequest.active && (
+          <WholeFollowup panel={panel} projection={projection} />
+        )}
       {projection && !panel.history.target && !panel.selectedRequest.active && (
         <ProposalDetails
           panel={panel}
@@ -223,25 +247,7 @@ function ReviewDetails({ panel, ...props }: Props & { panel: Panel }) {
           }
         />
       )}
-      {projection && (
-        <Processed
-          open={(proposal) =>
-            panel.history.open({
-              batchId: projection.batch.id,
-              proposalId: proposal.id,
-              revision: proposal.revision,
-              previousRevision: null,
-            })
-          }
-          batchStatus={projection.batch.status}
-          proposals={projection.batch.proposals.filter(
-            (p) =>
-              projection.batch.status !== "ACTIVE" ||
-              p.decision !== "PENDING" ||
-              p.validity !== "VALID",
-          )}
-        />
-      )}
+      <ProcessedChanges panel={panel} />
       {panel.review.state.comments.length > 0 && (
         <CommentList
           comments={panel.review.state.comments}
@@ -256,5 +262,29 @@ function ReviewDetails({ panel, ...props }: Props & { panel: Panel }) {
         rewriteRequest={props.rewriteRequest}
       />
     </>
+  );
+}
+
+function ProcessedChanges({ panel }: { panel: Panel }) {
+  const projection = panel.review.projection;
+  if (!projection) return null;
+  return (
+    <Processed
+      batchStatus={projection.batch.status}
+      proposals={projection.batch.proposals.filter(
+        (p) =>
+          projection.batch.status !== "ACTIVE" ||
+          p.decision !== "PENDING" ||
+          p.validity !== "VALID",
+      )}
+      open={(proposal) =>
+        panel.history.open({
+          batchId: projection.batch.id,
+          proposalId: proposal.id,
+          revision: proposal.revision,
+          previousRevision: null,
+        })
+      }
+    />
   );
 }

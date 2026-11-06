@@ -1,0 +1,36 @@
+{
+  "build": {
+    "id": "8289d0ee20658e00-e2e",
+    "sourceHash": "8289d0ee20658e00f1e460018fa9fdfb4d24b4ea01ef61532f5c1058dafb73df",
+    "profile": "e2e",
+    "version": "0.1.0",
+    "builtAt": "2026-11-05T14:12:31.898Z",
+    "executable": "/Users/dltntnqo/Desktop/not_work/diffraft/apps/desktop/src-tauri/target/debug/docreview",
+    "binaryHash": "7054175e81f2ffb333cdc122bf8439492cb4a9702339e80cffeb010834fb7e92"
+  },
+  "exportedAt": "2026-11-05T14:17:53.209Z",
+  "scope": "합성 작업 공간의 실제 네이티브 캡처. 이번 세 장에는 viewport/배율 별도 측정이 없으며 9개 격자 인수 증거로 집계하지 않음.",
+  "items": [
+    {
+      "file": "general-preparation-renewed.png",
+      "sha256": "6aeb2be2f9da4a4550478bf36d65c97054fb8065dadffd2b800bf0a3183dbfd7",
+      "pixelWidth": 2880,
+      "pixelHeight": 1782,
+      "capturedFileTime": "2026-11-05T14:13:33.529Z"
+    },
+    {
+      "file": "selected-preparation-renewed.png",
+      "sha256": "c495ed90a87f70b1534b8446846922d8bb686b4321e4c3c4a398c13ba88b80b6",
+      "pixelWidth": 2880,
+      "pixelHeight": 1782,
+      "capturedFileTime": "2026-11-05T14:13:35.222Z"
+    },
+    {
+      "file": "first-click-dismiss-resumed.png",
+      "sha256": "d77d7fe9ca94d20e68583ac3377280335eefb92f6e84b85444cb9f105ee8f40a",
+      "pixelWidth": 2880,
+      "pixelHeight": 1782,
+      "capturedFileTime": "2026-11-05T14:14:33.556Z"
+    }
+  ]
+}

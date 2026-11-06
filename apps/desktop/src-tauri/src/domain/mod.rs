@@ -1,6 +1,7 @@
 pub mod ai;
 pub mod ai_settings;
 pub mod annotations;
+pub mod change_question;
 pub mod codex;
 pub mod conflict;
 pub mod conflict_api;

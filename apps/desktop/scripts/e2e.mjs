@@ -24,6 +24,8 @@ await assertE2EBuild();
 if (
   process.argv[2] &&
   ![
+    "request-followup",
+    "request-workflow",
     "model-selection",
     "codex",
     "codex-native",
@@ -79,86 +81,90 @@ const selectionTransitions = [
 ];
 const unitReview = ["rewrite-review", "rewrite-review-restart"];
 const scenarios =
-  process.argv[2] === "rewrite-review"
-    ? [unitReview]
-    : process.argv[2]
-      ? [
-          process.argv[2] === "ux"
-            ? ["ux", "ux-restart", "ux-extensions", "ux-local", "ux-recovery"]
-            : process.argv[2] === "selection-popover"
-              ? [
-                  "selection-popover",
-                  "selection-popover-layout",
-                  "selection-popover-restart",
-                ]
-              : process.argv[2] === "selection-transitions"
-                ? selectionTransitions
-                : process.argv[2] === "ux-reliability"
-                  ? ["ux-reliability", "ux-reliability-restart"]
-                  : process.argv[2] === "quit"
-                    ? Array.from({ length: QUIT_STRESS_RUNS }, () => "quit")
-                    : process.argv[2] === "codex-native"
-                      ? ["codex-native", "codex-restart"]
-                      : process.argv[2] === "codex"
-                        ? [
-                            "codex",
-                            "codex-restart",
-                            "codex-stale",
-                            "codex-recovery",
-                          ]
-                        : process.argv[2] === "model-selection"
-                          ? ["model-selection", "model-selection-restart"]
-                          : process.argv[2] === "design-resume"
-                            ? ["design-resume", "design-resume-restart"]
-                            : process.argv[2] === "regeneration"
-                              ? regeneration
-                              : process.argv[2] === "generation"
-                                ? generation
-                                : process.argv[2] === "export"
-                                  ? exportPhases
-                                  : process.argv[2] === "shutdown"
-                                    ? shutdown
-                                    : process.argv[2] === "navigation"
-                                      ? navigation
-                                      : process.argv[2] === "recovery"
-                                        ? recovery
-                                        : [process.argv[2]],
-        ]
-      : [
-          ["editor", "restart"],
-          ["connection"],
-          ["model-selection", "model-selection-restart"],
-          ["codex", "codex-restart", "codex-stale", "codex-recovery"],
-          generation,
-          ["design"],
-          ["tobe"],
-          ["design-resume", "design-resume-restart"],
-          ["usability"],
-          ["ux", "ux-restart", "ux-extensions", "ux-local", "ux-recovery"],
-          ["ux-reliability", "ux-reliability-restart"],
-          [
-            "selection-popover",
-            "selection-popover-layout",
-            "selection-popover-restart",
-          ],
-          ["review"],
-          selectionTransitions,
-          ["source-lifecycle"],
-          recovery,
-          ["conflict"],
-          ["layout"],
-          regeneration,
-          ["history"],
-          ["rewrite"],
-          unitReview,
-          ["review-followup"],
-          ["rewrite-cancel"],
-          navigation,
-          exportPhases,
-          shutdown,
-          ["performance"],
-          ["startup-failure"],
-        ];
+  process.argv[2] === "request-workflow"
+    ? [["request-workflow", "request-workflow-restart"]]
+    : process.argv[2] === "rewrite-review"
+      ? [unitReview]
+      : process.argv[2]
+        ? [
+            process.argv[2] === "ux"
+              ? ["ux", "ux-restart", "ux-extensions", "ux-local", "ux-recovery"]
+              : process.argv[2] === "selection-popover"
+                ? [
+                    "selection-popover",
+                    "selection-popover-layout",
+                    "selection-popover-restart",
+                  ]
+                : process.argv[2] === "selection-transitions"
+                  ? selectionTransitions
+                  : process.argv[2] === "ux-reliability"
+                    ? ["ux-reliability", "ux-reliability-restart"]
+                    : process.argv[2] === "quit"
+                      ? Array.from({ length: QUIT_STRESS_RUNS }, () => "quit")
+                      : process.argv[2] === "codex-native"
+                        ? ["codex-native", "codex-restart"]
+                        : process.argv[2] === "codex"
+                          ? [
+                              "codex",
+                              "codex-restart",
+                              "codex-stale",
+                              "codex-recovery",
+                            ]
+                          : process.argv[2] === "model-selection"
+                            ? ["model-selection", "model-selection-restart"]
+                            : process.argv[2] === "design-resume"
+                              ? ["design-resume", "design-resume-restart"]
+                              : process.argv[2] === "regeneration"
+                                ? regeneration
+                                : process.argv[2] === "generation"
+                                  ? generation
+                                  : process.argv[2] === "export"
+                                    ? exportPhases
+                                    : process.argv[2] === "shutdown"
+                                      ? shutdown
+                                      : process.argv[2] === "navigation"
+                                        ? navigation
+                                        : process.argv[2] === "recovery"
+                                          ? recovery
+                                          : [process.argv[2]],
+          ]
+        : [
+            ["request-followup"],
+            ["request-workflow", "request-workflow-restart"],
+            ["editor", "restart"],
+            ["connection"],
+            ["model-selection", "model-selection-restart"],
+            ["codex", "codex-restart", "codex-stale", "codex-recovery"],
+            generation,
+            ["design"],
+            ["tobe"],
+            ["design-resume", "design-resume-restart"],
+            ["usability"],
+            ["ux", "ux-restart", "ux-extensions", "ux-local", "ux-recovery"],
+            ["ux-reliability", "ux-reliability-restart"],
+            [
+              "selection-popover",
+              "selection-popover-layout",
+              "selection-popover-restart",
+            ],
+            ["review"],
+            selectionTransitions,
+            ["source-lifecycle"],
+            recovery,
+            ["conflict"],
+            ["layout"],
+            regeneration,
+            ["history"],
+            ["rewrite"],
+            unitReview,
+            ["review-followup"],
+            ["rewrite-cancel"],
+            navigation,
+            exportPhases,
+            shutdown,
+            ["performance"],
+            ["startup-failure"],
+          ];
 if (process.argv[2] === "quit") await prepareNativeQuit();
 if (process.argv[2] === "ux-native") await prepareUxNativeApp(app);
 await prepareKeyboard(scenarios, app);

@@ -13,6 +13,9 @@ pub struct GenerationSnapshot {
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, TS)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct GenerateRequest {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[ts(optional)]
+    pub question: Option<super::change_question::ChangeQuestion>,
     #[serde(default, deserialize_with = "super::provider::request_model")]
     pub model: super::provider::ProviderModel,
     pub document_id: String,
@@ -30,6 +33,14 @@ pub struct GenerateRequest {
 impl GenerateRequest {
     pub fn validate(&self) -> Result<(), super::error::AppError> {
         self.model.validate()?;
+        if let Some(question) = &self.question {
+            question.subject.validate()?;
+            if self.mode != super::ai::ResponseMode::Explain || self.archive_previous {
+                return Err(super::error::AppError::invalid(
+                    "변경 질문은 문서를 바꾸지 않는 설명 요청에만 사용할 수 있습니다.",
+                ));
+            }
+        }
         for id in [
             &self.document_id,
             &self.task_id,

@@ -15,9 +15,12 @@ type Props = {
 export function UnitComparisonTools(props: Props) {
   return (
     <div className="unit-comparison-label">
-      <span title={`${props.labels[0]} → ${props.labels[1]}`}>
-        {props.labels[0]} → {props.labels[1]}
-      </span>
+      <details className="comparison-basis">
+        <summary>비교 기준</summary>
+        <p>
+          {props.labels[0]} → {props.labels[1]}
+        </p>
+      </details>
       <UnitLocationActions {...props} />
       <span className="muted">
         비교 본문에서 F7 다음 {unitFilterLabel(props.navigation.value.filter)}{" "}
@@ -50,10 +53,11 @@ function UnitLocationActions({
             )
           }
         >
-          선택한 변경 {navigation.selected.number}이 화면 밖에 있습니다 · 이동
+          변경 {navigation.selected.number}으로 이동
         </button>
       )}
       {group &&
+        !offscreen &&
         (group.beforeRanges.length > 1 ? (
           <UnitLocations
             key={group.id}

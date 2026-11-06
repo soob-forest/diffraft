@@ -1,6 +1,5 @@
 import assert from "node:assert/strict";
 import { mkdir, writeFile } from "node:fs/promises";
-import { resizeContent } from "./tobe-fixture.mjs";
 import { assertButtonHit } from "./ux-ui.mjs";
 
 export async function checkDraftRecoveryLayouts(
@@ -15,10 +14,18 @@ export async function checkDraftRecoveryLayouts(
       [800, 600],
     ]) {
       await zoom(1);
-      await resizeContent(width, height);
+      await browser.setWindowSize(width, height);
+      const actualWindow = await browser.getWindowSize();
+      const availableHeight = await browser.execute(() => screen.availHeight);
+      assert.equal(actualWindow.width, width);
+      assert.ok(actualWindow.height >= Math.min(height, availableHeight) - 1);
+      assert.ok(actualWindow.height <= height);
       for (const scale of [1, 1.5, 2]) {
         await zoom(scale);
-        measurements.push(await inspect(width, height, scale, directory));
+        measurements.push({
+          actualWindow,
+          ...(await inspect(width, height, scale, directory)),
+        });
       }
     }
     await writeFile(
@@ -27,7 +34,7 @@ export async function checkDraftRecoveryLayouts(
     );
   } finally {
     await zoom(1);
-    await resizeContent(1440, 900);
+    await browser.setWindowSize(1440, 900);
   }
 }
 async function inspect(width, height, scale, directory) {

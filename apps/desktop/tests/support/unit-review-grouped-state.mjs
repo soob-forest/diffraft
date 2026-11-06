@@ -122,8 +122,8 @@ export async function setGroupedSize(width, height, zoom) {
 export async function closeGroupedDetail() {
   if (await $("button=본문으로 돌아가기").isDisplayed())
     await $("button=본문으로 돌아가기").click();
-  else if (await $("button=작업 패널 접기").isDisplayed())
-    await $("button=작업 패널 접기").click();
+  else if (await $("button=요청·상세 접기").isDisplayed())
+    await $("button=요청·상세 접기").click();
   await settleUnitLayout();
 }
 
@@ -224,7 +224,7 @@ async function restoreMainPanel(ui) {
     if (ui.detail) await showUnitComment();
     else {
       await $(".workspace-controls button").click();
-      await $(".panel-tabs").$("button=작업·대화").click();
+      await $(".panel-tabs").$("button=AI 요청·대화").click();
     }
   }
   const draft = await browser.execute(

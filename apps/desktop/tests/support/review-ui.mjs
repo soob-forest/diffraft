@@ -1,7 +1,7 @@
 export async function showSummary() {
   const mode = $("button=변경 검토");
   if ((await mode.getAttribute("aria-pressed")) !== "true") await mode.click();
-  const tab = $(".panel-tabs").$("button=변경 상세");
+  const tab = $(".panel-tabs").$("button=이 변경");
   if (await tab.isDisplayed()) await tab.click();
   const comment = $(".comment-form:not([hidden]) .workflow-back");
   if (await comment.isDisplayed()) await comment.click();
@@ -26,7 +26,7 @@ export async function openCandidate() {
 
 export async function openRegenerate() {
   await showSummary();
-  await $("button=이 변경 다시 제안").click();
+  await $("button=더 고치기").click();
   await $(".regenerate-form textarea").waitForDisplayed();
 }
 

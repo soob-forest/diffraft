@@ -1,5 +1,6 @@
 mod ai_preferences;
 mod batch_decisions;
+mod change_questions;
 mod codex_completion;
 pub mod codex_execution;
 mod comment_links;
@@ -19,6 +20,7 @@ pub mod export_files;
 pub mod export_testing;
 mod exporting;
 pub mod files;
+mod first_request_drafts;
 mod generation_completion;
 mod generation_context;
 mod generation_execution;

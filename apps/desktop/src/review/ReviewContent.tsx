@@ -39,7 +39,7 @@ export function Processed({
   if (!proposals.length) return null;
   return (
     <details className="processed">
-      <summary>처리·이전 기록 · {proposals.length}개</summary>
+      <summary>처리 기록 · {proposals.length}개</summary>
       {proposals.map((proposal) => (
         <article key={proposal.id}>
           <h3>
@@ -52,7 +52,8 @@ export function Processed({
                   : proposal.validity !== "VALID"
                     ? "원문 변경으로 재검토 필요"
                     : "이전 제안"}{" "}
-            · r{proposal.revision}
+            · {proposal.operation.headingPath.at(-1) || "문서"}
+            {proposal.revision > 1 ? ` · 수정안 ${proposal.revision}` : ""}
           </h3>
           <p>{proposal.operation.reason}</p>
           <button type="button" onClick={() => open(proposal)}>

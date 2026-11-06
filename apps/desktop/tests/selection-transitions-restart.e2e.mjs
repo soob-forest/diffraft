@@ -25,7 +25,7 @@ describe("화면별 선택 초안 재실행", () => {
       await form.$("textarea").getValue(),
       expected.reviewInstruction,
     );
-    assert.match(await form.getText(), /제안 내용 · r1/);
+    assert.match(await form.getText(), /제안 내용/);
     assert.equal(await $(".selection-confirmation").isExisting(), false);
     const state = await editor({
       kind: "read",

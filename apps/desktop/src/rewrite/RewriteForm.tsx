@@ -1,110 +1,104 @@
-import { useEffect, useRef } from "react";
-import { DraftLocked } from "../drafts/DraftRecovery";
-import { RewriteRequestDialog } from "./RewriteRequestDialog";
-import {
-  type RewriteFormProps,
-  useRewriteGeneration,
-} from "./useRewriteGeneration";
+import { useEffect, useRef, useState } from "react";
+import { useDraftPersistence } from "../drafts/SessionDrafts";
+import { useReviewSurface } from "../editor/WorkspacePanels";
+import { chooseRequestTarget, requestKey } from "../generation/request-targets";
+import { errorMessage } from "../ipc";
+import type { RewriteFormProps } from "./useRewriteGeneration";
 
 export function RewriteForm(
   props: RewriteFormProps & { openRequest?: number; visible?: boolean },
 ) {
-  const details = useRef<HTMLDetailsElement>(null);
-  const form = useRewriteGeneration(props);
-  useRequestedFocus(
-    details,
-    props.openRequest,
-    form.blocked,
-    props.visible !== false,
-  );
-  const batch = props.review.projection?.batch;
-  const canReference =
-    batch?.mode === "REWRITE" &&
-    batch.reviewMode === "WHOLE" &&
-    (batch.status === "ACTIVE" || batch.status === "ARCHIVED") &&
-    batch.baseVersionId === props.model.autosave.document.versionId;
+  const { open, error, canReference } = useRewriteEntry(props);
   return (
-    <details ref={details} className="rewrite-form proposal-details">
-      <summary>전체 재작성·다른 방향 요청</summary>
-      <p>
-        현재 확정본 전체에서 새 후보를 만듭니다. 부분 제안은 확인 후 기록으로
-        옮깁니다.
-      </p>
-      <DraftLocked locked={form.locked} />
-      <label>
-        재작성 지시
-        <textarea
-          rows={3}
-          value={form.instruction}
-          disabled={form.blocked}
-          onChange={(event) => form.setInstruction(event.target.value)}
-        />
-      </label>
-      <RequestButtons form={form} canReference={canReference} />
-      <p role="status">{form.message}</p>
-      {form.pending && (
-        <RewriteRequestDialog
-          form={form}
-          version={props.model.status.version}
-        />
-      )}
-    </details>
-  );
-}
-
-function RequestButtons({
-  form,
-  canReference,
-}: {
-  form: ReturnType<typeof useRewriteGeneration>;
-  canReference: boolean;
-}) {
-  return (
-    <div className="proposal-actions">
+    <section className="rewrite-entry">
+      <h4>새 전체 초안</h4>
       <button
         type="button"
-        disabled={form.blocked || !form.instruction.trim()}
-        onClick={() => void form.prepare(false)}
+        disabled={props.review.state.generating}
+        onClick={() => void open(false)}
       >
-        현재 확정본 재작성
+        확정본 전체에서 새 초안 요청
       </button>
       {canReference && (
         <button
           type="button"
-          disabled={form.blocked || !form.instruction.trim()}
-          onClick={() => void form.prepare(true)}
+          disabled={props.review.state.generating}
+          onClick={() => void open(true)}
         >
-          이 후보의 다른 방향 요청
+          이 후보를 참고해 다른 방향 만들기
         </button>
       )}
-    </div>
+      {error && <p role="alert">{error}</p>}
+    </section>
   );
 }
 
-function useRequestedFocus(
-  details: React.RefObject<HTMLDetailsElement | null>,
-  request: number | undefined,
-  blocked: boolean,
-  visible: boolean,
-) {
-  const focusedRequest = useRef(0);
+function useRewriteEntry(props: RewriteFormProps & { openRequest?: number }) {
+  const drafts = useDraftPersistence(),
+    surface = useReviewSurface();
+  const [error, setError] = useState("");
+  const handled = useRef(0),
+    lock = useRef(false);
+  const activeOwner = useRef("");
+  const owner = JSON.stringify([props.model.state.document.id, props.taskId]);
+  activeOwner.current = owner;
   useEffect(() => {
-    if (
-      visible &&
-      request &&
-      request !== focusedRequest.current &&
-      details.current
-    ) {
-      details.current.open = true;
-      if (!blocked) {
-        requestAnimationFrame(() => {
-          const input = details.current?.querySelector("textarea");
-          if (input?.isConnected && input.offsetParent && !input.disabled) {
-            input.focus();
-            focusedRequest.current = request;
-          }
-        });
-      }
+    activeOwner.current = owner;
+    return () => {
+      activeOwner.current = "";
+    };
+  }, [owner]);
+  const batch = props.review.projection?.batch;
+  const canReference =
+    batch?.mode === "REWRITE" &&
+    batch.reviewMode === "WHOLE" &&
+    ["ACTIVE", "ARCHIVED"].includes(batch.status) &&
+    batch.baseVersionId === props.model.autosave.document.versionId;
+  const open = async (reference: boolean) => {
+    if (lock.current) return;
+    lock.current = true;
+    setError("");
+    try {
+      await drafts.flush();
+      if (activeOwner.current !== owner) return;
+      selectRewriteDraft(drafts, props, reference ? batch?.id : undefined);
+      await drafts.flush();
+      if (activeOwner.current === owner) surface?.showRequest();
+    } catch (reason) {
+      if (activeOwner.current === owner) setError(errorMessage(reason));
+    } finally {
+      lock.current = false;
     }
-  }, [request, blocked, details, visible]);
+  };
+  useEffect(() => {
+    if (props.openRequest && handled.current !== props.openRequest) {
+      handled.current = props.openRequest;
+      void open(false);
+    }
+  });
+  return { open, error, canReference };
+}
+
+function selectRewriteDraft(
+  drafts: ReturnType<typeof useDraftPersistence>,
+  props: RewriteFormProps,
+  referenceBatchId: string | undefined,
+) {
+  const key = requestKey(props.model.state.document.id, props.taskId);
+  const next = chooseRequestTarget(
+    drafts.store,
+    key,
+    { question: undefined, referenceBatchId },
+    "REWRITE",
+  );
+  const legacyKey = JSON.stringify([
+    "rewrite",
+    props.model.state.document.id,
+    props.taskId,
+  ]);
+  const legacy = drafts.store.peek(legacyKey) as
+    | { instruction?: string }
+    | undefined;
+  if (!next.instruction && legacy?.instruction)
+    drafts.store.write(key, { ...next, instruction: legacy.instruction });
 }

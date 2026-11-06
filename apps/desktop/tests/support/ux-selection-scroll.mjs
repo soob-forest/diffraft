@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { writeFile } from "node:fs/promises";
+import { settleUxRender } from "./ux-render.mjs";
 import { focusMatches } from "./ux-ui.mjs";
 
 const SCROLL_STEP_PX = 24;
@@ -38,4 +39,7 @@ export async function assertScrollClosesSelection(selector) {
       timeoutMsg: "비교 스크롤 후 선택 도구가 닫히고 편집기로 복귀해야 합니다.",
     },
   );
+  await settleUxRender();
+  assert.equal(await $(".selection-context").isExisting(), false);
+  assert.equal(await focusMatches(selector), true);
 }

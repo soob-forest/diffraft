@@ -10,6 +10,7 @@ import {
   confirmed,
   decide,
   editor,
+  holdRewriteRequest,
   prepareRewrite,
   requestRewrite,
   reviewState,
@@ -29,8 +30,8 @@ describe("전체 재작성과 복원", () => {
     const partial = await prepare("review");
     await requestRewrite();
     assert.match(
-      await $(".rewrite-request-dialog").getText(),
-      /부분 제안 묶음을 기록/,
+      await $(".generation-dialog").getText(),
+      /이전 부분 제안을 기록/,
     );
     await $("button=요청 취소").click();
     assert.equal(
@@ -85,7 +86,7 @@ describe("전체 재작성과 복원", () => {
     await requestRewrite(true);
     await start("malformed");
     await browser.waitUntil(async () =>
-      (await $(".rewrite-form > [role=status]").getText()).includes(
+      (await $(".generation-panel > [role=status]").getText()).includes(
         "응답 형식",
       ),
     );
@@ -94,15 +95,17 @@ describe("전체 재작성과 복원", () => {
       (await reviewState(fixture.task.id)).batches[0].status,
       "ACTIVE",
     );
-    assert.equal(await $(".rewrite-request-dialog").isExisting(), false);
-    assert.match(await $(".rewrite-form textarea").getValue(), /상황별/);
+    assert.equal(await $(".generation-dialog").isExisting(), false);
+    assert.match(await $(".request-form textarea").getValue(), /상황별/);
     assert.equal(await disk(), confirmed);
   });
   it("생성 중 적용을 막고 이전 안을 명시적으로 다시 선택할 수 있다", async () => {
     await requestRewrite(true);
-    await start("REWRITE_DELAY");
-    assert.equal(await $("button=이 재작성안 적용").isEnabled(), false);
+    const enabled = await holdRewriteRequest(() =>
+      $("button=이 재작성안 적용").isEnabled(),
+    );
     second = await waitCandidate(fixture.task.id, 2);
+    assert.equal(enabled, false);
     assert.notEqual(second.id, first.id);
     await choose(first.id);
     await decide("이전 안 선택", "돌아가기");

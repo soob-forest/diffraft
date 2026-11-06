@@ -40,6 +40,7 @@ impl DraftWrite {
         if !(3..=8).contains(&parts.len())
             || ![
                 "request",
+                "first-request",
                 "comment",
                 "candidate",
                 "regenerate",

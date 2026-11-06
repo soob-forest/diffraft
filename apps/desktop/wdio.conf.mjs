@@ -1,11 +1,15 @@
 import { fileURLToPath } from "node:url";
 import { assertE2EBuild, assertOwnedRoot } from "./scripts/e2e-preflight.mjs";
+import { foregroundUnitDisplay } from "./tests/support/unit-review-display.mjs";
 
 const testRoot = process.env.DOCREVIEW_E2E_DATA;
 const phase = process.env.DOCREVIEW_E2E_PHASE;
 if (
   !testRoot ||
   ![
+    "request-followup",
+    "request-workflow",
+    "request-workflow-restart",
     "model-selection",
     "codex",
     "codex-restart",
@@ -73,8 +77,9 @@ const application = fileURLToPath(
     import.meta.url,
   ),
 );
-const TEST_TIMEOUT_MS =
-  phase === "rewrite-review"
+const TEST_TIMEOUT_MS = phase.startsWith("request-workflow")
+  ? 90_000
+  : phase === "rewrite-review"
     ? 180_000
     : phase === "review-followup"
       ? 60_000
@@ -125,6 +130,27 @@ export const config = {
 };
 
 async function ensureVisibleWindow() {
+  if (
+    [
+      "request-followup",
+      "selection-popover",
+      "selection-popover-layout",
+      "selection-popover-restart",
+      "ux-reliability",
+      "ux-reliability-restart",
+      "request-workflow",
+      "request-workflow-restart",
+      "review",
+      "rewrite-review",
+      "rewrite-review-restart",
+      "rewrite-review-keyboard",
+      "review-followup",
+      "ux-local",
+      "codex-keyboard",
+    ].includes(phase)
+  ) {
+    await foregroundUnitDisplay(1);
+  }
   await browser.waitUntil(
     async () =>
       browser.execute(async () => {

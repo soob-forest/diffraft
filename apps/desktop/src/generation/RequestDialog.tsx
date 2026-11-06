@@ -1,6 +1,8 @@
 import { useEffect, useRef } from "react";
 import { modelLabel } from "../connection/provider";
+import { QuestionTarget } from "./QuestionTarget";
 import type { PendingRequest } from "./request";
+import { requestLabels, requestTargetLabel } from "./request-labels";
 
 type Props = {
   pending: PendingRequest;
@@ -41,27 +43,21 @@ function RequestContent({ pending, busy, close, generate }: Props) {
   return (
     <>
       <h2 id="generation-request-title">
-        {rewrite
-          ? "문서 전체 재작성 요청 확인"
-          : explain
-            ? "설명 요청 확인"
-            : "부분 수정 요청 확인"}
+        {
+          requestLabels[
+            pending.kind === "rewrite" ? "REWRITE" : pending.request.mode
+          ]
+        }{" "}
+        · 요청 확인
       </h2>
       <p>
-        v{pending.scope.version}의 아래 원문 범위와 이 작업의 목표·고정
-        조건·대화·코멘트·최근 결정, 문서 공통 조건을 전달합니다.
+        v{pending.scope.version} 기준 아래 대상과 이 작업에서 계속 참고할
+        방향·유지할 조건·대화·코멘트·최근 결정, 문서 공통 조건을 전달합니다.
       </p>
       <p className="request-model">
         요청 공급자 / 모델: {modelLabel(pending.request.model)}
       </p>
-      <details>
-        <summary>
-          전달할 원문 ·{" "}
-          {new TextEncoder().encode(pending.scope.text).length.toLocaleString()}
-          바이트
-        </summary>
-        <pre>{pending.scope.text || "(빈 문서)"}</pre>
-      </details>
+      <RequestTarget pending={pending} />
       <p className="request-instruction">{pending.request.instruction}</p>
       <RequestEffects pending={pending} rewrite={rewrite} />
       <p>
@@ -100,9 +96,33 @@ function RequestEffects({
           확정본에 남습니다.
         </p>
       )}
+      {pending.kind === "rewrite" && pending.request.referenceBatchId && (
+        <p>참고 후보 · {pending.referenceLabel ?? "선택한 전체 후보"}</p>
+      )}
       {rewrite && (
-        <p>수정 범위는 전체 문서이며, 새 후보의 적용도 전체 문서 단위입니다.</p>
+        <p>
+          수정 범위는 전체 문서이며, 새 후보는 전체 적용 또는 변경별 검토가
+          가능합니다.
+        </p>
       )}
     </>
+  );
+}
+
+function RequestTarget({ pending }: Pick<Props, "pending">) {
+  return pending.kind === "generate" && pending.request.question ? (
+    <QuestionTarget question={pending.request.question} />
+  ) : (
+    <section aria-label="확인할 요청 대상">
+      <strong>요청 대상 · {requestTargetLabel(pending)}</strong>
+      <details>
+        <summary>
+          전달할 원문 ·{" "}
+          {new TextEncoder().encode(pending.scope.text).length.toLocaleString()}
+          바이트
+        </summary>
+        <pre>{pending.scope.text || "(빈 문서)"}</pre>
+      </details>
+    </section>
   );
 }

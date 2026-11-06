@@ -91,6 +91,7 @@ fn pins_scope_to_exact_saved_head_and_rejects_stale_and_external() {
 fn persists_isolated_tasks_and_does_not_allow_reassignment() {
     let world = World::new();
     let task = TaskSnapshot {
+        name: None,
         id: world.runtime.id(),
         document_id: world.document.id.clone(),
         goal: "간결하게".into(),
@@ -106,6 +107,7 @@ fn persists_isolated_tasks_and_does_not_allow_reassignment() {
         world
             .store
             .put_task(TaskSnapshot {
+                name: None,
                 document_id: other.id.clone(),
                 ..task.clone()
             })
@@ -123,7 +125,8 @@ fn persists_isolated_tasks_and_does_not_allow_reassignment() {
         world
             .store
             .put_task(TaskSnapshot {
-                goal: String::new(),
+                name: None,
+                goal: "잘못\0된 방향".into(),
                 ..task.clone()
             })
             .is_err()

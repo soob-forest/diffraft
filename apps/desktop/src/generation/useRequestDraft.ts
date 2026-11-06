@@ -1,6 +1,8 @@
 import { useState } from "react";
-import { useSessionDraft } from "../drafts/SessionDrafts";
+import { useDraftPersistence, useSessionDraft } from "../drafts/SessionDrafts";
+import type { DraftStore } from "../drafts/store";
 import type { GenerationAttempt } from "../generated/GenerationAttempt";
+import { errorMessage } from "../ipc";
 import {
   type ImportedRequest,
   importConflicts,
@@ -10,15 +12,21 @@ import {
   receivePending,
   switchRequestMode,
 } from "./request-draft";
+import { preserveRequestTarget, requestKey } from "./request-targets";
 
 export function useRequestDraft(documentId: string, taskId: string) {
-  const draft = useSessionDraft<RequestDraft>(
-    JSON.stringify(["request", documentId, taskId]),
-    { mode: "PATCH", instruction: "" },
-  );
+  const { store } = useDraftPersistence();
+  const key = requestKey(documentId, taskId);
+  const draft = useSessionDraft<RequestDraft>(key, {
+    mode: "PATCH",
+    instruction: "",
+  });
   return {
-    ...useFailedImport(draft),
+    ...useFailedImport(draft, { store, key }),
     mode: draft.value.mode,
+    editMode: draft.value.editMode,
+    question: draft.value.question,
+    referenceBatchId: draft.value.referenceBatchId,
     instruction: draft.value.instruction,
     locked: draft.locked,
     snapshot: draft.value,
@@ -57,10 +65,13 @@ export function useRequestDraft(documentId: string, taskId: string) {
 
 function useFailedImport(
   draft: ReturnType<typeof useSessionDraft<RequestDraft>>,
+  owner: { store: DraftStore; key: string },
 ) {
   const [imported, setImported] = useState<ImportedRequest | null>(null);
+  const [importError, setImportError] = useState("");
   return {
     imported,
+    importError,
     edit: (attempt: GenerationAttempt) => {
       if (draft.locked) return;
       draft.update((current) => {
@@ -70,14 +81,34 @@ function useFailedImport(
           return current;
         }
         setImported(null);
+        preserveRequestTarget(owner.store, owner.key, current);
         return importRequest(current, original);
       });
     },
     discardImport: () => setImported(null),
     applyImport: () => {
-      if (imported !== null)
-        draft.update((current) => importRequest(current, imported));
+      if (imported) {
+        const error = applyFailedImport(draft, imported, owner);
+        setImportError(error);
+        if (error) return;
+      }
       setImported(null);
     },
   };
+}
+
+function applyFailedImport(
+  draft: ReturnType<typeof useSessionDraft<RequestDraft>>,
+  imported: ImportedRequest,
+  owner: { store: DraftStore; key: string },
+) {
+  try {
+    draft.update((current) => {
+      preserveRequestTarget(owner.store, owner.key, current);
+      return importRequest(current, imported);
+    });
+    return "";
+  } catch (reason) {
+    return errorMessage(reason);
+  }
 }

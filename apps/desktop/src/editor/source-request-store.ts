@@ -10,9 +10,10 @@ export function saveFirstSourceDraft(
   store: DraftStore,
   target: SelectedTarget,
   instruction: string,
+  prepareOnOpen = false,
 ) {
   const key = selectionTargetKey(target);
-  store.write(key, { ...EMPTY_SELECTED, target, instruction });
+  store.write(key, { ...EMPTY_SELECTED, target, instruction, prepareOnOpen });
   store.write(
     selectionIndexKey(target.documentId, target.selection.taskId, "source"),
     { instruction: "", key },

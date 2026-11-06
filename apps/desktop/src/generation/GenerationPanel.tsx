@@ -1,42 +1,34 @@
 import { type ReactNode, useEffect, useState } from "react";
 import { DraftLocked } from "../drafts/DraftRecovery";
-import { ScopeBar } from "../editor/ScopeBar";
+import { useReview } from "../review/useReview";
 import { Conversation } from "./Conversation";
 import { RequestDialog } from "./RequestDialog";
-import { RequestForm } from "./RequestForm";
+import { RequestInput } from "./RequestInput";
+import { RequestTargets } from "./RequestTargets";
 import type { GenerationProps } from "./request";
+import { requestLabels } from "./request-labels";
 import { useConversation } from "./useConversation";
 import { useGeneration } from "./useGeneration";
+import { usePendingReviewValidity } from "./usePendingReviewValidity";
 import "./generation.css";
 
 type Props = GenerationProps & { children?: ReactNode };
-const REQUEST_KIND_LABELS = {
-  PATCH: "부분 수정",
-  EXPLAIN: "설명",
-  REWRITE: "전체 재작성",
-};
 export function GenerationPanel(props: Props) {
-  const conversation = useConversation(props.taskId);
-  const form = useGeneration(props);
-  const blocked =
-    form.locked ||
-    form.busy ||
-    !conversation.page ||
-    !conversation.generation ||
-    Boolean(
-      conversation.generation.operationId ||
-        conversation.generation.blocked ||
-        conversation.error ||
-        props.model.status.error,
-    );
+  const { conversation, form, blocked, active, referenceLabel } =
+    useRequestPanel(props);
   return (
     <section className="generation-panel" aria-label="AI 요청">
       {props.children}
       <h3>AI 요청</h3>
       <DraftLocked locked={form.locked} />
-      <RequestForm form={form} blocked={blocked}>
-        <ScopeBar model={props.model} requestScope={props.scope} />
-      </RequestForm>
+      <RequestInput
+        props={props}
+        form={form}
+        blocked={blocked}
+        active={active}
+        referenceLabel={referenceLabel}
+      />
+      <RequestTargets props={props} form={form} blocked={blocked} />
       <RequestFeedback
         props={props}
         form={form}
@@ -46,7 +38,7 @@ export function GenerationPanel(props: Props) {
       <RequestExtras
         warning={Boolean(conversation.page?.lastAttempt?.errorCode)}
       >
-        <RequestNotices props={props} />
+        <RequestNotices />
         <RequestConversation
           conversation={conversation}
           form={form}
@@ -87,16 +79,11 @@ function RequestConversation({
   );
 }
 
-function RequestNotices({ props }: { props: GenerationProps }) {
+function RequestNotices() {
   return (
-    <>
-      <p className="muted">
-        확인 후 요청합니다. 승인 전에는 원문을 바꾸지 않습니다.
-      </p>
-      <button type="button" className="rewrite-entry" onClick={props.onRewrite}>
-        전체 재작성으로 이동
-      </button>
-    </>
+    <p className="muted">
+      확인 후 요청합니다. 승인 전에는 원문을 바꾸지 않습니다.
+    </p>
   );
 }
 
@@ -154,7 +141,7 @@ function RequestExtras({
       open={expanded}
       onToggle={(event) => setExpanded(event.currentTarget.open)}
     >
-      <summary>작업 대화·추가 요청</summary>
+      <summary>요청·응답 기록</summary>
       {children}
     </details>
   );
@@ -185,10 +172,11 @@ function ImportedRequest({ form }: { form: ReturnType<typeof useGeneration> }) {
       {form.imported !== null && (
         <div className="attempt-failure">
           <p>
-            {REQUEST_KIND_LABELS[form.imported.mode]} 종류에 작성 중인 초안이
-            있습니다. 실패한 요청의 종류와 지시를 가져올까요? 다른 종류의 초안은
-            유지하고 원문·조건·범위는 새로 확인합니다.
+            {requestLabels[form.imported.mode]}에 작성 중인 초안이 있습니다.
+            실패한 요청의 종류와 지시를 가져올까요? 다른 종류의 초안은 유지하고
+            원문·조건·범위는 새로 확인합니다.
           </p>
+          {form.importError && <p role="alert">{form.importError}</p>}
           <button type="button" onClick={form.applyImport}>
             이전 지시 가져오기
           </button>
@@ -198,5 +186,55 @@ function ImportedRequest({ form }: { form: ReturnType<typeof useGeneration> }) {
         </div>
       )}
     </>
+  );
+}
+
+function useRequestPanel(props: Props) {
+  const conversation = useConversation(props.taskId);
+  const form = useGeneration(props);
+  const review = useReview(
+    props.taskId,
+    props.model.autosave.document.versionId,
+  );
+  const active = review.state.batches.find(
+    (batch) => batch.status === "ACTIVE",
+  );
+  usePendingReviewValidity({
+    taskId: props.taskId,
+    pending: form.pending,
+    review,
+    close: form.close,
+    report: form.setMessage,
+  });
+  const blocked = requestBlocked(props, form, conversation);
+  return {
+    conversation,
+    form,
+    blocked,
+    active,
+    referenceLabel: form.referenceBatchId
+      ? (review.state.batches.find(
+          (batch) => batch.id === form.referenceBatchId,
+        )?.summary ?? "저장된 전체 후보")
+      : undefined,
+  };
+}
+
+function requestBlocked(
+  props: Props,
+  form: ReturnType<typeof useGeneration>,
+  conversation: ReturnType<typeof useConversation>,
+) {
+  return Boolean(
+    form.locked ||
+      form.busy ||
+      !conversation.page ||
+      !conversation.generation ||
+      Boolean(
+        conversation.generation.operationId ||
+          conversation.generation.blocked ||
+          conversation.error ||
+          props.model.status.error,
+      ),
   );
 }

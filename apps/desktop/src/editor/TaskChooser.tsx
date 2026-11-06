@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import type { TaskSnapshot } from "../generated/TaskSnapshot";
+import { taskChoiceLabels } from "./task-choice-labels";
 
 type Props = {
   disabled: boolean;
@@ -52,10 +53,10 @@ function TaskPicker({
         value={selected}
         onChange={(event) => onChoose(event.target.value)}
       >
-        <option value="">새 작업</option>
-        {tasks.map((value) => (
+        <option value="">새 작업 시작…</option>
+        {taskChoiceLabels(tasks).map((value) => (
           <option value={value.id} key={value.id}>
-            {value.goal}
+            {value.label}
           </option>
         ))}
       </select>

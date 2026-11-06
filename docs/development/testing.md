@@ -40,7 +40,7 @@ npm run test:e2e -- shutdown
 npm run test:e2e -- quit
 ```
 
-선택 실행: `rewrite-review`, `rewrite-review-keyboard`, `review-followup`, `selection-popover`, `selection-transitions`, `source-lifecycle`, `ux`, `ux-extensions`, `ux-local`, `ux-recovery`, `ux-reliability`, `ux-native`, `tobe`, `design`, `design-resume`, `usability`, `connection`, `model-selection`, `codex`, `codex-recovery`, `codex-keyboard`, `codex-native`, `generation`, `review`, `recovery`, `conflict`, `layout`, `regeneration`, `history`, `rewrite`, `rewrite-cancel`, `navigation`, `export`, `shutdown`, `quit`, `performance`, `startup-failure`. 재시작 검사가 필요한 흐름은 실행기가 별도 프로세스로 이어 실행한다.
+선택 실행: `request-followup`, `request-workflow`, `rewrite-review`, `rewrite-review-keyboard`, `review-followup`, `selection-popover`, `selection-transitions`, `source-lifecycle`, `ux`, `ux-extensions`, `ux-local`, `ux-recovery`, `ux-reliability`, `ux-native`, `tobe`, `design`, `design-resume`, `usability`, `connection`, `model-selection`, `codex`, `codex-recovery`, `codex-keyboard`, `codex-native`, `generation`, `review`, `recovery`, `conflict`, `layout`, `regeneration`, `history`, `rewrite`, `rewrite-cancel`, `navigation`, `export`, `shutdown`, `quit`, `performance`, `startup-failure`. 재시작 검사가 필요한 흐름은 실행기가 별도 프로세스로 이어 실행한다.
 
 `shutdown`과 `startup-failure`는 부모가 소유한 실제 앱 ChildProcess의 `exit` 결과가 code 0 / signal null인지 검사한다. 프로세스 소멸만으로 성공 처리하지 않는다. E2E 전용 수명 기록으로 앱 Exit 시 메인 WebView가 유지되고 종료 준비가 완료됐는지도 확인한다. `test:unit`에는 SIGSEGV·비정상 코드·누락 결과를 거부하는 관측기 검사도 포함한다.
 
@@ -99,7 +99,7 @@ CLI 관측 검사는 같은 환경에서 `cargo test --locked --test model_obser
 ## 검증 범위와 한계
 
 - macOS WebView 자동 문자 삽입은 실제 두벌식 조합 검사가 아니다. 실제 입력기에서 `한` 입력 직후 Backspace로 `하`가 남는지, 이어 쓰기·조합 중 삭제·저장·재시작을 별도로 확인한다.
-- 실제 OS 열기·저장·취소·덮어쓰기 창은 일반 앱에서 별도로 확인한다. 테스트 파일 선택 fixture와 DOM 검사가 이를 대신하지 않는다. 변경 검토 [SPEC의 UR08](../../SPEC.md)과 [TODO의 UX-09](../../TODO.md)는 실제 VoiceOver·한글 IME 검증을 요구하며 두 항목은 아직 미확인이다. OS 키 자동화나 합성 composition 가드를 그 완료 근거로 대체하지 않는다.
+- 실제 OS 열기·저장·취소·덮어쓰기 창은 일반 앱에서 별도로 확인한다. 테스트 파일 선택 fixture와 DOM 검사가 이를 대신하지 않는다. 요청 흐름 [SPEC의 AC16](../../SPEC.md#7-인수-기준)과 [TODO의 WF-07-10](../../TODO.md)는 실제 VoiceOver·한글 IME 검증을 요구하며 두 항목은 아직 미확인이다. OS 키 자동화나 합성 composition 가드를 그 완료 근거로 대체하지 않는다.
 - 2026-10-28 이전 구현의 네이티브 종료·입력 잠금·CLI 종료·재시작 검사는 통과했다. 전체 시나리오별 결과와 중간 실패 수정 근거는 사용성 실행 기록을 따른다.
 - macOS 14·M1·8 GB 최소 장치, 개발 도구 없는 새 macOS 사용자 환경, 실제 작성자 사용성 검증은 확인되지 않았다.
 - Pro·Max·Enterprise 허용은 합성 인증 계약으로 검사했다. 실제 해당 플랜 계정 검증과 구분한다.
@@ -155,3 +155,19 @@ Rust `rewrite_plan`, `unit_review`, `unit_review_edges`, `unit_review_guards`, `
 `review-followup`은 일부 승인 후 current/original의 실제 scrollTop·첫 가시 행·포커스 보존, 800×600/200%의 승인 IPC 실패와 외부 파일 충돌 안내의 실제 bounds/hit, 60행 초과 계획에서 선택·관련 위치의 텍스트 페이지/행 이동과 수동 이탈·복귀를 검사한다. 외부 충돌은 기존 계약의 미처리 STALE 전이와 외부 파일 변경을 기대하고 문서 head·결정·회차·의견은 보존한다. 단위 행 부재 안내와 숨은 텍스트의 지연 이동은 단위 회귀에서 확인한다.
 
 공유 비교·초안 경계 변경 뒤에는 `review`, `rewrite`, `history`, `recovery` 및 변경한 선택 수정 경로의 관련 회귀를 실행한다. 마지막에는 `npm run native:build`로 일반 앱을 복원하고 소스/바이너리 출처와 테스트 기능 제외를 확인한다. 이번 실행 결과·범위·남은 수동 확인은 [변경 검토 실행 기록](review-ux-implementation.md), 이전 단계는 [기존 구현 기록](rewrite-unit-review.md)을 따른다. 이 문서의 검사 목록은 최신 빌드의 성공 결과를 대신하지 않는다.
+
+## 요청·검토 흐름 검사
+
+`npm run test:e2e -- request-followup`은 진입점별 모드 지시, 실제 설정 저장에 따른 재제안 확인 무효화·조회 시 유지·최신 모델 전송, 원문/후보 클릭 취소와 정확한 초안 이어쓰기, 초안 저장 실패 시 닫기 거부를 검사한다. `request-workflow`에는 접힌/열린 조건보다 이번 요청에 실제 키 입력이 가는 포커스 회귀를 추가했다. 관련 단위 회귀는 `regeneration-invalidation/selection-dismiss/selected-dismiss/request-labels`다. 최신 보완 상태는 [보완 기록](request-workflow-followup.md)을 따른다.
+
+`npm run test:e2e -- request-workflow`는 최초 목적·방식 전환·목표 없는 확인/취소·작업 하나 유지, 첫 초안 보관 실패와 별도 프로세스 재시작, PATCH/WHOLE/단위 변경 질문과 무변경, 후보 수정 진입과 CHANGES의 원문 재선택을 검사한다. 실제 Tauri·임시 DB·가짜 공급자를 사용한다. 생성 전 초안은 문서/임시 작업별, 요청 대상별 초안은 기존 작업 키로 보관한다.
+
+변경 질문에는 잘못된 응답·중단 직후 늦은 출력·재시도와 답변에서 정확한 원래 단위로 돌아가는 검사를 포함한다. `rewrite-review`는 긴 본문 스크롤과 별도로 짧은 제목 변경의 삭제·추가 전체 읽기와 결정 버튼 hit를 9개 조합에서 검사한다. 같은 소스의 [최신 화면·측정 출처](../usage/request-workflow/README.md)를 참고한다.
+
+`test:unit`의 first-request/selected-first-preparation/request-targets/request-validity/change-question-request는 인계 실패·늦은 입력·준비 CAS·이전 폴링 무시·정확한 질문 IPC를 검사한다. Rust workflow_tasks/workflow_migration/workflow_questions는 이름/목표·스키마 12 이관/롤백·구형 데이터·소유권·변조·두 실제 가짜 자식 공급자에 전달한 질문과 문서/결정 불변을 확인한다. 검토/선택/복원/내보내기 회귀와 마지막 일반 빌드 복원을 함께 수행한다.
+
+generation-submit-lock은 초안 flush 중 검토 잠금·전송 실패 후 해제·작성기 소유자 교체 시 미전송을 확인한다. source-first-conditions/source-request-close는 첫 원문 요청의 조건 저장과 닫기 실패 보존을 검사한다. 네이티브 화면 검사는 지정 창을 배치하고 검증한 앱의 실제 활성화 뒤 최대 5초 안에 visible을 요구한다. 두 프레임은 별도 1초 제한으로 확인하며 표시 실패를 통과로 바꾸지 않는다.
+
+실제 초보 작성자 3명의 과업과 한국어 입력기·VoiceOver는 AC15/16에 별도로 기록한다. 이 문서의 검사 목록은 통과 증거가 아니며 [요청 흐름 실행 기록](request-workflow-implementation.md)에서 최신 실행과 남은 확인을 본다.
+
+보완 격자는 전체 창 크기를 기준으로 실제 `actualWindow`와 CSS viewport를 함께 기록한다. 2026-11-05 실행에서 사용자가 현재 화면에서 가능한 검사만 진행하도록 지정하여 큰 창은 1440×892로 제한됐다. 가림·넘침·저장/승인 기대값은 유지하며, 정확한 1440×900의 미확인을 통과로 바꾸지 않는다.

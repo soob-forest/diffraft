@@ -33,6 +33,13 @@ export function ReviewComparison({
         headings={headings}
         projection={projection}
         onSelection={panel.setSelection}
+        onDismissSelection={
+          panel.selectedRequest.active && !panel.blocked
+            ? () => {
+                void panel.selectedRequest.dismiss();
+              }
+            : undefined
+        }
         onSelectionIssue={panel.setSelectionIssue}
         onEditSelection={() => {
           panel.startSelectedRequest();

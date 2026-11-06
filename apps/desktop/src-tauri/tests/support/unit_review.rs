@@ -28,6 +28,7 @@ impl UnitWorld {
         world
             .store
             .put_task(TaskSnapshot {
+                name: None,
                 id: task.clone(),
                 document_id: head.id.clone(),
                 goal: "전체 재작성 검토".into(),

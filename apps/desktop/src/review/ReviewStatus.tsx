@@ -42,6 +42,11 @@ export function ReviewStatus({
       <button type="button" onClick={onPreview}>
         확정본 보기
       </button>
+      {state.kind === "completed" && (
+        <button type="button" onClick={onRequest}>
+          추가 요청 작성
+        </button>
+      )}
       {(state.kind === "stale" || state.kind === "conflict") && (
         <button type="button" onClick={onRequest}>
           최신 원문에서 요청 준비

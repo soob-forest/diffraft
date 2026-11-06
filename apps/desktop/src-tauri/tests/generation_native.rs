@@ -109,6 +109,7 @@ fn official_cli_drafts_an_empty_document_without_writing_before_approval() {
 fn create_task(store: &Store, document: &str) -> String {
     store
         .put_task(TaskSnapshot {
+            name: None,
             id: id(),
             document_id: document.into(),
             goal: "합성 문서 검증".into(),
@@ -120,6 +121,7 @@ fn create_task(store: &Store, document: &str) -> String {
 }
 fn request(head: &DocumentSnapshot, task: &str, mode: ResponseMode) -> GenerateRequest {
     GenerateRequest {
+        question: None,
         model: Default::default(),
         document_id: head.id.clone(), task_id: task.into(), expected_head_id: head.version_id.clone(),
         operation_id: id(), mode, selection: ScopeSelection::Whole,

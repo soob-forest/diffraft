@@ -21,7 +21,21 @@ pub(super) fn source(
         return Err(stale());
     }
     rewrite_validation::writable(connection, &head)?;
-    let scope = select(&head, request.selection.clone())?;
+    super::change_questions::verify(connection, request)?;
+    let scope = if request.question.is_some() {
+        ScopeSnapshot {
+            document_id: head.id.clone(),
+            version_id: head.version_id.clone(),
+            version: head.version,
+            content_hash: head.content_hash.clone(),
+            from: 0,
+            to: 0,
+            text: String::new(),
+            blocks: Vec::new(),
+        }
+    } else {
+        select(&head, request.selection.clone())?
+    };
     let active: Option<String> = connection.query_row("SELECT b.id FROM proposal_batches b JOIN jobs j ON b.job_id=j.id WHERE j.task_id=?1 AND b.status='ACTIVE' ORDER BY b.created_at DESC,b.rowid DESC LIMIT 1", [&request.task_id], |row| row.get(0)).optional().map_err(database_error)?;
     if active != request.expected_active_batch_id {
         return Err(stale());
@@ -59,5 +73,11 @@ pub(super) fn build(
             &head.id,
             &request.task_id,
         )?);
+    if let Some(question) = &request.question {
+        value["questionTarget"] = serde_json::to_value(question).map_err(|_| stale())?;
+        value["constraint"] = json!(
+            "EXPLAIN only: answer about the exact questionTarget changes. Before/after and its base version describe the selected candidate, not the current confirmed source. Do not propose, apply, approve, or write any changes. Explain uncertainty when the actual reason is unknown."
+        );
+    }
     task_context::bounded(&value)
 }

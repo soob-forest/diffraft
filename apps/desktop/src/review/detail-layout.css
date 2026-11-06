@@ -117,12 +117,6 @@
   font-size: 13px;
   color: var(--muted);
 }
-.workspace-panel:has(
-    .review-detail:not([hidden]) .proposal-details[data-view="comment"]
-  )
-  .panel-tabs {
-  display: none;
-}
 .review-detail .muted {
   font-size: 13px;
 }

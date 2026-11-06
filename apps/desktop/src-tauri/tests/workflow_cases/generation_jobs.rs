@@ -15,6 +15,7 @@ use docreview_core::{
 
 fn request(world: &World, task: &str, mode: ResponseMode) -> GenerateRequest {
     GenerateRequest {
+        question: None,
         model: Default::default(),
         document_id: world.document.id.clone(),
         task_id: task.into(),

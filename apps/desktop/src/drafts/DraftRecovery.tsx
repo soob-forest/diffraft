@@ -4,6 +4,7 @@ import type { DraftPersistence } from "./persistence";
 export function draftLabel(key: string) {
   const labels: Record<string, string> = {
     request: "AI 요청 초안",
+    "first-request": "첫 요청 초안",
     "source-scope": "원문 선택 범위",
     "selected-request": "선택 수정 초안",
     comment: "코멘트 초안",
@@ -20,11 +21,8 @@ export function draftLabel(key: string) {
   );
 }
 
-export function DraftRecovery({
-  persistence,
-}: {
-  persistence: DraftPersistence;
-}) {
+type Props = { persistence: DraftPersistence };
+export function DraftRecovery({ persistence }: Props) {
   const issues = useSyncExternalStore(
     persistence.subscribe,
     persistence.quarantinedDrafts,

@@ -94,6 +94,14 @@ function WorkspaceEditor({
           edit: (value) => void sourceRequest.open(value),
           pinned: sourceRequest.pinned,
           returnSerial: sourceRequest.returnSerial,
+          dismiss:
+            sourceRequest.visible &&
+            !sourceRequest.busy &&
+            !sourceRequest.form.busy
+              ? () => {
+                  void sourceRequest.dismiss();
+                }
+              : undefined,
         }}
       />
     </div>

@@ -14,6 +14,7 @@ type Props = {
     onSelection: (value: LogicalSelection | null) => void;
     onSelectionIssue: (value: string) => void;
     onEditSelection: () => void;
+    onDismissSelection?: () => void;
     tools: ReactNode;
   };
 };
@@ -34,6 +35,7 @@ export function ComparisonViewer({
       onSelection={selection?.onSelection ?? (() => {})}
       onSelectionIssue={selection?.onSelectionIssue}
       onEditSelection={selection?.onEditSelection}
+      onDismissSelection={selection?.onDismissSelection}
       selectionTools={selection?.tools}
       jump={jump}
       tools={{

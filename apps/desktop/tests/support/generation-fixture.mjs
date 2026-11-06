@@ -18,45 +18,54 @@ export async function review(taskId) {
 }
 export async function chooseTask(id) {
   await showTaskPanel();
-  await $(".task-picker select").waitForExist();
+  await browser.execute(() => {
+    document.querySelector(".task-management").open = true;
+  });
+  await $(".task-picker select").waitForDisplayed();
   await browser.execute((id) => {
     const select = document.querySelector(".task-picker select");
     select.value = id;
     select.dispatchEvent(new Event("change", { bubbles: true }));
   }, id);
-  await browser.waitUntil(async () =>
-    browser.execute((id) => {
-      const select = document.querySelector(".task-picker select");
-      const goal = document.querySelector(
-        ".task-conditions textarea[required]",
-      );
-      const button = document.querySelector(
-        ".task-conditions button[type='submit']",
-      );
-      return (
-        document.querySelectorAll(".task-conditions").length === 1 &&
-        select.value === id &&
-        goal.value === (id ? select.selectedOptions[0].textContent : "") &&
-        button.textContent === (id ? "조건 저장" : "작업 만들기")
-      );
-    }, id),
+  await browser.waitUntil(
+    async () =>
+      (await $(".task-picker select").getValue()) === id &&
+      (id
+        ? await $(".task-conditions").isExisting()
+        : await $(".first-request").isDisplayed()),
   );
 }
 export async function createTask(goal) {
   await chooseTask("");
-  await $(".task-conditions textarea[required]").setValue(goal);
-  await $("button=작업 만들기").click();
-  await browser.waitUntil(
-    async () => (await $(".task-picker select").getValue()) !== "",
+  await $(".first-request .task-condition-details summary").click();
+  await $(".first-request .task-condition-details input").setValue(goal);
+  await $(".first-request .task-condition-details textarea").setValue(goal);
+  await $(".first-request .request-form textarea").setValue(
+    "작업 준비를 위한 합성 지시",
   );
+  await $(".first-request .request-form button[type=submit]").click();
+  await $(".generation-dialog").waitForDisplayed();
+  await $("button=요청 취소").click();
+  await $(".request-form textarea").setValue("");
   return $(".task-picker select").getValue();
+}
+export async function chooseRequestMode(mode) {
+  await $(".request-kind")
+    .$(mode === "EXPLAIN" ? "button=질문하기" : "button=수정 제안 받기")
+    .click();
+  if (mode !== "EXPLAIN")
+    await browser.execute((mode) => {
+      const select = document.querySelector('select[aria-label="수정 방식"]');
+      select.value = mode;
+      select.dispatchEvent(new Event("change", { bubbles: true }));
+    }, mode);
 }
 export async function beginRequest(mode, fixture, instruction) {
   await showTaskPanel();
   await browser.waitUntil(
     async () => await $(".request-kind button").isEnabled(),
   );
-  await $(mode === "EXPLAIN" ? "button=설명" : "button=부분 수정").click();
+  await chooseRequestMode(mode);
   await $(".request-form textarea").setValue(instruction);
   await $("button=요청 내용 확인").click();
   await $(".generation-dialog").waitForDisplayed();
@@ -88,8 +97,8 @@ export async function currentDocument() {
 }
 
 export async function showTaskPanel() {
-  const open = await $("button=작업·AI 요청 열기");
+  const open = await $("button=AI 요청·변경 상세 열기");
   if (await open.isExisting()) await open.click();
-  const tab = await $("button=작업·대화");
+  const tab = await $("button=AI 요청·대화");
   if (await tab.isExisting()) await tab.click();
 }

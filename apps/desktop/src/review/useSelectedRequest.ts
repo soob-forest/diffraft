@@ -5,6 +5,7 @@ import type { PreparedSelection } from "../generated/PreparedSelection";
 import type { ReviewProjection } from "../generated/ReviewProjection";
 import { errorMessage } from "../ipc";
 import type { LogicalSelection } from "./coordinates";
+import { useSelectedDismissal } from "./selected-dismiss";
 import {
   type SelectedDraftChoice,
   selectedDraftChoices,
@@ -23,6 +24,7 @@ export type SelectedPrepared =
   | { kind: "regenerate"; value: PreparedRegeneration }
   | { kind: "selection"; value: PreparedSelection };
 export type SelectedRequestDraft = {
+  prepareOnOpen?: boolean;
   instruction: string;
   target: SelectedTarget | null;
   prepared: SelectedPrepared | null;
@@ -40,13 +42,19 @@ export function useSelectedRequest(
   taskId: string,
   surface: SelectionSurface = "review",
 ) {
-  const { store, index, draft } = useSelectedDrafts(
+  const { store, index, draft, readDraft, draftKey } = useSelectedDrafts(
     documentId,
     taskId,
     surface,
   );
   const { ui, actions } = useSelectionUi(documentId, taskId);
   const { setReplacement, setActive, setMessage, setChoices } = actions;
+  const dismiss = useSelectedDismissal(
+    draft,
+    actions,
+    JSON.stringify([documentId, taskId, surface, draftKey]),
+    readDraft,
+  );
   const adopt = selectionAdoption({ store, index }, actions);
   const beginTarget = (target: SelectedTarget) =>
     beginSelection({ draft, store, index }, target, {
@@ -60,6 +68,7 @@ export function useSelectedRequest(
     draft,
     locked: index.locked || draft.locked,
     setActive,
+    dismiss,
     adopt,
     beginTarget,
     chooseDraft: (choice: SelectedDraftChoice) => {
@@ -110,7 +119,11 @@ function selectionBeginning(
 }
 
 function beginSelection(
-  { draft, store, index }: ReturnType<typeof useSelectedDrafts>,
+  {
+    draft,
+    store,
+    index,
+  }: Pick<ReturnType<typeof useSelectedDrafts>, "draft" | "store" | "index">,
   target: SelectedTarget,
   actions: {
     setReplacement: (target: SelectedTarget) => void;
@@ -187,15 +200,20 @@ function useSelectedDrafts(
   useEffect(() => {
     if (seed.migrate) store.replace(seed.key, seed.initial, seed.initial);
   }, [seed, store]);
-  const draft = useSessionDraft<SelectedRequestDraft>(
+  const key =
     index.value.key ||
-      JSON.stringify([
-        "selected-request",
-        documentId,
-        taskId,
-        `${surface}-empty`,
-      ]),
-    EMPTY_SELECTED,
-  );
-  return { store, index, draft };
+    JSON.stringify([
+      "selected-request",
+      documentId,
+      taskId,
+      `${surface}-empty`,
+    ]);
+  const draft = useSessionDraft<SelectedRequestDraft>(key, EMPTY_SELECTED);
+  return {
+    store,
+    index,
+    draft,
+    draftKey: key,
+    readDraft: () => store.read(key, EMPTY_SELECTED),
+  };
 }

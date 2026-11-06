@@ -24,8 +24,18 @@ export function decodeDraft(record: DraftRecord): unknown {
     validate = validators[key[0]];
   if (!validate) throw invalidDraft();
   validate(data);
-  if (key[0] === "selected-request") validateOwner(key, data);
+  validateDraftOwner(key, data);
   return data;
+}
+function validateDraftOwner(key: string[], data: Record<string, unknown>) {
+  if (data.question && key[0] === "request") {
+    const target = object(data.question);
+    if (target.documentId !== key[1] || target.taskId !== key[2])
+      throw invalidDraft();
+  }
+  if (key[0] === "first-request" && data.taskId !== key[2])
+    throw invalidDraft();
+  if (key[0] === "selected-request") validateOwner(key, data);
 }
 function draftKey(json: string): string[] {
   const key: unknown = JSON.parse(json);
@@ -57,13 +67,7 @@ function validateOwner(key: string[], data: Record<string, unknown>) {
   if (typeof data.key === "string" && data.key) {
     const nested = draftKey(data.key);
     if (nested[1] !== key[1] || nested[2] !== key[2]) throw invalidDraft();
-    if (
-      key[3] === "source-active" &&
-      !(
-        (nested.length === 6 && nested[3] === "confirmed") ||
-        (nested.length === 7 && nested[4] === "confirmed")
-      )
-    )
+    if (key[3] === "source-active" && !isConfirmedKey(nested))
       throw invalidDraft();
   }
   if (data.target) {
@@ -73,7 +77,14 @@ function validateOwner(key: string[], data: Record<string, unknown>) {
       throw invalidDraft();
   }
 }
+function isConfirmedKey(key: string[]) {
+  return (
+    (key.length === 6 && key[3] === "confirmed") ||
+    (key.length === 7 && key[4] === "confirmed")
+  );
+}
 const validators: Record<string, (data: Record<string, unknown>) => void> = {
+  "first-request": firstRequestDraft,
   "unit-comment": unitCommentDraft,
   "review-navigation": reviewNavigationDraft,
   request: requestDraft,
@@ -84,6 +95,26 @@ const validators: Record<string, (data: Record<string, unknown>) => void> = {
   "selected-request": selectedRequestDraft,
   "source-scope": scopeDraft,
 };
+
+function firstRequestDraft(data: Record<string, unknown>) {
+  requestDraft(data);
+  if (data.handedOff !== undefined && typeof data.handedOff !== "boolean")
+    throw invalidDraft();
+  if (data.sourceAction !== undefined && typeof data.sourceAction !== "boolean")
+    throw invalidDraft();
+  for (const field of ["taskId", "name", "goal", "rules"])
+    if (typeof data[field] !== "string") throw invalidDraft();
+  if (
+    !["whole", "section", "selection"].includes(String(data.scopeKind)) ||
+    !Number.isSafeInteger(data.cursor)
+  )
+    throw invalidDraft();
+  if (data.source !== undefined)
+    scopeDraft({
+      kind: "selection",
+      captured: { epoch: 0, value: data.source },
+    });
+}
 
 function unitCommentDraft(data: Record<string, unknown>) {
   if (

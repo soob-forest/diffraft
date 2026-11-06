@@ -7,6 +7,7 @@ import {
   ViewPlugin,
 } from "@codemirror/view";
 import { rawSource } from "./raw-history";
+import { selectionDismiss } from "./selection-dismiss";
 import { selectionGesture } from "./selection-gesture";
 import { displayOffset, sourceOffset } from "./source-buffer";
 import {
@@ -21,6 +22,7 @@ export type SourceEditorAction = {
   edit: (captured: CapturedSourceSelection) => void;
   pinned: CapturedSourceSelection | null;
   returnSerial: number;
+  dismiss?: () => void;
 };
 export const refreshSourcePin =
   StateEffect.define<CapturedSourceSelection | null>();
@@ -65,6 +67,13 @@ export function sourceActionExtensions(
     return true;
   };
   return [
+    selectionDismiss({
+      enabled: () =>
+        Boolean(
+          current.current.action?.active && current.current.action.dismiss,
+        ),
+      dismiss: () => current.current.action?.dismiss?.(),
+    }),
     selectionGesture({
       show,
       close,

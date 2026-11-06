@@ -24,9 +24,6 @@ export function RewriteComparison({
   const base = versions.find(
     (version) => version.id === comparison.batch.baseVersionId,
   )?.number;
-  const candidate =
-    review.state.batches.length -
-    review.state.batches.findIndex((batch) => batch.id === comparison.batch.id);
   return (
     <>
       <header className="rewrite-comparison-heading">
@@ -35,7 +32,7 @@ export function RewriteComparison({
           v
           {(comparison.batch.status === "ACTIVE" ? current : base) ??
             "확인 필요"}{" "}
-          → 재작성 후보 {candidate}
+          → 전체 수정안
         </h3>
         <p>
           기준 v{base ?? "확인 필요"} · {comparison.batch.summary}
@@ -51,7 +48,7 @@ export function RewriteComparison({
         header={<ReviewHeader review={review} />}
         labels={[
           `${comparison.batch.status === "ACTIVE" ? "확정본" : "당시 기준본"} v${(comparison.batch.status === "ACTIVE" ? current : base) ?? "확인 필요"}`,
-          `재작성 후보 ${candidate}`,
+          "전체 수정안",
         ]}
       />
     </>

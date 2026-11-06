@@ -4,6 +4,8 @@ import type { ConversationResult } from "../generated/ConversationResult";
 import { SelectedDraftChoices } from "../review/SelectedDraftChoices";
 import { SelectedFields } from "../review/SelectedFields";
 import { SelectionConfirmation } from "../review/SelectionConfirmation";
+import { FirstRequest } from "./FirstRequest";
+import type { RequestScope } from "./request-scope";
 import { SourceOverlapNotice, useSourceOverlaps } from "./SourceOverlapNotice";
 import type { DocumentModel } from "./useDocument";
 import type { SourceRequest } from "./useSourceRequest";
@@ -11,6 +13,7 @@ import type { SourceRequest } from "./useSourceRequest";
 type Props = {
   request: SourceRequest;
   model: DocumentModel;
+  scope: RequestScope;
   taskId: string;
   onOverlap: (taskId: string, result: ConversationResult) => void;
 };
@@ -24,7 +27,7 @@ export function SourceRequestPanel(props: Props) {
       aria-label="선택한 원문 수정"
       onKeyDown={(event) => sourceEscape(event, request, state.form.busy)}
     >
-      <h3>선택한 부분 수정</h3>
+      {props.taskId && <h3>선택한 부분 수정</h3>}
       <button
         type="button"
         disabled={request.busy || state.form.busy}
@@ -64,6 +67,8 @@ function SourcePanelContent({
   taskId,
   onOverlap,
   state,
+  model,
+  scope,
 }: Props & { state: ReturnType<typeof useSourceForm> }) {
   const { form, stale, overlaps } = state,
     selection = request.selection;
@@ -71,7 +76,13 @@ function SourcePanelContent({
     <>
       {taskId && <SourceOverlapNotice state={overlaps} open={onOverlap} />}
       {!taskId ? (
-        <SourceFirstTask request={request} />
+        <FirstRequest
+          model={model}
+          scope={scope}
+          source={request.captured ?? undefined}
+          conditionFlush={request.firstConditions}
+          onTask={request.acceptTask}
+        />
       ) : (
         <SourceDraftFields
           request={request}
@@ -85,60 +96,6 @@ function SourcePanelContent({
           {form.message || request.message || selection.message}
         </p>
       )}
-    </>
-  );
-}
-function SourceFirstTask({ request }: { request: SourceRequest }) {
-  const { goal, instruction } = request.firstDraft;
-  return (
-    <form
-      onSubmit={(event) => {
-        event.preventDefault();
-        void request.createTask(goal, instruction);
-      }}
-    >
-      <p className="selected-scope-badge">선택한 원문 · 작업 생성 전</p>
-      <blockquote>{request.captured?.quote}</blockquote>
-      <SourceFirstTaskFields request={request} />
-      <p>
-        작업을 만든 뒤 같은 선택으로 요청을 준비합니다. 아직 AI를 실행하지
-        않았습니다. 작업 생성 전 입력은 이 문서를 닫으면 보관되지 않습니다.
-      </p>
-      <button
-        type="submit"
-        disabled={request.busy || !goal.trim() || !instruction.trim()}
-      >
-        작업 만들고 선택 수정 계속
-      </button>
-    </form>
-  );
-}
-function SourceFirstTaskFields({ request }: { request: SourceRequest }) {
-  const { goal, instruction } = request.firstDraft;
-  return (
-    <>
-      <label>
-        작업 목표
-        <textarea
-          required
-          value={goal}
-          disabled={request.busy}
-          onChange={(event) =>
-            request.setFirstDraft({ goal: event.target.value, instruction })
-          }
-        />
-      </label>
-      <label>
-        수정 지시
-        <textarea
-          required
-          value={instruction}
-          disabled={request.busy}
-          onChange={(event) =>
-            request.setFirstDraft({ goal, instruction: event.target.value })
-          }
-        />
-      </label>
     </>
   );
 }
@@ -203,6 +160,9 @@ function SourceDraftFields({
 }) {
   const selection = request.selection,
     draft = selection.draft;
+  const targetCurrent = !stale && !blocked;
+  const busy = form.busy || request.busy;
+  const canShowConfirmation = Boolean(draft.value.prepared && targetCurrent);
   return (
     <>
       <DraftLocked locked={selection.locked} />
@@ -214,18 +174,18 @@ function SourceDraftFields({
           선택해 주세요.
         </p>
       )}
-      {!selection.locked && (!draft.value.prepared || stale || blocked) && (
+      {!selection.locked && !canShowConfirmation && (
         <SelectedFields
           selection={selection}
-          busy={form.busy || request.busy}
-          canPrepare={!stale && !blocked && !selection.choices.length}
+          busy={busy}
+          canPrepare={targetCurrent && !selection.choices.length}
           prepare={() => void form.prepare()}
         />
       )}
-      {draft.value.prepared && !stale && !blocked && (
+      {draft.value.prepared && canShowConfirmation && (
         <SelectionConfirmation
           prepared={draft.value.prepared}
-          busy={form.busy || request.busy}
+          busy={busy}
           confirm={() => void form.confirm()}
           cancel={() => draft.set({ ...draft.value, prepared: null })}
         />

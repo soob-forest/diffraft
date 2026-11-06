@@ -1,3 +1,4 @@
+import type { ChangeQuestion } from "../generated/ChangeQuestion";
 import type { ConversationResult } from "../generated/ConversationResult";
 import type { ReviewProjection } from "../generated/ReviewProjection";
 
@@ -36,4 +37,29 @@ export function currentResultGroup(
         )
       : true,
   );
+}
+
+type QuestionDestination = ConversationResult & { question: ChangeQuestion };
+export function questionDestination(
+  question: ChangeQuestion,
+): QuestionDestination {
+  return {
+    batchId: question.batchId,
+    proposalId:
+      question.subject.kind === "proposal" ? question.subject.id : null,
+    revision:
+      question.subject.kind === "proposal" ? question.subject.revision : null,
+    status: "REFERENCE",
+    question,
+  };
+}
+export function destinationQuestion(
+  result: ConversationResult | null | undefined,
+  projection: ReviewProjection,
+) {
+  const question =
+    result && "question" in result
+      ? (result as QuestionDestination).question
+      : undefined;
+  return question?.batchId === projection.batch.id ? question : undefined;
 }
