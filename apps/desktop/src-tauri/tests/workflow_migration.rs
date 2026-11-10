@@ -4,8 +4,7 @@ use docreview_core::{
     storage::{Store, runtime::Runtime},
 };
 use support::World;
-const DOWNGRADE: &str =
-    "DROP TABLE first_request_drafts; ALTER TABLE tasks DROP COLUMN name; PRAGMA user_version=11;";
+const DOWNGRADE: &str = "DROP TABLE patch_reviews; DROP TABLE first_request_drafts; ALTER TABLE tasks DROP COLUMN name; PRAGMA user_version=11;";
 #[test]
 fn schema_11_name_backfill_keeps_goals_conditions_and_a_readable_backup() {
     let mut w = World::new();

@@ -1,41 +1,28 @@
 import { useEffect, useState } from "react";
 import type { DocumentModel } from "../editor/useDocument";
 import type { ConversationResult } from "../generated/ConversationResult";
-import type { ReviewGroup } from "../generated/ReviewGroup";
-import type { ReviewProjection } from "../generated/ReviewProjection";
 import { useDocumentGeneration } from "../generation/generation-activity";
 import type { Approval } from "./ApprovalDialog";
-import type { LogicalSelection } from "./coordinates";
-import { groupAtSelection, groupJumpSelection } from "./group-selection";
-import { reviewRows } from "./rows";
 import { expandCandidateSelection } from "./selection-expansion";
-import { confirmationFingerprint, reviewFingerprint } from "./state";
+import { confirmationFingerprint } from "./state";
+import { useGroupNavigation } from "./useGroupNavigation";
 import { useHistory } from "./useHistory";
 import { useReview } from "./useReview";
 import { useReviewActions } from "./useReviewActions";
 import { useSelectedRequest } from "./useSelectedRequest";
 
 type Props = {
+  active: boolean;
   document: DocumentModel;
   taskId: string;
   flushTask: () => Promise<void>;
   requestedResult?: ConversationResult | null;
 };
 export function useReviewPanel(props: Props) {
-  const review = useReview(
-    props.taskId,
-    props.document.autosave.document.versionId,
-  );
-  const actions = useReviewActions(props.document, review);
-  const history = useHistory(props.requestedResult);
-  const selectedRequest = useSelectedRequest(
-    props.document.state.document.id,
-    props.taskId,
-  );
+  const { review, actions, history, selectedRequest, navigation, detail } =
+    usePanelModels(props);
   const [selectionIssue, setSelectionIssue] = useState("");
   const [regenerating, setRegenerating] = useState(false);
-  const navigation = useNavigation(review.projection);
-  const detail = useDetail(navigation.selected?.id ?? "");
   const generating = useDocumentGeneration(props.document.state.document.id);
   const blocked = reviewBlocked(
     props.document,
@@ -69,6 +56,23 @@ export function useReviewPanel(props: Props) {
     ...approval,
     blocked: blocked || actions.busy || review.loading,
   };
+}
+
+function usePanelModels(props: Props) {
+  const review = useReview(
+    props.taskId,
+    props.document.autosave.document.versionId,
+    props.active ? props.document.state.document.id : "",
+  );
+  const actions = useReviewActions(props.document, review);
+  const history = useHistory(props.requestedResult);
+  const selectedRequest = useSelectedRequest(
+    props.document.state.document.id,
+    props.taskId,
+  );
+  const navigation = useGroupNavigation(review.projection);
+  const detail = useDetail(navigation.selected?.id ?? "");
+  return { review, actions, history, selectedRequest, navigation, detail };
 }
 
 function useApproval({
@@ -138,49 +142,6 @@ async function flushGeneration(props: Props) {
   });
 }
 
-function useNavigation(projection: ReviewProjection | null) {
-  const [selectedId, setSelectedId] = useState("");
-  const [selection, setSelection] = useState<LogicalSelection | null>(null);
-  const fingerprint = reviewFingerprint(projection);
-  useEffect(() => {
-    if (fingerprint) setSelection(null);
-  }, [fingerprint]);
-  const { jump, setJump } = useReviewJump();
-  const groups = projection?.groups ?? [];
-  const selected = groups.find((g) => g.id === selectedId) ?? groups[0];
-  return {
-    selected,
-    selectRange: (selection: LogicalSelection) => {
-      setSelection(selection);
-      setJump((previous) => ({
-        selection,
-        serial: (previous?.serial ?? 0) + 1,
-      }));
-    },
-    selectGroup: (id: string) => {
-      if (groups.some((group) => group.id === id)) setSelectedId(id);
-    },
-    selection,
-    setSelection: (value: LogicalSelection | null) => {
-      setSelection(value);
-      if (value && projection) {
-        const group = groupAtSelection(projection, value);
-        if (group) setSelectedId(group.id);
-      }
-    },
-    jump,
-    choose: (group: ReviewGroup) => {
-      if (projection) chooseGroup(projection, group, setSelectedId, setJump);
-    },
-    move: (direction: number) => {
-      const index = groups.findIndex((g) => g.id === selected?.id);
-      const next = groups[(index + direction + groups.length) % groups.length];
-      if (next && projection)
-        chooseGroup(projection, next, setSelectedId, setJump);
-    },
-  };
-}
-
 function selectionActions({
   review,
   navigation,
@@ -188,7 +149,7 @@ function selectionActions({
   setSelectionIssue,
 }: {
   review: ReturnType<typeof useReview>;
-  navigation: ReturnType<typeof useNavigation>;
+  navigation: ReturnType<typeof useGroupNavigation>;
   selectedRequest: ReturnType<typeof useSelectedRequest>;
   setSelectionIssue: (message: string) => void;
 }) {
@@ -217,33 +178,6 @@ function selectionActions({
         selectedRequest.begin(review.projection, navigation.selection);
     },
   };
-}
-
-function useReviewJump() {
-  const [jump, setJump] = useState<{
-    selection: LogicalSelection;
-    serial: number;
-  } | null>(null);
-  return { jump, setJump };
-}
-
-function chooseGroup(
-  projection: ReviewProjection,
-  group: ReviewGroup,
-  setSelectedId: (id: string) => void,
-  setJump: ReturnType<typeof useReviewJump>["setJump"],
-) {
-  setSelectedId(group.id);
-  const target = groupJumpSelection(
-    projection,
-    reviewRows(projection, new Set(), false),
-    group.id,
-  );
-  if (!target) return;
-  setJump((previous) => ({
-    selection: target,
-    serial: (previous?.serial ?? 0) + 1,
-  }));
 }
 
 function reviewBlocked(

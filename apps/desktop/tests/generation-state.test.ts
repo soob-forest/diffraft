@@ -37,6 +37,7 @@ const archived: ReviewBatch = {
   reviewMode: "CHANGES",
   reviewPlan: null,
   reviewUnits: [],
+  patchReview: null,
   summary: "이전 제안",
   candidateMarkdown: null,
   proposals: [],

@@ -75,6 +75,15 @@ export function ReviewMessage({ panel }: { panel: Panel }) {
   return message ? (
     <p role="status" className="review-message">
       {message}
+      {panel.review.error && (
+        <button
+          type="button"
+          disabled={panel.review.loading}
+          onClick={panel.review.refresh}
+        >
+          검토 다시 불러오기
+        </button>
+      )}
     </p>
   ) : null;
 }

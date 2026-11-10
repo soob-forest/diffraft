@@ -18,6 +18,9 @@ pub fn dispatch(store: &Store, request: ReviewRequest) -> Result<ReviewReply, Ap
 
 fn dispatch_action(store: &Store, action: ReviewAction) -> Result<ReviewReply, AppError> {
     match action {
+        ReviewAction::PreparePatchReview { request } => {
+            store.prepare_patch_review(request).map(ReviewReply::Batch)
+        }
         ReviewAction::PrepareQuestion { request } => store
             .prepare_change_question(&request)
             .map(ReviewReply::PreparedQuestion),

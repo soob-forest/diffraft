@@ -10,6 +10,10 @@ import {
   openComment,
   showSummary,
 } from "./support/review-ui.mjs";
+import {
+  foregroundUnitDisplay,
+  settleUnitDisplay,
+} from "./support/unit-review-display.mjs";
 import { inspectWorkflowState } from "./support/workflow-state-layout.mjs";
 
 const revised = "여행자는 준비물과 다음 여행 계획을 여행 기록에 남깁니다.";
@@ -25,6 +29,9 @@ async function readyVersion(version) {
   );
 }
 describe("네이티브 변경 검토", () => {
+  beforeEach(async () => {
+    await foregroundUnitDisplay(1);
+  });
   it(
     "접힌 긴 표의 추가 행으로 F7/Shift+F7 이동하며 원문을 보존한다",
     checkFoldedNavigation,
@@ -50,6 +57,7 @@ describe("네이티브 변경 검토", () => {
     );
     assert.ok(expressions.includes("10") && expressions.includes("5"));
     await $("button=인라인").click();
+    await settleUnitDisplay();
     await browser.waitUntil(
       async () =>
         browser.execute(() => {

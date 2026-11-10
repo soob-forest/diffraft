@@ -12,6 +12,8 @@ export async function prepareKeyboard(scenarios, app) {
         phases.includes("selection-popover") ||
         phases.includes("ux-reliability") ||
         phases.includes("review") ||
+        phases.includes("usability") ||
+        phases.includes("patch-groups") ||
         phases.includes("rewrite-review") ||
         phases.includes("ux-local") ||
         phases.includes("review-followup") ||

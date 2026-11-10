@@ -1,7 +1,6 @@
 import { execFileSync, spawn } from "node:child_process";
 import {
   appendFile,
-  chmod,
   mkdir,
   mkdtemp,
   readFile,
@@ -11,9 +10,9 @@ import {
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { layoutSource } from "../tests/fixtures/layout.mjs";
 import { prepareKeyboard } from "./e2e-keyboard.mjs";
-import { assertE2EBuild, ownTestRoot } from "./e2e-preflight.mjs";
+import { assertE2EBuild } from "./e2e-preflight.mjs";
+import { prepare, prepareStartupFailure } from "./e2e-workspace.mjs";
 import { prepareUxNativeApp } from "./ux-native-app.mjs";
 import { saveVerificationFixture } from "./verification-fixture.mjs";
 
@@ -46,6 +45,7 @@ if (
     "source-lifecycle",
     "ux-native",
     "review",
+    "patch-groups",
     "recovery",
     "connection",
     "generation",
@@ -69,6 +69,8 @@ if (
   throw new Error(
     "지원하는 선택 실행은 usability, connection, generation, review, recovery, conflict, layout, regeneration, history, rewrite, rewrite-cancel, navigation, export, shutdown, performance, startup-failure입니다.",
   );
+const patchGroups = ["patch-groups", "patch-groups-restart"];
+const review = ["review", ...patchGroups];
 const regeneration = ["regeneration", "regeneration-restart"];
 const generation = ["generation", "generation-restart"];
 const exportPhases = ["export", "export-restart"];
@@ -81,90 +83,100 @@ const selectionTransitions = [
 ];
 const unitReview = ["rewrite-review", "rewrite-review-restart"];
 const scenarios =
-  process.argv[2] === "request-workflow"
-    ? [["request-workflow", "request-workflow-restart"]]
-    : process.argv[2] === "rewrite-review"
-      ? [unitReview]
-      : process.argv[2]
-        ? [
-            process.argv[2] === "ux"
-              ? ["ux", "ux-restart", "ux-extensions", "ux-local", "ux-recovery"]
-              : process.argv[2] === "selection-popover"
+  process.argv[2] === "patch-groups"
+    ? [patchGroups]
+    : process.argv[2] === "request-workflow"
+      ? [["request-workflow", "request-workflow-restart"]]
+      : process.argv[2] === "rewrite-review"
+        ? [unitReview]
+        : process.argv[2]
+          ? [
+              process.argv[2] === "ux"
                 ? [
-                    "selection-popover",
-                    "selection-popover-layout",
-                    "selection-popover-restart",
+                    "ux",
+                    "ux-restart",
+                    "ux-extensions",
+                    "ux-local",
+                    "ux-recovery",
                   ]
-                : process.argv[2] === "selection-transitions"
-                  ? selectionTransitions
-                  : process.argv[2] === "ux-reliability"
-                    ? ["ux-reliability", "ux-reliability-restart"]
-                    : process.argv[2] === "quit"
-                      ? Array.from({ length: QUIT_STRESS_RUNS }, () => "quit")
-                      : process.argv[2] === "codex-native"
-                        ? ["codex-native", "codex-restart"]
-                        : process.argv[2] === "codex"
-                          ? [
-                              "codex",
-                              "codex-restart",
-                              "codex-stale",
-                              "codex-recovery",
-                            ]
-                          : process.argv[2] === "model-selection"
-                            ? ["model-selection", "model-selection-restart"]
-                            : process.argv[2] === "design-resume"
-                              ? ["design-resume", "design-resume-restart"]
-                              : process.argv[2] === "regeneration"
-                                ? regeneration
-                                : process.argv[2] === "generation"
-                                  ? generation
-                                  : process.argv[2] === "export"
-                                    ? exportPhases
-                                    : process.argv[2] === "shutdown"
-                                      ? shutdown
-                                      : process.argv[2] === "navigation"
-                                        ? navigation
-                                        : process.argv[2] === "recovery"
-                                          ? recovery
-                                          : [process.argv[2]],
-          ]
-        : [
-            ["request-followup"],
-            ["request-workflow", "request-workflow-restart"],
-            ["editor", "restart"],
-            ["connection"],
-            ["model-selection", "model-selection-restart"],
-            ["codex", "codex-restart", "codex-stale", "codex-recovery"],
-            generation,
-            ["design"],
-            ["tobe"],
-            ["design-resume", "design-resume-restart"],
-            ["usability"],
-            ["ux", "ux-restart", "ux-extensions", "ux-local", "ux-recovery"],
-            ["ux-reliability", "ux-reliability-restart"],
-            [
-              "selection-popover",
-              "selection-popover-layout",
-              "selection-popover-restart",
-            ],
-            ["review"],
-            selectionTransitions,
-            ["source-lifecycle"],
-            recovery,
-            ["conflict"],
-            ["layout"],
-            regeneration,
-            ["history"],
-            ["rewrite"],
-            unitReview,
-            ["review-followup"],
-            ["rewrite-cancel"],
-            navigation,
-            exportPhases,
-            shutdown,
-            ["performance"],
-            ["startup-failure"],
-          ];
+                : process.argv[2] === "selection-popover"
+                  ? [
+                      "selection-popover",
+                      "selection-popover-layout",
+                      "selection-popover-restart",
+                    ]
+                  : process.argv[2] === "selection-transitions"
+                    ? selectionTransitions
+                    : process.argv[2] === "ux-reliability"
+                      ? ["ux-reliability", "ux-reliability-restart"]
+                      : process.argv[2] === "quit"
+                        ? Array.from({ length: QUIT_STRESS_RUNS }, () => "quit")
+                        : process.argv[2] === "codex-native"
+                          ? ["codex-native", "codex-restart"]
+                          : process.argv[2] === "codex"
+                            ? [
+                                "codex",
+                                "codex-restart",
+                                "codex-stale",
+                                "codex-recovery",
+                              ]
+                            : process.argv[2] === "model-selection"
+                              ? ["model-selection", "model-selection-restart"]
+                              : process.argv[2] === "design-resume"
+                                ? ["design-resume", "design-resume-restart"]
+                                : process.argv[2] === "regeneration"
+                                  ? regeneration
+                                  : process.argv[2] === "generation"
+                                    ? generation
+                                    : process.argv[2] === "export"
+                                      ? exportPhases
+                                      : process.argv[2] === "shutdown"
+                                        ? shutdown
+                                        : process.argv[2] === "navigation"
+                                          ? navigation
+                                          : process.argv[2] === "recovery"
+                                            ? recovery
+                                            : process.argv[2] === "review"
+                                              ? review
+                                              : [process.argv[2]],
+            ]
+          : [
+              ["request-followup"],
+              ["request-workflow", "request-workflow-restart"],
+              ["editor", "restart"],
+              ["connection"],
+              ["model-selection", "model-selection-restart"],
+              ["codex", "codex-restart", "codex-stale", "codex-recovery"],
+              generation,
+              ["design"],
+              ["tobe"],
+              ["design-resume", "design-resume-restart"],
+              ["usability"],
+              ["ux", "ux-restart", "ux-extensions", "ux-local", "ux-recovery"],
+              ["ux-reliability", "ux-reliability-restart"],
+              [
+                "selection-popover",
+                "selection-popover-layout",
+                "selection-popover-restart",
+              ],
+              review,
+              selectionTransitions,
+              ["source-lifecycle"],
+              recovery,
+              ["conflict"],
+              ["layout"],
+              regeneration,
+              ["history"],
+              ["rewrite"],
+              unitReview,
+              ["review-followup"],
+              ["rewrite-cancel"],
+              navigation,
+              exportPhases,
+              shutdown,
+              ["performance"],
+              ["startup-failure"],
+            ];
 if (process.argv[2] === "quit") await prepareNativeQuit();
 if (process.argv[2] === "ux-native") await prepareUxNativeApp(app);
 await prepareKeyboard(scenarios, app);
@@ -192,59 +204,6 @@ for (const phases of scenarios) {
     await rm(root, { recursive: true, force: true });
   }
   if (process.exitCode) break;
-}
-
-async function prepareStartupFailure(root, phase) {
-  if (phase !== "startup-failure") return;
-  await mkdir(join(root, "data"));
-  const path = join(root, "data/workspace.sqlite3");
-  execFileSync("/usr/bin/sqlite3", [
-    path,
-    "PRAGMA user_version=999; CREATE TABLE preserve(value TEXT); INSERT INTO preserve VALUES('fixture');",
-  ]);
-  await writeFile(join(root, "expected-database"), await readFile(path));
-}
-
-async function prepare(root) {
-  await ownTestRoot(root);
-  await writeFile(join(root, "layout.md"), layoutSource);
-  const performanceBytes = 50 * 1024;
-  const paragraph = `${"성능 검사를 위한 원문 문단입니다. ".repeat(8)}\n\n`;
-  const performanceSource = `# 성능 문서\n\n${paragraph.repeat(Math.floor((performanceBytes - 100) / Buffer.byteLength(paragraph)))}`;
-  await writeFile(
-    join(root, "performance.md"),
-    performanceSource +
-      " ".repeat(performanceBytes - Buffer.byteLength(performanceSource)),
-  );
-  const base = await readFile(
-    new URL("../../../docs/examples/base_v12.md", import.meta.url),
-    "utf8",
-  );
-  await writeFile(join(root, "review.md"), base);
-  await writeFile(
-    join(root, "rewrite.md"),
-    await readFile(
-      new URL("../../../docs/examples/confirmed_v14.md", import.meta.url),
-      "utf8",
-    ),
-  );
-  await writeFile(join(root, "bulk-review.md"), base);
-  await writeFile(join(root, "regeneration.md"), base);
-  await writeFile(join(root, "regeneration-late.md"), base);
-  await writeFile(join(root, "conflict-review.md"), base);
-  await writeFile(
-    join(root, "document.md"),
-    "\ufeff# 로컬 문서\r\n\r\n한글 😀 원문\r\n",
-  );
-  await writeFile(join(root, "readonly.md"), "# 읽기 전용\n원문 유지\n");
-  await chmod(join(root, "readonly.md"), 0o444);
-  const limit = 1024 * 1024;
-  const unit = "한글과 emoji 😀 · 문단 검증\n\n";
-  const content = `# 큰 문서\n${unit.repeat(Math.floor((limit - 100) / Buffer.byteLength(unit)))}`;
-  await writeFile(
-    join(root, "large.md"),
-    `${content}${" ".repeat(limit - Buffer.byteLength(content))}`,
-  );
 }
 
 function run(phase, root, iteration) {

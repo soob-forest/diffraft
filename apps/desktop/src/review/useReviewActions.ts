@@ -116,6 +116,7 @@ function makeDecision(
     documentId: projection.batch.documentId,
     batchId: projection.batch.id,
     expectedHeadId: projection.currentHeadId,
+    expectedGroupRevision: projection.batch.patchReview?.revision ?? null,
     operationId: crypto.randomUUID(),
     proposals,
   };

@@ -68,6 +68,7 @@ fn v12_partial_reject_revision_and_accept_produce_exact_v14() {
         .save_proposal_revision(revision_request(&world, REVISED))
         .unwrap();
     let mut request = world.request(&[2]);
+    request.expected_group_revision = batch.patch_review.as_ref().map(|p| p.revision);
     request.proposals = vec![ProposalRevision {
         id: d03(&batch).id.clone(),
         revision: 2,

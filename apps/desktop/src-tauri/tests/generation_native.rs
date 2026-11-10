@@ -161,6 +161,7 @@ fn revise_patch(store: &Store, head: &DocumentSnapshot, batch: &ReviewBatch) -> 
 fn accept(store: &Store, head: &DocumentSnapshot, batch: &ReviewBatch) -> DocumentSnapshot {
     store
         .accept_proposals(DecisionRequest {
+            expected_group_revision: batch.patch_review.as_ref().map(|p| p.revision),
             document_id: head.id.clone(),
             batch_id: batch.id.clone(),
             expected_head_id: head.version_id.clone(),

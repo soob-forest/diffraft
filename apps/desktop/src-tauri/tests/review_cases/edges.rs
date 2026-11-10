@@ -10,41 +10,30 @@ use docreview_core::{
 };
 
 #[test]
-fn dependency_group_cannot_be_partially_accepted_or_rejected() {
+fn multiline_context_does_not_couple_unrelated_proposals() {
     let mut world = ReviewWorld::new();
     let mut response = response();
     if let AiResponse::Patch { changes, .. } = &mut response {
         changes[0].after.push_str("\n추가 문맥");
     }
     world.batch = register(&world.world, &world.head, &world.task, &response);
-    assert!(
-        world
-            .batch
-            .proposals
-            .iter()
-            .all(|p| p.group_id == world.batch.proposals[0].group_id)
+    assert_ne!(
+        world.batch.proposals[0].group_id,
+        world.batch.proposals[1].group_id
     );
-    assert!(
-        world
-            .world
-            .store
-            .accept_proposals(world.request(&[0]))
-            .is_err()
-    );
-    assert!(
-        world
-            .world
-            .store
-            .reject_proposals(world.request(&[1]))
-            .is_err()
-    );
-    assert_eq!(std::fs::read_to_string(&world.world.path).unwrap(), BASE);
     let head = world
         .world
         .store
-        .accept_proposals(world.request(&[0, 1, 2]))
+        .accept_proposals(world.request(&[0]))
         .unwrap();
     assert_eq!(head.version, 13);
+    assert!(head.content.contains("추가 문맥"));
+    world.head = head;
+    world
+        .world
+        .store
+        .reject_proposals(world.request(&[1]))
+        .unwrap();
 }
 
 #[test]

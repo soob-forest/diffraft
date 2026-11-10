@@ -71,6 +71,16 @@ pub struct ReviewBatch {
     pub summary: String,
     pub candidate_markdown: Option<String>,
     pub proposals: Vec<Proposal>,
+    #[serde(default)]
+    pub patch_review: Option<PatchReview>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, TS)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct PatchReview {
+    pub policy_version: u32,
+    pub revision: u32,
+    pub reasons: std::collections::BTreeMap<String, String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema, TS)]
@@ -103,6 +113,8 @@ pub struct DecisionRequest {
     pub expected_head_id: String,
     pub proposals: Vec<ProposalRevision>,
     pub operation_id: String,
+    #[serde(default)]
+    pub expected_group_revision: Option<u32>,
 }
 
 impl DecisionRequest {

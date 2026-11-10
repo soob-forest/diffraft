@@ -38,6 +38,7 @@ export function projection(proposals = [proposal()]): ReviewProjection {
       reviewMode: "CHANGES",
       reviewPlan: null,
       reviewUnits: [],
+      patchReview: null,
       summary: "아직 미승인이라는 과거 AI 요약",
       candidateMarkdown: null,
       proposals,

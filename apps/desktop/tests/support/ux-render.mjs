@@ -3,7 +3,15 @@ import { settleUnitDisplay } from "./unit-review-display.mjs";
 const RENDER_TIMEOUT_MS = 1000;
 
 export async function settleUxRender() {
-  if (process.env.DOCREVIEW_E2E_PHASE === "ux-local")
+  if (
+    [
+      "ux-local",
+      "review",
+      "patch-groups",
+      "patch-groups-restart",
+      "usability",
+    ].includes(process.env.DOCREVIEW_E2E_PHASE)
+  )
     return settleUnitDisplay();
   await browser.execute(
     (timeout) =>

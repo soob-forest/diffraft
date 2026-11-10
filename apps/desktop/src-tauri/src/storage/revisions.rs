@@ -4,12 +4,12 @@ use super::{
     files, journal, queries, review_queries,
 };
 use crate::{
-    document::{patch::requires_dependency_group, review::valid_head, revisions::revise},
+    document::{review::valid_head, revisions::revise},
     domain::{
         annotations::RevisionRequest,
         document::{validate_content, validate_id},
         error::{AppError, ErrorCode},
-        review::{Decision, Proposal, ReviewBatch},
+        review::{Proposal, ReviewBatch},
     },
 };
 use rusqlite::{Connection, OptionalExtension, params};
@@ -60,30 +60,12 @@ impl Store {
         request: &RevisionRequest,
     ) -> Result<(), AppError> {
         insert_revision(connection, batch, proposal, self.runtime.now_ms()?)?;
-        self.regroup(connection, batch)?;
+        self.regroup_patch(connection, batch)?;
         comment_links::update(connection, batch, proposal)?;
         let payload = serde_json::to_string(request)
             .map_err(|_| AppError::invalid("후보 수정 기록을 저장할 수 없습니다."))?;
         let sequence = queries::next_sequence(connection)?;
         connection.execute("INSERT INTO decision_events(id,document_id,task_id,seq,kind,payload,version_id,created_at) VALUES(?1,?2,?3,?4,'proposal_revision',?5,?6,?7)", params![request.operation_id,request.document_id,batch.task_id,sequence,payload,request.expected_head_id,self.runtime.now_ms()?]).map_err(database_error)?;
-        Ok(())
-    }
-
-    fn regroup(&self, connection: &Connection, batch: &ReviewBatch) -> Result<(), AppError> {
-        let operations: Vec<_> = batch
-            .proposals
-            .iter()
-            .filter(|p| p.decision == Decision::Pending)
-            .map(|p| p.operation.clone())
-            .collect();
-        if requires_dependency_group(&operations) {
-            connection
-                .execute(
-                    "UPDATE proposals SET group_id=?1 WHERE batch_id=?2 AND decision='PENDING'",
-                    params![self.runtime.id(), batch.id],
-                )
-                .map_err(database_error)?;
-        }
         Ok(())
     }
 }

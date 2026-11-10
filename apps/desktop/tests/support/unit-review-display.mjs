@@ -5,12 +5,7 @@ const visibilityTimeoutMs = 5000;
 const testWindowPosition = { x: 24, y: 48 };
 
 export async function foregroundUnitDisplay(zoom) {
-  await browser.setWindowRect(
-    testWindowPosition.x,
-    testWindowPosition.y,
-    null,
-    null,
-  );
+  await positionUnitWindow();
   const pid = await browser.execute(async (scale) => {
     const window = globalThis.__TAURI__.window.getCurrentWindow();
     await window.unminimize();
@@ -79,12 +74,7 @@ export async function settleUnitDisplay() {
 }
 
 async function restoreUnitDisplay() {
-  await browser.setWindowRect(
-    testWindowPosition.x,
-    testWindowPosition.y,
-    null,
-    null,
-  );
+  await positionUnitWindow();
   const pid = await browser.execute(async () => {
     const window = globalThis.__TAURI__.window.getCurrentWindow();
     await window.unminimize();
@@ -106,6 +96,22 @@ async function restoreUnitDisplay() {
       timeoutMsg: `가려진 테스트 창의 표시를 복원할 수 없습니다: ${JSON.stringify(windows)}`,
     },
   );
+}
+
+async function positionUnitWindow() {
+  await browser.execute(async (offset) => {
+    const { window, dpi } = globalThis.__TAURI__;
+    const monitor = await window.primaryMonitor();
+    if (!monitor) throw new Error("테스트 창을 표시할 주 모니터가 없습니다.");
+    await window
+      .getCurrentWindow()
+      .setPosition(
+        new dpi.PhysicalPosition(
+          monitor.position.x + offset.x,
+          monitor.position.y + offset.y,
+        ),
+      );
+  }, testWindowPosition);
 }
 
 function assertUnitDisplay(state, phase) {

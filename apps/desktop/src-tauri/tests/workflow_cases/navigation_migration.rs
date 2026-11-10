@@ -37,7 +37,7 @@ fn assert_migrated_messages(store: &Store) {
         .configure_database_for_test(|db| {
             assert_eq!(
                 db.pragma_query_value(None, "user_version", |row| row.get::<_, u32>(0))?,
-                12
+                13
             );
             assert_eq!(
                 db.query_row(

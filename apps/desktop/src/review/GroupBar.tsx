@@ -95,17 +95,7 @@ function SelectedGroup({
   projection: ReviewProjection;
 }) {
   const group = panel.selected;
-  const title = useRef<HTMLHeadingElement>(null);
-  const previous = useRef(group?.id);
-  useEffect(() => {
-    if (
-      previous.current &&
-      previous.current !== group?.id &&
-      !projection.groups.some((value) => value.id === previous.current)
-    )
-      title.current?.focus();
-    previous.current = group?.id;
-  }, [group?.id, projection.groups]);
+  const title = useSelectedGroupTitle(group?.id, projection.groups);
   if (!group) return null;
   const index = projection.groups.findIndex((value) => value.id === group.id);
   return (
@@ -124,11 +114,37 @@ function SelectedGroup({
         </button>
       </h3>
 
+      {group.proposals.length > 1 && (
+        <p className="muted">
+          {group.proposals.length}개 변경을 함께 검토합니다.{" "}
+          {projection.batch.patchReview?.reasons[group.id] ??
+            "서로 연결된 변경입니다."}
+        </p>
+      )}
+
       <SelectionNavigation panel={panel} />
       <SelectionActions panel={panel} />
       <DetailEntry />
     </div>
   );
+}
+
+function useSelectedGroupTitle(
+  groupId: string | undefined,
+  groups: ReviewProjection["groups"],
+) {
+  const title = useRef<HTMLHeadingElement>(null);
+  const previous = useRef(groupId);
+  useEffect(() => {
+    if (
+      previous.current &&
+      previous.current !== groupId &&
+      !groups.some((g) => g.id === previous.current)
+    )
+      title.current?.focus();
+    previous.current = groupId;
+  }, [groupId, groups]);
+  return title;
 }
 
 function SelectionNavigation({ panel }: { panel: Panel }) {

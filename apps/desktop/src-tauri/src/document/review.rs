@@ -30,6 +30,32 @@ pub fn reconstruct(base: &str, batch: &ReviewBatch, pending: bool) -> Result<Str
     apply(base, &operations)
 }
 
+pub(crate) fn validate_patch_acceptance(
+    head: &DocumentSnapshot,
+    batch: &ReviewBatch,
+    request: &DecisionRequest,
+) -> Result<(), AppError> {
+    if batch.mode != "PATCH" {
+        return Ok(());
+    }
+    let mut proposals = batch.proposals.iter().collect::<Vec<_>>();
+    proposals.sort_by_key(|p| p.operation.range.from);
+    let mut delta = 0i64;
+    let mut operations = Vec::new();
+    for proposal in proposals {
+        let mut operation = proposal.operation.clone();
+        if proposal.decision == Decision::Accepted {
+            delta += operation.after.len() as i64 - operation.before.len() as i64;
+        } else if request.proposals.iter().any(|p| p.id == proposal.id) {
+            operation.range.from = shift(operation.range.from, delta)?;
+            operation.range.to = shift(operation.range.to, delta)?;
+            operations.push(operation);
+        }
+    }
+    let content = apply(&head.content, &operations)?;
+    super::patch_fences::validate(&head.content, &content, &operations)
+}
+
 pub fn valid_head(
     base: &str,
     batch: &ReviewBatch,
@@ -52,6 +78,11 @@ pub fn validate_decision<'a>(
     request: &DecisionRequest,
 ) -> Result<Vec<&'a Proposal>, AppError> {
     request.validate()?;
+    if batch.mode == "PATCH"
+        && request.expected_group_revision != batch.patch_review.as_ref().map(|p| p.revision)
+    {
+        return Err(stale());
+    }
     if request.batch_id != batch.id
         || request.document_id != batch.document_id
         || request.expected_head_id != head.version_id

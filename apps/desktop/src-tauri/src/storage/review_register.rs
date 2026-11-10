@@ -4,7 +4,7 @@ use super::{
     files, queries, review_queries,
 };
 use crate::{
-    document::patch::{requires_dependency_group, validate_patch},
+    document::patch::validate_patch,
     domain::{
         ai::AiResponse,
         document::{DocumentStatus, validate_id},
@@ -90,6 +90,7 @@ impl Store {
             archive_previous(&transaction, &source.task_id, &id)?;
         }
         self.insert_proposals(&transaction, &id, &operations, validity)?;
+        self.regroup_patch(&transaction, &review_queries::batch(&transaction, &id)?)?;
         self.complete_generation(&transaction, job, response, session)?;
         transaction.commit().map_err(database_error)?;
         review_queries::batch(&connection, &id)
@@ -102,10 +103,9 @@ impl Store {
         operations: &[EditOperation],
         validity: &str,
     ) -> Result<(), AppError> {
-        let combined = requires_dependency_group(operations).then(|| self.runtime.id());
         for operation in operations {
             let id = self.runtime.id();
-            let group = combined.clone().unwrap_or_else(|| self.runtime.id());
+            let group = self.runtime.id();
             let anchor = serde_json::to_string(operation)
                 .map_err(|_| AppError::invalid("제안 범위를 저장할 수 없습니다."))?;
             connection.execute("INSERT INTO proposals(id,batch_id,revision,group_id,block_anchor,before_text,after_text,reason,decision,validity,created_at) VALUES(?1,?2,1,?3,?4,?5,?6,?7,'PENDING',?8,?9)", params![id,batch,group,anchor,operation.before,operation.after,operation.reason,validity,self.runtime.now_ms()?]).map_err(database_error)?;

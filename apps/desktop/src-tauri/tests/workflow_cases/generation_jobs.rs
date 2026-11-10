@@ -151,6 +151,7 @@ fn empty_document_patch_stays_unapproved_until_explicit_accept() {
             .is_empty()
     );
     let decision = DecisionRequest {
+        expected_group_revision: batch.patch_review.as_ref().map(|p| p.revision),
         document_id: world.document.id.clone(),
         batch_id: batch.id,
         expected_head_id: world.document.version_id.clone(),

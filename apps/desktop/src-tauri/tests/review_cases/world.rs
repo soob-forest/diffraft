@@ -41,6 +41,7 @@ impl ReviewWorld {
 
     pub fn request(&self, indices: &[usize]) -> DecisionRequest {
         DecisionRequest {
+            expected_group_revision: self.batch.patch_review.as_ref().map(|p| p.revision),
             document_id: self.head.id.clone(),
             batch_id: self.batch.id.clone(),
             expected_head_id: self.head.version_id.clone(),

@@ -11,7 +11,7 @@ export async function checkBusyComment(taskId) {
   assert.equal(await $(".generation-dialog").isExisting(), false);
   await openComment();
   await browser.waitUntil(
-    async () => !(await $("button=코멘트 저장").isEnabled()),
+    async () => !(await $("button=코멘트 등록").isEnabled()),
   );
   assert.equal(
     await $(".comment-form textarea").getValue(),
@@ -21,7 +21,7 @@ export async function checkBusyComment(taskId) {
   await $("button=생성 중단").click();
   const result = await terminal(taskId, previousJob);
   assert.equal(result.lastAttempt.status, "CANCELLED");
-  await $("button=코멘트 저장").waitForEnabled();
+  await $("button=코멘트 등록").waitForEnabled();
   assert.equal(
     await $(".comment-form textarea").getValue(),
     "진행 중에도 유지할 초안",

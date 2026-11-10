@@ -6,7 +6,9 @@ use super::{
     queries, review_queries,
 };
 use crate::{
-    document::review::{reconstruct, stale, valid_head, validate_decision},
+    document::review::{
+        reconstruct, stale, valid_head, validate_decision, validate_patch_acceptance,
+    },
     domain::{
         document::{DocumentSnapshot, DocumentStatus},
         error::{AppError, ErrorCode},
@@ -30,6 +32,7 @@ impl Store {
         let base = review_queries::base(&connection, &batch)?;
         valid_head(&base, &batch, &previous)?;
         validate_decision(&batch, &previous, &request)?;
+        validate_patch_acceptance(&previous, &batch, &request)?;
         super::unit_review_dependencies::validate(&base, &batch, &request)?;
         for proposal in &mut batch.proposals {
             if request.proposals.iter().any(|p| p.id == proposal.id) {

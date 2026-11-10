@@ -10,12 +10,13 @@ pub fn batch(connection: &Connection, id: &str) -> Result<ReviewBatch, AppError>
         "SELECT b.id,j.task_id,t.document_id,b.base_version_id,b.apply_head_id,b.status,b.mode,b.summary,b.candidate_markdown,b.review_mode FROM proposal_batches b JOIN jobs j ON b.job_id=j.id JOIN tasks t ON j.task_id=t.id WHERE b.id=?1",
         [id], |row| Ok((ReviewBatch {
             id: row.get(0)?, task_id: row.get(1)?, document_id: row.get(2)?, base_version_id: row.get(3)?, apply_head_id: row.get(4)?, status: row.get(5)?, mode: row.get(6)?, summary: row.get(7)?, candidate_markdown: row.get(8)?, proposals: Vec::new(),
-            review_mode: Default::default(), review_plan: None, review_units: Vec::new(),
+            review_mode: Default::default(), review_plan: None, review_units: Vec::new(), patch_review: None,
         }, row.get::<_,String>(9)?)),
     ).optional().map_err(database_error)?.ok_or_else(|| AppError::invalid("제안 묶음을 찾을 수 없습니다."))?;
     batch.review_mode = crate::domain::unit_review::ReviewMode::parse(&mode)?;
     batch.proposals = proposals(connection, id)?;
     super::unit_review_queries::attach(connection, &mut batch)?;
+    super::patch_group_records::attach(connection, &mut batch)?;
     Ok(batch)
 }
 

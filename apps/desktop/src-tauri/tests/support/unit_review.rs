@@ -90,6 +90,7 @@ impl UnitWorld {
 
     pub fn decision(&self, index: usize) -> DecisionRequest {
         DecisionRequest {
+            expected_group_revision: None,
             document_id: self.head.id.clone(),
             batch_id: self.batch.id.clone(),
             expected_head_id: self.world.store.snapshot(&self.head.id).unwrap().version_id,

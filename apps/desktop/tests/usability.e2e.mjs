@@ -10,13 +10,9 @@ import {
   terminal,
 } from "./support/generation-fixture.mjs";
 import { prepare, root } from "./support/review-fixture.mjs";
-import {
-  openCandidate,
-  openComment,
-  openScope,
-  showSummary,
-} from "./support/review-ui.mjs";
+import { openComment, openScope, showSummary } from "./support/review-ui.mjs";
 import { checkBusyComment } from "./support/usability-busy-comment.mjs";
+import { checkCandidateDraft } from "./support/usability-candidate.mjs";
 import { checkResponsiveWorkspace } from "./support/usability-layout.mjs";
 import { checkManyChanges } from "./support/usability-many-changes.mjs";
 
@@ -79,62 +75,16 @@ describe("세션 초안과 사용성", () => {
     );
     assert.equal(await $(".comment-form blockquote").getText(), quote);
   });
-  it("후보가 바뀌면 초안 대상을 재확인하고 저장 실패에도 입력을 보존한다", async () => {
-    await openCandidate();
-    await $(".candidate-form textarea").setValue(
-      "준비가 끝나면 동행인에게 알립니다.",
-    );
-    await $("button=후보 저장").click();
-    await browser.waitUntil(async () =>
-      (await $(".candidate-form summary").getProperty("textContent")).includes(
-        "r2",
-      ),
-    );
-    await openComment();
-    assert.equal(
-      await $(".comment-form textarea").getValue(),
-      "작성 중인 코멘트",
-    );
-    assert.equal(await $("button=코멘트 저장").isEnabled(), false);
-    await $(".comment-form [role=alert]").scrollIntoView({ block: "center" });
-    await browser.saveScreenshot(".artifacts/usability/anchor-reconfirm.png");
-    await $("button=현재 선택으로 대상 재확인").click();
-    const release = await holdDatabase();
-    try {
-      await $("button=코멘트 저장").click();
-      await browser.waitUntil(
-        async () =>
-          (await $(".comment-form [role=status]").getText()).length > 0,
-      );
-      assert.equal(
-        await $(".comment-form textarea").getValue(),
-        "작성 중인 코멘트",
-      );
-    } finally {
-      await release();
-    }
-    await $("button=코멘트 저장").click();
-    await browser.waitUntil(
-      async () => (await $(".comment-form textarea").getValue()) === "",
-    );
-    assert.match(await $(".comment-form [role=status]").getText(), /재제안/);
-    await $("button=코멘트 반영 재제안 작성").waitForEnabled();
-    await $("button=코멘트 반영 재제안 작성").click();
-    await browser.waitUntil(async () =>
-      browser.execute(() =>
-        document.activeElement?.matches(".regenerate-form textarea"),
-      ),
-    );
-    assert.equal(await readFile(join(root, "review.md"), "utf8"), fixture.base);
-  });
+  it("후보가 바뀌면 초안 대상을 재확인하고 저장 실패에도 입력을 보존한다", async () =>
+    checkCandidateDraft(fixture));
   it("조건 저장 실패는 접힌 폼에서도 표시하고 요청과 문서 이동을 차단한다", async () => {
     await $("button=원문").click();
     await $(".task-condition-details > summary").click();
-    await $(".task-conditions textarea[required]").setValue("수정한 지속 목표");
+    await $(".task-conditions textarea").setValue("수정한 지속 목표");
     await $(".task-condition-details > summary").click();
     const release = await holdDatabase();
     try {
-      await $("button=요청 내용 확인").click();
+      await $(".request-form button[type=submit]").click();
       await browser.waitUntil(async () =>
         (await $(".task-condition-details > summary").getText()).includes(
           "저장 실패",
@@ -150,7 +100,7 @@ describe("세션 초안과 사용성", () => {
     } finally {
       await release();
     }
-    await $("button=요청 내용 확인").click();
+    await $(".request-form button[type=submit]").click();
     await $(".generation-dialog").waitForDisplayed();
     await $("button=요청 취소").click();
     await $(".sidebar").$("button=review").click();
@@ -168,7 +118,7 @@ describe("세션 초안과 사용성", () => {
     await $("button=원문").click();
     await chooseScope("selection");
     assert.equal(await $(".scope-bar select").getValue(), "selection");
-    await $("button=요청 내용 확인").click();
+    await $(".request-form button[type=submit]").click();
     await browser.waitUntil(async () =>
       (await $(".generation-panel").getText()).includes("선택 영역이 없습니다"),
     );
@@ -199,7 +149,7 @@ describe("세션 초안과 사용성", () => {
       (await conversation(fixture.task.id)).lastAttempt.jobId,
       failed.lastAttempt.jobId,
     );
-    await $("button=요청 내용 확인").click();
+    await $(".request-form button[type=submit]").click();
     await $(".generation-dialog").waitForDisplayed();
     assert.equal(
       await $(".request-instruction").getText(),

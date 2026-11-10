@@ -41,7 +41,7 @@ export async function chooseGroup(number) {
   const navigation = $(".navigation-more");
   if ((await navigation.getAttribute("open")) === null)
     await navigation.$("summary").click();
-  await $(`button=${number}번 변경`).click();
+  await $(`button*=${number}번 변경`).click();
   await navigation.$("summary").click();
   if (restore) await $("button=문서 목록").click();
 }

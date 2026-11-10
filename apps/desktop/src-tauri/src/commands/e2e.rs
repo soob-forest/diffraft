@@ -60,6 +60,12 @@ pub fn pick_path() -> Result<PathBuf, AppError> {
             | "bulk-review"
             | "regeneration"
             | "regeneration-late"
+            | "patch-groups"
+            | "patch-groups-legacy"
+            | "patch-groups-words"
+            | "patch-groups-fences"
+            | "patch-boundary-combined"
+            | "patch-boundary-container"
     ) {
         return Err(AppError::invalid(
             "등록된 테스트 파일만 선택할 수 있습니다.",

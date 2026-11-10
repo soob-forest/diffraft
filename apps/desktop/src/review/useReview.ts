@@ -3,6 +3,7 @@ import type { ReviewProjection } from "../generated/ReviewProjection";
 import type { TaskReview } from "../generated/TaskReview";
 import { errorMessage } from "../ipc";
 import { reviewCommand } from "./api";
+import { readReviewProjection } from "./patch-review-read";
 import { ReadSequence, reviewFingerprint } from "./state";
 
 const REFRESH_MS = 1000;
@@ -17,7 +18,7 @@ const empty: Snapshot = {
   },
   projection: null,
 };
-export function useReview(taskId: string, headId: string) {
+export function useReview(taskId: string, headId: string, documentId = "") {
   const [snapshot, setSnapshot] = useState(empty);
   const [batchId, setBatchId] = useState("");
   const [error, setError] = useState("");
@@ -31,8 +32,8 @@ export function useReview(taskId: string, headId: string) {
     setRevision((current) => current + 1);
   }, []);
   const request = useMemo(
-    () => ({ taskId, batchId, headId, revision }),
-    [taskId, batchId, headId, revision],
+    () => ({ taskId, batchId, headId, revision, documentId }),
+    [taskId, batchId, headId, revision, documentId],
   );
   useEffect(() => {
     return pollReview(request, sequence.current, {
@@ -57,6 +58,7 @@ async function load(
   taskId: string,
   requested: string,
   headId: string,
+  documentId: string,
 ): Promise<Snapshot> {
   if (!taskId) return empty;
   const state = await reviewCommand({ kind: "state", taskId }, "state");
@@ -69,10 +71,7 @@ async function load(
     state.batches.find((value) => value.status === "ACTIVE") ??
     state.batches[0];
   const projection = batch
-    ? await reviewCommand(
-        { kind: "projection", batchId: batch.id, expectedHeadId: headId },
-        "projection",
-      )
+    ? await readReviewProjection(batch, documentId, headId, state.generating)
     : null;
   return { state, projection };
 }
@@ -91,6 +90,7 @@ type ReadRequest = {
   batchId: string;
   headId: string;
   revision: number;
+  documentId: string;
 };
 function pollReview(
   request: ReadRequest,
@@ -112,6 +112,7 @@ function pollReview(
         request.taskId,
         request.batchId,
         request.headId,
+        request.documentId,
       );
       if (sequence.current(ticket)) {
         setSnapshot((previous) => retainProjection(previous, result));

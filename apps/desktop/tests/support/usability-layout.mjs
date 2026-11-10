@@ -1,7 +1,11 @@
 import assert from "node:assert/strict";
 import { writeFile } from "node:fs/promises";
-import { showTaskPanel } from "./generation-fixture.mjs";
-import { resizeContent } from "./tobe-fixture.mjs";
+import { chooseRequestMode, showTaskPanel } from "./generation-fixture.mjs";
+import {
+  foregroundUnitDisplay,
+  settleUnitDisplay,
+} from "./unit-review-display.mjs";
+import { assertButtonHit } from "./ux-ui.mjs";
 
 export async function checkResponsiveWorkspace() {
   const draft = await $(".request-form textarea").getValue();
@@ -13,7 +17,7 @@ export async function checkResponsiveWorkspace() {
       [1440, 900],
     ]) {
       await zoom(1);
-      await resizeContent(width, height);
+      await browser.setWindowSize(width, height);
       for (const scale of [1, 1.5, 2])
         measurements.push(
           await inspectEnvironment({ width, height, scale, draft }),
@@ -22,16 +26,19 @@ export async function checkResponsiveWorkspace() {
     await finishMeasurements(measurements);
   } finally {
     await zoom(1);
-    await resizeContent(1440, 900);
+    await browser.setWindowSize(1440, 900);
   }
 }
 
 async function inspectEnvironment({ width, height, scale, draft }) {
   await zoom(scale);
-  if (await $("button=작업 패널 접기").isExisting())
-    await $("button=작업 패널 접기").click();
+  const back = $("button=본문으로 돌아가기"),
+    close = $("button=요청·상세 접기");
+  if (await back.isDisplayed()) await back.click();
+  else if (await close.isDisplayed()) await close.click();
+  await settleUnitDisplay();
   await $("button=선택한 변경 승인").scrollIntoView({ block: "center" });
-  await assertReachable("선택한 변경 승인");
+  await assertButtonHit(".selected-group .proposal-actions .primary");
   const measure = await browser.execute(() => ({
     width: innerWidth,
     height: innerHeight,
@@ -59,15 +66,25 @@ async function inspectEnvironment({ width, height, scale, draft }) {
     `.artifacts/usability/review-${width}-${scale}.png`,
   );
   await assertHistoryReachable();
+  await inspectRequest({ width, scale, draft });
+  return {
+    requestedWindow: [width, height],
+    actualWindow: await browser.getWindowSize(),
+    zoom: scale,
+    ...measure,
+    readable,
+  };
+}
+
+async function inspectRequest({ width, scale, draft }) {
   await showTaskPanel();
   await $(".request-form textarea").scrollIntoView({ block: "center" });
   assert.equal(await $(".request-form textarea").getValue(), draft);
   await $("button=요청 내용 확인").scrollIntoView({ block: "center" });
-  await assertReachable("요청 내용 확인");
+  await assertButtonHit(".request-form button[type=submit]");
   await browser.saveScreenshot(
     `.artifacts/usability/request-${width}-${scale}.png`,
   );
-  return { window: [width, height], zoom: scale, ...measure, readable };
 }
 
 async function inspectReadable() {
@@ -105,7 +122,7 @@ async function inspectReadable() {
 
 async function finishMeasurements(measurements) {
   await zoom(1);
-  await resizeContent(1440, 900);
+  await browser.setWindowSize(1440, 900);
   await checkRewriteEntry();
   await writeFile(
     ".artifacts/usability/measurements.json",
@@ -114,48 +131,24 @@ async function finishMeasurements(measurements) {
 }
 
 async function checkRewriteEntry() {
-  await resizeContent(800, 600);
+  await browser.setWindowSize(800, 600);
   await showTaskPanel();
-  if ((await $(".request-extras").getAttribute("open")) === null)
-    await $(".request-extras > summary").click();
-  await $("button=전체 재작성으로 이동").scrollIntoView();
-  await $("button=전체 재작성으로 이동").click();
-  await $(".rewrite-form textarea").waitForDisplayed();
+  await chooseRequestMode("REWRITE");
+  assert.equal(await $('select[aria-label="수정 방식"]').getValue(), "REWRITE");
+  await $(".request-form textarea").click();
   await browser.waitUntil(async () =>
     browser.execute(() =>
-      document.activeElement?.matches(".rewrite-form textarea"),
+      document.activeElement?.matches(".request-form textarea"),
     ),
   );
-  assert.equal(await $(".rewrite-dialog").isExisting(), false);
-  await resizeContent(1440, 900);
+  assert.equal(await $(".generation-dialog").isExisting(), false);
+  await browser.setWindowSize(1440, 900);
   await showTaskPanel();
+  await chooseRequestMode("PATCH");
 }
 
 async function zoom(scale) {
-  await browser.execute(
-    (scale) => window.__TAURI__.webview.getCurrentWebview().setZoom(scale),
-    scale,
-  );
-}
-
-async function assertReachable(label) {
-  const result = await browser.execute((label) => {
-    const button = [...document.querySelectorAll("button")].find(
-      (element) =>
-        element.textContent.trim() === label && element.getClientRects().length,
-    );
-    const rect = button.getBoundingClientRect(),
-      x = rect.x + rect.width / 2,
-      y = rect.y + rect.height / 2;
-    return {
-      label,
-      x,
-      y,
-      hit: button.contains(document.elementFromPoint(x, y)),
-      viewport: [innerWidth, innerHeight],
-    };
-  }, label);
-  assert.equal(result.hit, true, JSON.stringify(result));
+  await foregroundUnitDisplay(scale);
 }
 
 async function assertHistoryReachable() {

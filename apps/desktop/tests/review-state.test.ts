@@ -94,6 +94,15 @@ describe("review UI coordinates and ordering", () => {
       ),
     ).not.toBe(fingerprint);
     const changed = structuredClone(projection);
+    const regrouped = structuredClone(projection);
+    regrouped.batch.patchReview = {
+      policyVersion: 1,
+      revision: 2,
+      reasons: {},
+    };
+    expect(confirmationFingerprint(regrouped, state, false)).not.toBe(
+      fingerprint,
+    );
     changed.batch.proposals[0].revision++;
     expect(confirmationFingerprint(changed, state, false)).not.toBe(
       fingerprint,

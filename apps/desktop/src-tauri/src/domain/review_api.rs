@@ -65,6 +65,9 @@ pub struct ReviewRequest {
     deny_unknown_fields
 )]
 pub enum ReviewAction {
+    PreparePatchReview {
+        request: BatchDecisionRequest,
+    },
     PrepareQuestion {
         request: super::change_question::QuestionRequest,
     },

@@ -1,10 +1,6 @@
 use crate::world::{BASE, response};
 use docreview_core::{
-    document::{
-        diff::compare,
-        patch::{requires_dependency_group, validate_patch},
-        scope::select,
-    },
+    document::{diff::compare, patch::validate_patch, scope::select},
     domain::{
         ai::{AiChange, AiResponse},
         document::{DocumentSnapshot, DocumentStatus},
@@ -79,17 +75,17 @@ fn exact_unicode_mixed_newline_and_whitespace_are_preserved() {
         docreview_core::document::patch::apply(base, &operations).unwrap(),
         base.replace('😀', "👩‍💻")
     );
-    assert!(!requires_dependency_group(&operations));
+    assert!(!operations[0].requires_group);
     let (_, stats) = compare("a  \r\nb\r끝", "a \r\nb\r끝\n", &[]);
     assert_eq!((stats.added_lines, stats.removed_lines), (2, 2));
 }
 
 #[test]
-fn structural_edits_are_grouped_and_noop_is_omitted() {
+fn structural_hint_is_kept_and_noop_is_omitted() {
     let base = "# 제목\n";
     let scope = select(&document(base), ScopeSelection::Whole).unwrap();
     let operations = validate_patch(base, &scope, &patch("# 제목", "## 제목")).unwrap();
-    assert!(requires_dependency_group(&operations));
+    assert!(operations[0].requires_group);
     assert!(
         validate_patch(base, &scope, &patch("# 제목", "# 제목"))
             .unwrap()
@@ -102,7 +98,7 @@ fn structure_is_detected_from_the_original_block_not_only_the_changed_words() {
     for base in ["# 제목\n", "1. 제목\n", "```text\n제목\n```\n"] {
         let scope = select(&document(base), ScopeSelection::Whole).unwrap();
         let operations = validate_patch(base, &scope, &patch("제목", "다른 제목")).unwrap();
-        assert!(requires_dependency_group(&operations), "{base}");
+        assert!(operations[0].requires_group, "{base}");
     }
 }
 

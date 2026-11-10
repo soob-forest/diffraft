@@ -5,9 +5,43 @@ import {
   groupAtSelection,
   groupJumpSelection,
   groupRowMarks,
+  restoreGroupSelection,
 } from "../src/review/group-selection";
 
 import type { ReviewRow } from "../src/review/rows";
+
+it("jumps to a second independent change inside the same changed row", () => {
+  const review = {
+    before: "first second",
+    after: "first second",
+    groups: [
+      {
+        id: "first",
+        beforeRanges: [{ from: 0, to: 5 }],
+        afterRanges: [{ from: 0, to: 5 }],
+      },
+      {
+        id: "second",
+        beforeRanges: [{ from: 6, to: 12 }],
+        afterRanges: [{ from: 6, to: 12 }],
+      },
+    ],
+  } as ReviewProjection;
+  const rows = [
+    {
+      key: "both",
+      kind: "delete",
+      raw: "first second",
+      beforeFrom: 0,
+      afterFrom: null,
+    },
+  ] as ReviewRow[];
+  expect(groupJumpSelection(review, rows, "second")).toEqual({
+    side: "before",
+    from: 6,
+    to: 6,
+  });
+});
 
 const projection = {
   before: "한글\n첫 변경\n둘 변경",
@@ -25,6 +59,21 @@ const projection = {
     },
   ],
 } as ReviewProjection;
+
+it("restores the same proposal after regrouping and clears missing selections", () => {
+  const review = {
+    ...projection,
+    groups: projection.groups.map((g) => ({
+      ...g,
+      proposals: [{ id: g.id, revision: 1 }],
+    })),
+  };
+  expect(restoreGroupSelection(review, "old-combined", "second")?.id).toBe(
+    "second",
+  );
+  expect(restoreGroupSelection(review, "missing", "missing")?.id).toBe("first");
+  expect(restoreGroupSelection(null, "first", "first")).toBeUndefined();
+});
 
 it("maps Korean UTF-16 selections to the independent byte-range approval group", () => {
   expect(
@@ -67,7 +116,7 @@ it("jumps to an inserted row when the group's before range starts in folded cont
 it("jumps to deleted Korean text and does not invent a target for absent groups", () => {
   const rows = [
     { kind: "equal", beforeFrom: 0, afterFrom: 0 },
-    { kind: "delete", beforeFrom: 8, afterFrom: null },
+    { kind: "delete", beforeFrom: 8, afterFrom: null, raw: "둘 변경" },
   ] as ReviewRow[];
   expect(groupJumpSelection(projection, rows, "second")).toEqual({
     side: "before",
@@ -102,8 +151,20 @@ it("marks only changed rows and preserves the selected group's Korean heading", 
   } as ReviewProjection;
   const rows = [
     { key: "context", kind: "equal", beforeFrom: 0, afterFrom: 0 },
-    { key: "deleted", kind: "delete", beforeFrom: 3, afterFrom: null },
-    { key: "inserted", kind: "insert", beforeFrom: null, afterFrom: 8 },
+    {
+      key: "deleted",
+      kind: "delete",
+      beforeFrom: 3,
+      afterFrom: null,
+      raw: "첫 변경\n",
+    },
+    {
+      key: "inserted",
+      kind: "insert",
+      beforeFrom: null,
+      afterFrom: 8,
+      raw: "둘 변경",
+    },
   ] as ReviewRow[];
   const marks = groupRowMarks(review, rows, "second");
   expect(marks.has("context")).toBe(false);

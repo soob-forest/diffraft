@@ -50,6 +50,8 @@ npm run test:e2e -- quit
 
 E2E와 일반 앱은 같은 debug 실행 파일을 사용한다. 검사가 끝나면 일반 앱을 복원한다.
 
+`review` 선택 실행은 기존 검토 뒤 `patch-groups`와 별도 프로세스 `patch-groups-restart`를 이어 실행한다. 새 두 단계만 실행하려면 `npm run test:e2e -- patch-groups`를 사용한다. 동일 요청의 다섯 그룹 순환 탐색·일부 거절/승인·남은 전체 승인, 구형 네 변경의 재분류·그룹 ID 보존, 외부 변경 중 전체 승인 취소를 검사한다. 순수 판정은 Rust `patch_group_plan`, 저장·전환·동시성·마이그레이션은 `review`의 `grouping / grouping_safety`, 화면 준비 순서·실패는 `patch-review-read.test.ts`로 검사한다. 실제 실행 결과는 [PATCH 그룹 기록](patch-groups-implementation.md)에서 구분한다.
+
 ```sh
 npm run native:build
 ```

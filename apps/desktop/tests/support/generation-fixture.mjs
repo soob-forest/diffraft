@@ -67,10 +67,10 @@ export async function beginRequest(mode, fixture, instruction) {
   );
   await chooseRequestMode(mode);
   await $(".request-form textarea").setValue(instruction);
-  await $("button=요청 내용 확인").click();
+  await $(".request-form button[type=submit]").click();
   await $(".generation-dialog").waitForDisplayed();
   await writeFile(join(root, "next-generation"), fixture);
-  await $("button=확인 후 요청").click();
+  await $(".generation-dialog").$("button=확인 후 요청").click();
 }
 export async function terminal(taskId, previousJob = null, timeout = 10000) {
   await browser.waitUntil(

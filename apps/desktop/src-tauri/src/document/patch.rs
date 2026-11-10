@@ -133,16 +133,6 @@ pub fn apply(base: &str, operations: &[EditOperation]) -> Result<String, AppErro
     Ok(result)
 }
 
-pub fn requires_dependency_group(operations: &[EditOperation]) -> bool {
-    operations.iter().any(|operation| {
-        operation.requires_group
-            || [&operation.before, &operation.after].iter().any(|text| {
-                text.contains(['\n', '\r', '[', ']', '|', '`'])
-                    || text.trim_start().starts_with(['#', '-', '*', '>', '+'])
-            })
-    })
-}
-
 fn structural_block(text: &str) -> bool {
     matches!(Parser::new_ext(text.trim_start_matches('\u{feff}'), Options::ENABLE_TABLES).next(), Some(Event::Start(tag)) if !matches!(tag, Tag::Paragraph))
 }
