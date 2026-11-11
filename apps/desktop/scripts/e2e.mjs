@@ -23,6 +23,8 @@ await assertE2EBuild();
 if (
   process.argv[2] &&
   ![
+    "document-navigation",
+    "document-management",
     "workspace-followup",
     "workspace-panels",
     "request-followup",
@@ -71,6 +73,10 @@ if (
   throw new Error(
     "지원하는 선택 실행은 usability, connection, generation, review, recovery, conflict, layout, regeneration, history, rewrite, rewrite-cancel, navigation, export, shutdown, performance, startup-failure입니다.",
   );
+const documentManagement = [
+  "document-management",
+  "document-management-restart",
+];
 const workspacePanels = ["workspace-panels", "workspace-panels-restart"];
 const workspaceFollowup = ["workspace-followup", "workspace-followup-restart"];
 const patchGroups = ["patch-groups", "patch-groups-restart"];
@@ -145,6 +151,8 @@ let scenarios =
                                               : [process.argv[2]],
             ]
           : [
+              ["document-navigation"],
+              documentManagement,
               workspaceFollowup,
               workspacePanels,
               ["request-followup"],
@@ -183,6 +191,7 @@ let scenarios =
               ["performance"],
               ["startup-failure"],
             ];
+if (process.argv[2] === "document-management") scenarios = [documentManagement];
 if (process.argv[2] === "workspace-panels") scenarios = [workspacePanels];
 if (process.argv[2] === "workspace-followup") scenarios = [workspaceFollowup];
 if (process.argv[2] === "quit") await prepareNativeQuit();

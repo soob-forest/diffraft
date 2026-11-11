@@ -7,6 +7,9 @@ const phase = process.env.DOCREVIEW_E2E_PHASE;
 if (
   !testRoot ||
   ![
+    "document-navigation",
+    "document-management",
+    "document-management-restart",
     "workspace-followup",
     "workspace-followup-restart",
     "workspace-panels",

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { ConflictDialog } from "../conflict/ConflictDialog";
 import type { EditorState } from "../generated/EditorState";
 import type { WorkspacePanelControl } from "../panels/useWorkspacePanels";
+import { DocumentNavigation } from "./DocumentNavigation";
 import {
   type DocumentListControl,
   type DocumentMode,
@@ -55,7 +56,10 @@ function WorkspaceLayout({ state }: { state: WorkspaceState }) {
         onConflict={() => void conflict.compare()}
       />
       <div className="document-modebar">
-        <ViewToggle mode={mode} setMode={setMode} />
+        <div className="document-views">
+          <ViewToggle mode={mode} setMode={setMode} />
+          <DocumentNavigation />
+        </div>
         <WorkspaceControls
           goal={goal}
           tasksOpen={tasksOpen}

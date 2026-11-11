@@ -1,0 +1,86 @@
+.document-actions-menu {
+  position: fixed;
+  z-index: 30;
+  width: min(260px, calc(100vw - 16px));
+  max-height: calc(100dvh - 16px);
+  overflow: auto;
+  padding: 6px;
+  background: white;
+  color: #182537;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  font-size: 14px;
+}
+.document-actions-menu > p {
+  margin: 4px 8px 6px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 12px;
+  overflow-wrap: anywhere;
+  max-height: 80px;
+  overflow: auto;
+}
+.document-actions-menu > button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border-color: transparent;
+}
+.document-actions-menu > button:is(:hover, :focus-visible) {
+  background: #eaf0ff;
+}
+.document-actions-menu > button:focus-visible,
+.document-navigation summary:focus-visible,
+.forget-document-dialog button:focus-visible {
+  outline: 2px solid #2957c8;
+  outline-offset: 1px;
+}
+.sidebar .document-list-row > .document-more {
+  display: grid;
+  place-items: center;
+  flex: 0 0 34px;
+  padding: 0;
+}
+.sidebar .document-list-row > button:first-child {
+  overflow-wrap: anywhere;
+  text-align: left;
+}
+.completed-documents .document-list-row > button:first-child {
+  font-size: 13px;
+}
+.forget-document-dialog {
+  width: min(440px, calc(100vw - 32px));
+  max-height: calc(100dvh - 32px);
+  overflow: auto;
+  padding: 24px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: #182537;
+  background: white;
+}
+.forget-document-dialog::backdrop {
+  background: #18253766;
+}
+.forget-document-dialog h2 {
+  margin: 0 0 16px;
+  font-size: 18px;
+}
+.forget-document-dialog p {
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+.forget-document-name {
+  font-weight: 600;
+}
+.forget-document-dialog [role="alert"] {
+  color: #a12b2b;
+}
+.forget-document-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 24px;
+}

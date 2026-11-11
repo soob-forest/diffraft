@@ -32,18 +32,12 @@ export async function openRegenerate() {
 
 export async function chooseGroup(number) {
   await showSummary();
-  const sidebar = $(".sidebar");
-  let restore = false;
-  if (!(await sidebar.isDisplayed())) {
-    await $("button=문서 목록").click();
-    restore = true;
-  }
   const navigation = $(".navigation-more");
   if ((await navigation.getAttribute("open")) === null)
     await navigation.$("summary").click();
   await $(`button*=${number}번 변경`).click();
-  await navigation.$("summary").click();
-  if (restore) await $("button=문서 목록").click();
+  if ((await navigation.getAttribute("open")) !== null)
+    await navigation.$("summary").click();
 }
 
 export async function openDocumentMenu() {

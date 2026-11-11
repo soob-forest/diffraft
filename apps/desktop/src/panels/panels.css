@@ -48,8 +48,7 @@
   font-size: 12px;
 }
 .sidebar > .document-actions,
-.sidebar > ul,
-.sidebar > .navigation-more {
+.sidebar > ul {
   margin-inline: 16px;
 }
 .sidebar > ul {
@@ -57,11 +56,7 @@
   overflow: auto;
   margin-block: 8px 0;
 }
-.sidebar > .navigation-more {
-  flex: 1;
-  min-height: 44px;
-  overflow: auto;
-}
+
 .sidebar .document-list-help {
   margin: 0 16px 8px;
   font-size: 12px;
@@ -79,7 +74,7 @@
 .sidebar .document-list-row > button:first-child {
   flex: 1;
 }
-.sidebar .document-remove {
+.sidebar .document-more {
   display: grid;
   place-items: center;
   flex: 0 0 34px;
@@ -119,19 +114,6 @@
 }
 .completed-documents > ul {
   margin: 4px 0 0;
-}
-.sidebar .completed-documents button {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 4px 8px;
-  margin: 0 0 4px;
-  font-size: 12px;
-}
-.completed-document-title {
-  color: #233a59;
-  overflow-wrap: anywhere;
 }
 .document-workspace {
   --panel-width: clamp(280px, var(--request-width, 360px), 55%);

@@ -16,7 +16,7 @@ describe("완료 문서 목록 재실행", () => {
     );
     assert.equal(
       await $(
-        '.document-list-row button[aria-label="document 목록에서 제거"]',
+        '.sidebar > ul .document-list-row button[aria-label="document 문서 작업"]',
       ).isExisting(),
       false,
     );

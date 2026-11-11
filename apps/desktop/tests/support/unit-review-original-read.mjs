@@ -93,7 +93,9 @@ export async function assertLateOriginalReadKeepsCurrent(fixture) {
 async function remountReview(title) {
   await browser.setWindowSize(1440, 900);
   if (!(await $(".sidebar").isDisplayed())) await $("button=문서 목록").click();
-  const documents = await $$(".sidebar ul button");
+  const documents = await $$(
+    ".sidebar > ul .document-list-row > button:first-child",
+  );
   let alternate;
   for (const document of documents)
     if ((await document.getText()) !== title) {

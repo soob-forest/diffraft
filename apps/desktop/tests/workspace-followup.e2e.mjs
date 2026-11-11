@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
+import { documentAction } from "./support/document-menu.mjs";
 import { editor, invoke, root } from "./support/review-fixture.mjs";
 import { resizeContent } from "./support/tobe-fixture.mjs";
 
@@ -22,7 +23,7 @@ async function panelWidth() {
   );
 }
 async function removeLocal() {
-  await $('button[aria-label="새 문서 목록에서 제거"]').click();
+  await documentAction("새 문서", "완료로 이동");
   await $(".document-removal-notice").waitForDisplayed();
   await $(".sidebar > ul").$("button=document").click();
   await title("document");

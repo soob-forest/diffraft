@@ -8,11 +8,11 @@ import {
 const first = "00000000-0000-4000-8000-000000000001";
 const second = "00000000-0000-4000-8000-000000000002";
 function storage() {
-  let value: string | null = null;
+  const values = new Map<string, string>();
   return {
-    getItem: () => value,
+    getItem: (key: string) => values.get(key) ?? null,
     setItem: (_key: string, next: string) => {
-      value = next;
+      values.set(_key, next);
     },
   };
 }
@@ -32,21 +32,23 @@ it("keeps completed documents out of the list after restart and restores the sam
   const disk = storage(),
     list = new DocumentList(disk);
   list.load();
-  list.remove(first);
+  list.complete(first);
   const reopened = new DocumentList(disk);
   reopened.load();
   expect(
-    visibleWorkspace(snapshot, reopened.ids).documents.map((doc) => doc.id),
+    visibleWorkspace(snapshot, reopened.completedIds).documents.map(
+      (doc) => doc.id,
+    ),
   ).toEqual([second]);
-  expect(visibleWorkspace(snapshot, reopened.ids).selectedDocumentId).toBe(
-    second,
-  );
-  expect(completedDocuments(snapshot, reopened.ids)).toEqual([
+  expect(
+    visibleWorkspace(snapshot, reopened.completedIds).selectedDocumentId,
+  ).toBe(second);
+  expect(completedDocuments(snapshot, reopened.completedIds)).toEqual([
     snapshot.documents[0],
   ]);
   reopened.restore(first);
-  expect(visibleWorkspace(snapshot, reopened.ids)).toEqual(snapshot);
-  expect(completedDocuments(snapshot, reopened.ids)).toEqual([]);
+  expect(visibleWorkspace(snapshot, reopened.completedIds)).toEqual(snapshot);
+  expect(completedDocuments(snapshot, reopened.completedIds)).toEqual([]);
 });
 
 it("does not change in-memory visibility when storage fails", () => {
@@ -57,8 +59,8 @@ it("does not change in-memory visibility when storage fails", () => {
     },
   });
   list.load();
-  expect(() => list.remove(first)).toThrow(/목록.*저장/);
-  expect(list.ids).toEqual([]);
+  expect(() => list.complete(first)).toThrow(/목록.*저장/);
+  expect(list.completedIds).toEqual([]);
 });
 
 it.each(["{", '["invalid"]', "{}", "[null]"])(
@@ -77,12 +79,74 @@ it.each(["{", '["invalid"]', "{}", "[null]"])(
 it("normalizes duplicates and handles removal of the last document", () => {
   const list = new DocumentList(storage());
   list.load();
-  list.remove(first);
-  list.remove(first);
-  list.remove(second);
-  expect(list.ids).toEqual([first, second]);
-  expect(visibleWorkspace(snapshot, list.ids)).toMatchObject({
+  list.complete(first);
+  list.complete(first);
+  list.complete(second);
+  expect(list.completedIds).toEqual([first, second]);
+  expect(visibleWorkspace(snapshot, list.completedIds)).toMatchObject({
     documents: [],
     selectedDocumentId: null,
   });
+});
+
+it("forgets completed documents atomically and restores them only on explicit reopen", () => {
+  const disk = storage();
+  const list = new DocumentList(disk);
+  list.complete(first);
+  list.forget(first);
+  const restarted = new DocumentList(disk);
+  restarted.load();
+  expect(restarted.completedIds).toEqual([]);
+  expect(restarted.removedIds).toEqual([first]);
+  expect(completedDocuments(snapshot, restarted.completedIds)).toEqual([]);
+  expect(visibleWorkspace(snapshot, restarted.hiddenIds).documents).toEqual([
+    snapshot.documents[1],
+  ]);
+  restarted.restore(first);
+  expect(visibleWorkspace(snapshot, restarted.hiddenIds)).toEqual(snapshot);
+});
+it("migrates legacy completion preferences without writing during load", () => {
+  const disk = storage();
+  disk.setItem(
+    "docreview.completed-documents.v1",
+    JSON.stringify([first, first]),
+  );
+  const list = new DocumentList(disk);
+  list.load();
+  expect(list.completedIds).toEqual([first]);
+  expect(disk.getItem("docreview.document-list.v2")).toBeNull();
+  list.forget(first);
+  const next = new DocumentList(disk);
+  next.load();
+  expect(next.completedIds).toEqual([]);
+  expect(next.removedIds).toEqual([first]);
+});
+it("preserves completed state when forgetting fails and rejects active targets", () => {
+  let blocked = false;
+  const list = new DocumentList({
+    getItem: () => null,
+    setItem: () => {
+      if (blocked) throw new DOMException("full", "QuotaExceededError");
+    },
+  });
+  expect(() => list.forget(first)).toThrow(/완료/);
+  list.complete(first);
+  blocked = true;
+  expect(() => list.forget(first)).toThrow(/저장/);
+  expect(list.completedIds).toEqual([first]);
+  expect(list.removedIds).toEqual([]);
+});
+it("normalizes overlapping v2 states with removed taking precedence", () => {
+  const disk = storage();
+  disk.setItem(
+    "docreview.document-list.v2",
+    JSON.stringify({
+      completedIds: [first, second],
+      removedIds: [first, first],
+    }),
+  );
+  const list = new DocumentList(disk);
+  list.load();
+  expect(list.completedIds).toEqual([second]);
+  expect(list.removedIds).toEqual([first]);
 });

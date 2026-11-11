@@ -39,7 +39,7 @@ npm run native:bundle:internal
 
 ## 데이터 보존과 앱 교체
 
-요청 흐름 변경의 설치 출처는 [구현 기록](development/request-workflow-implementation.md)과 [보완 기록](development/request-workflow-followup.md)을 따른다. 과거 종료 크래시 빌드는 [당시 기록](development/quit-crash-build.json)에 보존한다. 앱 버전이 같은 `0.1.0`이어도 내용이 다른 빌드일 수 있다. `/Applications/DocReview.app`과 `~/Applications/DocReview.app`을 구분하고 교체한 경로의 앱을 직접 실행한다. 현재 화면은 [요청 흐름 캡처와 출처](usage/request-workflow/README.md)를 참고한다.
+최신 문서 관리·탐색 변경의 설치 출처는 [설치 검증 기록](development/document-navigation-fixes.md#최신-앱-설치--2026-11-11)을 따른다. 요청 흐름 변경의 설치 출처는 [구현 기록](development/request-workflow-implementation.md)과 [보완 기록](development/request-workflow-followup.md)을 따른다. 과거 종료 크래시 빌드는 [당시 기록](development/quit-crash-build.json)에 보존한다. 앱 버전이 같은 `0.1.0`이어도 내용이 다른 빌드일 수 있다. `/Applications/DocReview.app`과 `~/Applications/DocReview.app`을 구분하고 교체한 경로의 앱을 직접 실행한다. 현재 화면은 [요청 흐름 캡처와 출처](usage/request-workflow/README.md)를 참고한다.
 
 요청·선택 수정·코멘트·후보 수정과 작업 생성 전 첫 요청 초안은 기기에 보관하며 재실행 후 복원한다. 화면의 초안 저장 완료를 확인하고 정상 종료한 뒤 앱을 교체한다. 아직 저장되지 않은 입력까지 보장하지는 않는다. 원문 저장·확정본·작업 이력과 초안을 구분한다.
 
@@ -56,6 +56,6 @@ npm run native:bundle:internal
 3. 기존 앱을 새 `DocReview.app`으로 교체한다.
 4. 다시 실행해 문서·작업·버전 기록을 확인한다. macOS가 문서 폴더 접근을 다시 물으면 확인 후 진행한다.
 
-DB schema는 12이며 이전 schema에서 변환할 때 먼저 `workspace.schema-*.backup.sqlite3`를 만든다. 더 최신 schema를 이전 앱으로 열면 쓰기를 차단한다. 복구는 앱이 종료된 상태에서 일치하는 앱·DB·문서 백업을 함께 사용한다.
+DB schema는 13이며 이전 schema에서 변환할 때 먼저 `workspace.schema-*.backup.sqlite3`를 만든다. 더 최신 schema를 이전 앱으로 열면 쓰기를 차단한다. 복구는 앱이 종료된 상태에서 일치하는 앱·DB·문서 백업을 함께 사용한다.
 
 저장 오류·외부 파일 변경이 있으면 앱의 `파일 비교·복구`를 사용한다. 작업 파일이나 DB를 직접 덮어써 복구 상태를 지우지 않는다. 강제 종료 전 아직 저장되지 않은 마지막 입력까지 보존한다고 보장하지 않는다.

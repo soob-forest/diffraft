@@ -21,6 +21,7 @@ DocReview의 사용·설치·제품 동작·개발 구조를 설명한다. 실�
 | --- | --- |
 | [개발 설계](development/architecture.md) | 기술 선택·CLI·세션·데이터 모델·복구·IPC |
 | [Diff 구현 상세](development/diff-implementation.md) | projection·승인 그룹·코멘트 앵커·비교 표시 |
+| [문서 관리·탐색 보완](development/document-management-followup.md) | 완료·완전 제거·우클릭 메뉴·문서 탐색 위치의 결정과 검증 |
 | [테스트 안내](development/testing.md) | 검사 명령·가짜 CLI·네이티브 E2E·검증 한계 |
 | [실제 입력기·VoiceOver 검사](development/ux-native-validation.md) | 격리된 수동 인수 절차와 미검증 이유 |
 

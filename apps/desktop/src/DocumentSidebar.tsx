@@ -1,5 +1,6 @@
 import { CompletedDocuments } from "./CompletedDocuments";
-import { NavigationHosts } from "./editor/NavigationSlots";
+import { DocumentItem } from "./documents/DocumentItem";
+import { DocumentMenus } from "./documents/DocumentMenus";
 import { PanelResize } from "./panels/PanelResize";
 import type { useWorkspace } from "./workspace";
 
@@ -11,36 +12,34 @@ type Props = {
 };
 export function DocumentSidebar({ workspace, close, width, setWidth }: Props) {
   return (
-    <aside
-      id="document-list"
-      className="sidebar"
-      aria-label="문서 목록"
-      inert={workspace.closing}
-    >
-      <div className="sidebar-heading">
-        <h2>문서</h2>
-        <button type="button" aria-label="문서 목록 닫기" onClick={close}>
-          닫기
-        </button>
-      </div>
-      <DocumentActions workspace={workspace} />
-      <p className="document-list-help">
-        완료한 문서는 목록에서 제거할 수 있습니다. 파일과 기록은 보존됩니다.
-      </p>
-      <RemovalNotice workspace={workspace} />
-      <DocumentRows workspace={workspace} />
-      <CompletedDocuments workspace={workspace} />
-      <details className="navigation-more">
-        <summary>문서 탐색</summary>
-        <NavigationHosts />
-      </details>
-      <PanelResize
-        kind="documents"
-        controls="document-list"
-        value={width}
-        onChange={setWidth}
-      />
-    </aside>
+    <DocumentMenus workspace={workspace}>
+      <aside
+        id="document-list"
+        className="sidebar"
+        aria-label="문서 목록"
+        inert={workspace.closing}
+      >
+        <div className="sidebar-heading">
+          <h2>문서</h2>
+          <button type="button" aria-label="문서 목록 닫기" onClick={close}>
+            닫기
+          </button>
+        </div>
+        <DocumentActions workspace={workspace} />
+        <p className="document-list-help">
+          문서 옆 더보기 또는 우클릭으로 완료 상태를 바꿀 수 있습니다.
+        </p>
+        <RemovalNotice workspace={workspace} />
+        <DocumentRows workspace={workspace} />
+        <CompletedDocuments workspace={workspace} />
+        <PanelResize
+          kind="documents"
+          controls="document-list"
+          value={width}
+          onChange={setWidth}
+        />
+      </aside>
+    </DocumentMenus>
   );
 }
 
@@ -69,7 +68,7 @@ function RemovalNotice({ workspace }: Pick<Props, "workspace">) {
   if (!removed) return null;
   return (
     <div className="document-removal-notice" role="status">
-      <span>{removed.title} 문서를 목록에서 제거했습니다.</span>
+      <span>{removed.title} 문서를 완료 목록으로 이동했습니다.</span>
       <button
         type="button"
         disabled={workspace.busy}
@@ -85,53 +84,8 @@ function DocumentRows({ workspace }: Pick<Props, "workspace">) {
   return (
     <ul>
       {workspace.snapshot?.documents.map((document) => (
-        <DocumentRow
-          key={document.id}
-          workspace={workspace}
-          document={document}
-        />
+        <DocumentItem key={document.id} document={document} />
       ))}
     </ul>
-  );
-}
-function DocumentRow({
-  workspace,
-  document,
-}: Pick<Props, "workspace"> & {
-  document: import("./generated/DocumentSummary").DocumentSummary;
-}) {
-  return (
-    <li key={document.id} className="document-list-row">
-      <button
-        type="button"
-        disabled={workspace.busy}
-        aria-current={
-          document.id === workspace.editor?.document.id ? "page" : undefined
-        }
-        onClick={() => void workspace.navigate(document.id)}
-      >
-        {document.title}
-      </button>
-      <button
-        type="button"
-        className="document-remove"
-        disabled={workspace.busy}
-        aria-label={`${document.title} 목록에서 제거`}
-        title="완료한 문서를 목록에서 제거 · 파일과 기록 보존"
-        onClick={() => void workspace.remove(document)}
-      >
-        <svg
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.8"
-          aria-hidden="true"
-        >
-          <path d="m6 12 4 4 8-8" />
-        </svg>
-      </button>
-    </li>
   );
 }

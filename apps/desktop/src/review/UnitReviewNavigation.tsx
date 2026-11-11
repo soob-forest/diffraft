@@ -1,4 +1,3 @@
-import { useEffect, useRef } from "react";
 import type { ReviewBatch } from "../generated/ReviewBatch";
 import type { UnitComment } from "../generated/UnitComment";
 import { UnitFilter } from "./UnitFilter";
@@ -14,13 +13,8 @@ export function UnitReviewNavigation({
   navigation: UnitNavigation;
   comments: UnitComment[];
 }) {
-  const root = useRef<HTMLElement>(null);
-  useEffect(() => {
-    const menu = root.current?.closest("details");
-    if (menu) menu.open = true;
-  }, []);
   return (
-    <nav ref={root} className="unit-navigation" aria-label="변경 목록">
+    <nav className="unit-navigation" aria-label="변경 목록">
       <h3>변경 목록</h3>
       <UnitFilter navigation={navigation} />
       {!navigation.units.length && <p>이 목록에 표시할 변경이 없습니다.</p>}

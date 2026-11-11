@@ -24,6 +24,7 @@ export function EditingArea({
   action,
 }: Props) {
   const [jump, setJump] = useState<Jump | null>(null);
+  const [previewJump, setPreviewJump] = useState<Jump | null>(null);
   const deferred = useDeferredValue(model.content);
   const open = (url: string) => {
     void openPreviewLink(url).catch((error: unknown) =>
@@ -34,7 +35,10 @@ export function EditingArea({
     <div className="editing-area">
       {navigationVisible && (
         <NavigationSlot name="outline">
-          <Outline headings={model.state.headings} onJump={setJump} />
+          <Outline
+            headings={model.state.headings}
+            onJump={preview ? setPreviewJump : setJump}
+          />
         </NavigationSlot>
       )}
       <div className="editor-panes">
@@ -50,9 +54,12 @@ export function EditingArea({
           />
         </div>
         {preview && (
-          <Suspense fallback={<p>미리보기 준비 중…</p>}>
-            <Preview content={deferred} onOpen={open} />
-          </Suspense>
+          <PreviewPane
+            content={deferred}
+            onOpen={open}
+            jump={previewJump}
+            handled={() => setPreviewJump(null)}
+          />
         )}
       </div>
     </div>
@@ -82,5 +89,28 @@ function Outline({
         </button>
       ))}
     </nav>
+  );
+}
+
+function PreviewPane({
+  content,
+  onOpen,
+  jump,
+  handled,
+}: {
+  content: string;
+  onOpen: (url: string) => void;
+  jump: Jump | null;
+  handled: () => void;
+}) {
+  return (
+    <Suspense fallback={<p>미리보기 준비 중…</p>}>
+      <Preview
+        content={content}
+        onOpen={onOpen}
+        jump={jump}
+        onJumpHandled={handled}
+      />
+    </Suspense>
   );
 }

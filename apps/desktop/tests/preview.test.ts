@@ -29,3 +29,24 @@ describe("safe Markdown preview", () => {
     expect(safePreviewUrl("#제목")).toBe("#제목");
   });
 });
+
+it.each(["", "\uFEFF"])(
+  "preserves raw UTF-16 heading positions with prefix %j",
+  (prefix) => {
+    const content =
+      prefix +
+      "# 한글 😀\r\n\r\n## **같은 제목**\r\n\r\n```md\r\n## 가짜 제목\r\n```\r\n\r\n같은 제목\r\n---------\r\n";
+    const html = renderToStaticMarkup(
+      createElement(Preview, { content, onOpen: () => {} }),
+    );
+    const offsets = [...html.matchAll(/data-heading-offset="(\d+)"/g)].map(
+      (match) => Number(match[1]),
+    );
+    expect(offsets).toEqual([
+      content.indexOf("# 한글"),
+      content.indexOf("## **같은"),
+      content.indexOf("같은 제목\r\n---"),
+    ]);
+    expect(html).not.toMatch(/<h2[^>]*>가짜 제목/);
+  },
+);

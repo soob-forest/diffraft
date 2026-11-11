@@ -163,17 +163,15 @@ async function closeTextDiff() {
 
 async function withNavigation(run) {
   const previous = await browser.getWindowSize();
-  const wasOpen = await $(".sidebar").isDisplayed();
   await browser.setWindowSize(1440, 900);
-  if (!(await $(".sidebar").isDisplayed())) await $("button=문서 목록").click();
   const menu = $(".navigation-more");
   if ((await menu.getAttribute("open")) === null)
     await menu.$("summary").click();
   try {
     await run();
   } finally {
-    if (!wasOpen && (await $("button=문서 목록").isDisplayed()))
-      await $("button=문서 목록").click();
+    if ((await menu.getAttribute("open")) !== null)
+      await menu.$("summary").click();
     await browser.setWindowSize(previous.width, previous.height);
   }
 }
@@ -183,6 +181,9 @@ async function filterUnits(value) {
 }
 
 async function selectListedUnit(number) {
+  const menu = $(".document-navigation");
+  if ((await menu.getAttribute("open")) === null)
+    await menu.$("summary").click();
   await $(".unit-navigation").$(`button*=변경 ${number} ·`).click();
 }
 

@@ -42,8 +42,8 @@ export function useWorkspace() {
   });
   useAppClose(flushRef, setError, lock, setClosing);
   return {
-    snapshot: snapshot && visibleWorkspace(snapshot, list.ids),
-    completed: snapshot ? completedDocuments(snapshot, list.ids) : [],
+    snapshot: snapshot && visibleWorkspace(snapshot, list.hiddenIds),
+    completed: snapshot ? completedDocuments(snapshot, list.completedIds) : [],
     editor,
     error,
     busy: busy || closing || !snapshot,
@@ -71,7 +71,7 @@ function useInitialWorkspace(
           if (!(reason instanceof DocumentListError)) throw reason;
           setError(reason.message);
         }
-        const id = visibleWorkspace(value, list.ids).selectedDocumentId;
+        const id = visibleWorkspace(value, list.hiddenIds).selectedDocumentId;
         if (id) {
           const opened = await editorCommand(
             { kind: "read", documentId: id },

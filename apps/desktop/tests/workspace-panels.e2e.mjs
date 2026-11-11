@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { holdDatabase } from "./support/database-lock.mjs";
+import { documentAction } from "./support/document-menu.mjs";
 import { resizeContent } from "./support/tobe-fixture.mjs";
 
 const root = process.env.DOCREVIEW_E2E_DATA;
@@ -136,7 +137,7 @@ describe("문서 정리와 작업 공간 패널", () => {
     try {
       await $('[data-testid="source-editor"]').click();
       await $('[data-testid="source-editor"]').addValue("저장 실패 입력 보존");
-      await $('button[aria-label="document 목록에서 제거"]').click();
+      await documentAction("document", "완료로 이동");
       await $(".workspace-body > .error-banner").waitForDisplayed();
       assert.equal(await $(".document-toolbar h1").getText(), "document");
       assert.equal(
@@ -160,7 +161,7 @@ describe("문서 정리와 작업 공간 패널", () => {
         request: { schemaVersion: 1 },
       }),
     );
-    await $('button[aria-label="document 목록에서 제거"]').click();
+    await documentAction("document", "완료로 이동");
     await $(".empty-state").waitForDisplayed();
     await $(".document-removal-notice").waitForDisplayed();
     assert.equal(await readFile(join(root, "document.md"), "utf8"), original);
@@ -168,7 +169,7 @@ describe("문서 정리와 작업 공간 패널", () => {
     await browser.waitUntil(
       async () => (await $(".document-toolbar h1").getText()) === "document",
     );
-    await $('button[aria-label="document 목록에서 제거"]').click();
+    await documentAction("document", "완료로 이동");
     await $(".empty-state").waitForDisplayed();
     await writeFile(
       join(root, "workspace-panels-expected.json"),

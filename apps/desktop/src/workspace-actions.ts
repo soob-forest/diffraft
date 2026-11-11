@@ -36,39 +36,50 @@ export function workspaceActions(options: Options) {
         options.setSnapshot(snapshot);
         options.setRemoved(null);
       }),
-    remove: (document: DocumentSummary) =>
+    forget: (document: DocumentSummary) =>
       run(options, async () => {
         const snapshot = await workspaceSnapshot();
-        const next = visibleWorkspace(snapshot, [
-          ...options.list.ids,
-          document.id,
-        ]);
-        const replacing = document.id === options.currentId;
-        const opened =
-          replacing && next.selectedDocumentId
-            ? await editorCommand(
-                { kind: "read", documentId: next.selectedDocumentId },
-                "state",
-              )
-            : null;
-        options.list.remove(document.id);
-        if (replacing) options.setEditor(opened);
+        options.list.forget(document.id);
         options.setSnapshot(snapshot);
-        options.setRemoved(document);
+        options.setRemoved(null);
       }),
+    complete: (document: DocumentSummary) =>
+      run(options, () => completeDocument(options, document)),
   };
 }
 
+async function completeDocument(options: Options, document: DocumentSummary) {
+  const snapshot = await workspaceSnapshot();
+  const next = visibleWorkspace(snapshot, [
+    ...options.list.hiddenIds,
+    document.id,
+  ]);
+  const replacing = document.id === options.currentId;
+  const opened =
+    replacing && next.selectedDocumentId
+      ? await editorCommand(
+          { kind: "read", documentId: next.selectedDocumentId },
+          "state",
+        )
+      : null;
+  options.list.complete(document.id);
+  if (replacing) options.setEditor(opened);
+  options.setSnapshot(snapshot);
+  options.setRemoved(document);
+}
+
 async function run(options: Options, action: () => Promise<void>) {
-  if (options.lock.current) return;
+  if (options.lock.current) return false;
   options.lock.current = true;
   options.setBusy(true);
   try {
     await options.flush();
     await action();
     options.setError("");
+    return true;
   } catch (reason) {
     options.setError(errorMessage(reason));
+    return false;
   } finally {
     options.lock.current = false;
     options.setBusy(false);

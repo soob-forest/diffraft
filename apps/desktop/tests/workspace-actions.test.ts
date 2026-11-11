@@ -49,11 +49,11 @@ function setup(currentId = first) {
 }
 it("saves before removing the active document and opens the next listed document", async () => {
   const { options, actions } = setup();
-  await actions.remove(documents[0]);
+  await actions.complete(documents[0]);
   expect(options.flush.mock.invocationCallOrder[0]).toBeLessThan(
     vi.mocked(workspaceSnapshot).mock.invocationCallOrder[0],
   );
-  expect(options.list.ids).toEqual([first]);
+  expect(options.list.completedIds).toEqual([first]);
   expect(options.setEditor).toHaveBeenCalledWith({ document: { id: second } });
   expect(options.setSnapshot).toHaveBeenCalledWith(snapshot);
   expect(options.setRemoved).toHaveBeenCalledWith(documents[0]);
@@ -61,16 +61,16 @@ it("saves before removing the active document and opens the next listed document
 
 it("a failed restore preserves the completed document and current input", async () => {
   const { options, actions } = setup(second);
-  options.list.remove(first);
+  options.list.complete(first);
   options.flush.mockRejectedValueOnce(new Error("원문 저장 실패"));
   await actions.navigate(first);
-  expect(options.list.ids).toEqual([first]);
+  expect(options.list.completedIds).toEqual([first]);
   expect(options.setEditor).not.toHaveBeenCalled();
   expect(options.setSnapshot).not.toHaveBeenCalled();
   expect(editorCommand).not.toHaveBeenCalled();
   expect(options.setError).toHaveBeenCalledWith("원문 저장 실패");
   await actions.navigate(first);
-  expect(options.list.ids).toEqual([]);
+  expect(options.list.completedIds).toEqual([]);
 });
 
 it("a failed list write keeps the restored document completed and leaves the current editor", async () => {
@@ -82,10 +82,10 @@ it("a failed list write keeps the restored document completed and leaves the cur
       if (blocked) throw new DOMException("full", "QuotaExceededError");
     },
   });
-  options.list.remove(first);
+  options.list.complete(first);
   blocked = true;
   await actions.navigate(first);
-  expect(options.list.ids).toEqual([first]);
+  expect(options.list.completedIds).toEqual([first]);
   expect(options.setEditor).not.toHaveBeenCalled();
   expect(options.setSnapshot).not.toHaveBeenCalled();
   expect(options.setError).toHaveBeenCalledWith(
@@ -93,23 +93,23 @@ it("a failed list write keeps the restored document completed and leaves the cur
   );
   blocked = false;
   await actions.navigate(first);
-  expect(options.list.ids).toEqual([]);
+  expect(options.list.completedIds).toEqual([]);
 });
 it("a failed save preserves the document, list and input and permits retry", async () => {
   const { options, actions } = setup();
   options.flush.mockRejectedValueOnce(new Error("저장 실패"));
-  await actions.remove(documents[0]);
-  expect(options.list.ids).toEqual([]);
+  await actions.complete(documents[0]);
+  expect(options.list.completedIds).toEqual([]);
   expect(options.setEditor).not.toHaveBeenCalled();
   expect(options.setSnapshot).not.toHaveBeenCalled();
   expect(options.setError).toHaveBeenCalledWith("저장 실패");
   expect(options.lock.current).toBe(false);
-  await actions.remove(documents[0]);
-  expect(options.list.ids).toEqual([first]);
+  await actions.complete(documents[0]);
+  expect(options.list.completedIds).toEqual([first]);
 });
 it("does not unmount the current editor when removing an inactive document", async () => {
   const { options, actions } = setup();
-  await actions.remove(documents[1]);
+  await actions.complete(documents[1]);
   expect(options.setEditor).not.toHaveBeenCalled();
   expect(editorCommand).not.toHaveBeenCalled();
 });
@@ -121,13 +121,13 @@ it("shares the navigation lock, preventing duplicate removal while saving", asyn
       finish = resolve;
     }),
   );
-  const pending = actions.remove(documents[0]);
-  await actions.remove(documents[1]);
+  const pending = actions.complete(documents[0]);
+  await actions.complete(documents[1]);
   await actions.navigate(second);
   expect(options.flush).toHaveBeenCalledTimes(1);
   finish();
   await pending;
-  expect(options.list.ids).toEqual([first]);
+  expect(options.list.completedIds).toEqual([first]);
 });
 it("reopening restores the same document and removing the last one opens the empty state", async () => {
   const { options, actions } = setup();
@@ -135,12 +135,34 @@ it("reopening restores the same document and removing the last one opens the emp
     ...snapshot,
     documents: [documents[0]],
   });
-  await actions.remove(documents[0]);
+  await actions.complete(documents[0]);
   expect(options.setEditor).toHaveBeenLastCalledWith(null);
   await actions.navigate(first);
-  expect(options.list.ids).toEqual([]);
+  expect(options.list.completedIds).toEqual([]);
   expect(editorCommand).toHaveBeenLastCalledWith(
     { kind: "select_document", documentId: first },
     "state",
   );
+});
+
+it("flushes before forgetting and keeps the active editor and raw history", async () => {
+  const { options, actions } = setup(second);
+  options.list.complete(first);
+  expect(await actions.forget(documents[0])).toBe(true);
+  expect(options.flush).toHaveBeenCalledOnce();
+  expect(options.list.completedIds).toEqual([]);
+  expect(options.list.removedIds).toEqual([first]);
+  expect(options.setEditor).not.toHaveBeenCalled();
+  expect(options.setSnapshot).toHaveBeenCalledWith(snapshot);
+  expect(options.setRemoved).toHaveBeenCalledWith(null);
+});
+it("failed saving blocks forgetting and allows retry", async () => {
+  const { options, actions } = setup(second);
+  options.list.complete(first);
+  options.flush.mockRejectedValueOnce(new Error("저장 실패"));
+  expect(await actions.forget(documents[0])).toBe(false);
+  expect(options.list.completedIds).toEqual([first]);
+  expect(options.list.removedIds).toEqual([]);
+  expect(options.setSnapshot).not.toHaveBeenCalled();
+  expect(await actions.forget(documents[0])).toBe(true);
 });

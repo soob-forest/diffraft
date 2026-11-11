@@ -1,0 +1,89 @@
+.document-views {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 20px;
+  min-width: 0;
+}
+.document-navigation {
+  position: relative;
+  margin: 0;
+  flex: none;
+}
+.document-navigation > summary {
+  padding: 8px;
+  white-space: nowrap;
+}
+.document-navigation[open] > summary {
+  color: #214da8;
+  background: #eaf0ff;
+}
+.navigation-popover {
+  position: fixed;
+  z-index: 10;
+  width: min(340px, calc(100vw - 40px));
+  max-height: min(50dvh, 420px);
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: white;
+  color: #182537;
+}
+.document-navigation .outline {
+  display: block;
+  width: auto;
+  padding: 0;
+  border: 0;
+  font-size: 14px;
+}
+.document-navigation .outline strong {
+  margin: 0 0 8px;
+  font-size: 13px;
+}
+.document-navigation h3 {
+  margin: 0 0 8px;
+  color: var(--muted);
+  font-size: 13px;
+}
+.document-navigation [aria-label="변경 그룹"] {
+  display: grid;
+  gap: 4px;
+}
+.document-navigation button {
+  width: 100%;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+.document-navigation button[aria-pressed="true"] {
+  background: #eaf0ff;
+  color: #214da8;
+}
+.document-navigation .unit-navigation {
+  max-height: none;
+  overflow: visible;
+}
+@media (max-width: 1000px) {
+  .document-views {
+    padding: 0 20px 8px;
+    border-bottom: 1px solid var(--line);
+  }
+  .document-views .view-toggle {
+    padding: 0;
+    border: 0;
+  }
+}
+
+.markdown-preview [data-heading-offset] {
+  scroll-margin-block: 8px;
+}
+.markdown-preview [data-heading-offset]:focus-visible {
+  outline: 2px solid #2957c8;
+  outline-offset: 4px;
+}
+.preview-navigation-notice {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
