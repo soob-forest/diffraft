@@ -7,6 +7,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { PanelResize } from "../panels/PanelResize";
 import type { DocumentMode } from "./DocumentToolbar";
 import "./panel-navigation.css";
 
@@ -30,56 +31,73 @@ type WorkspacePanelProps = {
   showSource: () => void;
   mode: DocumentMode;
   open: { value: boolean; set: (value: boolean) => void };
+  width: { value: number; set: (value: number) => void };
 };
-export function WorkspacePanels({
-  children,
-  tasks,
-  source,
-  mode,
-  open,
-  showSource,
-}: WorkspacePanelProps) {
-  const { detail, setDetail, tab, setTab, showDetail, close } = usePanelState(
-    mode,
-    open,
-  );
+export function WorkspacePanels(props: WorkspacePanelProps) {
+  const panel = usePanelState(props.mode, props.open);
   return (
     <ReviewSurface
       value={{
-        detail,
-        showDetail,
-        showSource,
+        detail: panel.detail,
+        showDetail: panel.showDetail,
+        showSource: props.showSource,
         showRequest: () => {
-          showDetail();
-          setTab("task");
+          panel.showDetail();
+          panel.setTab("task");
           requestAnimationFrame(focusRequest);
         },
-        close,
-        detailVisible: open.value && mode === "review" && tab === "detail",
+        close: panel.close,
+        detailVisible:
+          props.open.value && props.mode === "review" && panel.tab === "detail",
       }}
     >
-      {children}
-      <aside
-        id="task-panel"
-        className="workspace-panel"
-        hidden={!open.value}
-        aria-label="변경과 AI 요청"
-      >
-        <div className="workspace-panel-navigation">
-          {mode === "review" && <PanelTabs tab={tab} setTab={setTab} />}
-          <button type="button" className="panel-return" onClick={close}>
-            본문으로 돌아가기
-          </button>
-        </div>
-        <PanelContents
-          mode={mode}
-          tab={tab}
-          source={source}
-          tasks={tasks}
-          setDetail={setDetail}
-        />
-      </aside>
+      {props.children}
+      <WorkspaceAside {...props} panel={panel} />
     </ReviewSurface>
+  );
+}
+function WorkspaceAside({
+  mode,
+  open,
+  width,
+  source,
+  tasks,
+  panel,
+}: WorkspacePanelProps & { panel: ReturnType<typeof usePanelState> }) {
+  return (
+    <aside
+      id="task-panel"
+      className="workspace-panel"
+      hidden={!open.value}
+      aria-label="변경과 AI 요청"
+    >
+      <PanelResize
+        kind="request"
+        controls="task-panel"
+        value={width.value}
+        onChange={width.set}
+      />
+      <div className="workspace-panel-navigation">
+        {mode === "review" && (
+          <PanelTabs tab={panel.tab} setTab={panel.setTab} />
+        )}
+        <button
+          type="button"
+          className="panel-return"
+          title="요청·상세 닫기"
+          onClick={panel.close}
+        >
+          본문으로 돌아가기
+        </button>
+      </div>
+      <PanelContents
+        mode={mode}
+        tab={panel.tab}
+        source={source}
+        tasks={tasks}
+        setDetail={panel.setDetail}
+      />
+    </aside>
   );
 }
 

@@ -23,6 +23,8 @@ await assertE2EBuild();
 if (
   process.argv[2] &&
   ![
+    "workspace-followup",
+    "workspace-panels",
     "request-followup",
     "request-workflow",
     "model-selection",
@@ -69,6 +71,8 @@ if (
   throw new Error(
     "지원하는 선택 실행은 usability, connection, generation, review, recovery, conflict, layout, regeneration, history, rewrite, rewrite-cancel, navigation, export, shutdown, performance, startup-failure입니다.",
   );
+const workspacePanels = ["workspace-panels", "workspace-panels-restart"];
+const workspaceFollowup = ["workspace-followup", "workspace-followup-restart"];
 const patchGroups = ["patch-groups", "patch-groups-restart"];
 const review = ["review", ...patchGroups];
 const regeneration = ["regeneration", "regeneration-restart"];
@@ -82,7 +86,7 @@ const selectionTransitions = [
   "selection-transitions-restart",
 ];
 const unitReview = ["rewrite-review", "rewrite-review-restart"];
-const scenarios =
+let scenarios =
   process.argv[2] === "patch-groups"
     ? [patchGroups]
     : process.argv[2] === "request-workflow"
@@ -141,6 +145,8 @@ const scenarios =
                                               : [process.argv[2]],
             ]
           : [
+              workspaceFollowup,
+              workspacePanels,
               ["request-followup"],
               ["request-workflow", "request-workflow-restart"],
               ["editor", "restart"],
@@ -177,6 +183,8 @@ const scenarios =
               ["performance"],
               ["startup-failure"],
             ];
+if (process.argv[2] === "workspace-panels") scenarios = [workspacePanels];
+if (process.argv[2] === "workspace-followup") scenarios = [workspaceFollowup];
 if (process.argv[2] === "quit") await prepareNativeQuit();
 if (process.argv[2] === "ux-native") await prepareUxNativeApp(app);
 await prepareKeyboard(scenarios, app);

@@ -12,6 +12,7 @@ export function WorkspaceBody({ state }: { state: WorkspaceState }) {
   return (
     <WorkspacePanels
       mode={mode}
+      width={{ value: state.panelWidth, set: state.setPanelWidth }}
       showSource={() => openConfirmedRequest(state, store)}
       source={
         state.sourceRequest.visible ? <WorkspaceSource state={state} /> : null

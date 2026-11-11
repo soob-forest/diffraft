@@ -1,0 +1,225 @@
+.app-shell {
+  grid-template-columns: clamp(160px, var(--documents-width, 196px), 26vw) minmax(
+      0,
+      1fr
+    );
+}
+.app-shell[data-documents-open="false"] {
+  grid-template-columns: 0 minmax(0, 1fr);
+}
+.app-settings {
+  margin-left: auto;
+  flex: none;
+}
+.settings-trigger {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.app-header > span {
+  white-space: nowrap;
+}
+.app-header .generation-status {
+  margin-left: auto;
+  min-width: 0;
+}
+.app-header .generation-status:not(:empty) + .app-settings {
+  margin-left: 0;
+}
+.sidebar {
+  overflow: visible;
+  min-height: 0;
+  padding: 0;
+}
+.sidebar-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 16px 0;
+}
+.sidebar-heading h2 {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 500;
+}
+.sidebar .sidebar-heading button {
+  width: auto;
+  margin: 0;
+  font-size: 12px;
+}
+.sidebar > .document-actions,
+.sidebar > ul,
+.sidebar > .navigation-more {
+  margin-inline: 16px;
+}
+.sidebar > ul {
+  min-height: 0;
+  overflow: auto;
+  margin-block: 8px 0;
+}
+.sidebar > .navigation-more {
+  flex: 1;
+  min-height: 44px;
+  overflow: auto;
+}
+.sidebar .document-list-help {
+  margin: 0 16px 8px;
+  font-size: 12px;
+  line-height: 1.6;
+}
+.document-list-row {
+  display: flex;
+  align-items: start;
+  gap: 4px;
+}
+.sidebar .document-list-row > button {
+  margin-bottom: 4px;
+  min-width: 0;
+}
+.sidebar .document-list-row > button:first-child {
+  flex: 1;
+}
+.sidebar .document-remove {
+  display: grid;
+  place-items: center;
+  flex: 0 0 34px;
+  width: 34px;
+  padding: 0;
+  color: var(--muted);
+}
+.sidebar button:hover {
+  background: #e2ebff;
+}
+.document-removal-notice {
+  margin: 8px 16px;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+.sidebar .document-removal-notice button {
+  width: auto;
+  padding: 4px 8px;
+  margin: 4px 0;
+  border-color: var(--line);
+}
+.completed-documents {
+  flex: none;
+  margin: 8px 16px 0;
+  min-height: 34px;
+  max-height: 35%;
+  overflow: auto;
+  font-size: 13px;
+  color: var(--muted);
+}
+.completed-documents > summary {
+  padding: 8px;
+}
+.completed-documents > p {
+  margin: 4px 8px;
+  font-size: 12px;
+}
+.completed-documents > ul {
+  margin: 4px 0 0;
+}
+.sidebar .completed-documents button {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 8px;
+  margin: 0 0 4px;
+  font-size: 12px;
+}
+.completed-document-title {
+  color: #233a59;
+  overflow-wrap: anywhere;
+}
+.document-workspace {
+  --panel-width: clamp(280px, var(--request-width, 360px), 55%);
+  grid-template-columns: minmax(0, 1fr) var(--panel-width);
+}
+.document-workspace[data-tasks-open="false"] {
+  grid-template-columns: minmax(0, 1fr);
+}
+.workspace-panel {
+  position: relative;
+  border-left: 0;
+}
+.panel-resize {
+  position: absolute;
+  z-index: 8;
+  width: 8px;
+  top: 0;
+  bottom: 0;
+  touch-action: none;
+  cursor: col-resize;
+  user-select: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.panel-resize::after {
+  content: "";
+  display: block;
+  height: 100%;
+  width: 1px;
+  margin: auto;
+  background: var(--line);
+}
+.panel-resize:hover::after,
+.panel-resize:focus-visible::after {
+  width: 3px;
+  background: #2957c8;
+}
+.panel-resize-documents {
+  right: 0;
+}
+.panel-resize-documents::after {
+  margin-right: 0;
+}
+.panel-resize-request {
+  left: 0;
+  position: sticky;
+  float: left;
+  height: 100%;
+  margin-right: -8px;
+}
+.workspace-panel-navigation .panel-return {
+  display: inline-block;
+  font-size: 12px;
+}
+.document-history .version-history[open] {
+  height: 200px;
+  min-height: 100px;
+  max-height: min(55dvh, 480px);
+  resize: vertical;
+  overflow: auto;
+}
+@media (max-width: 1000px) {
+  .app-shell {
+    grid-template-columns: 0 minmax(0, 1fr);
+  }
+  .sidebar {
+    width: clamp(160px, var(--documents-width, 196px), 80vw);
+  }
+  .document-workspace {
+    --request-width: 290px;
+  }
+}
+@media (max-width: 719px) {
+  .document-workspace {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .panel-resize-request {
+    display: none;
+  }
+  .settings-trigger span {
+    display: none;
+  }
+  .app-header {
+    padding-inline: 12px;
+    gap: 8px;
+  }
+  .app-header .settings-trigger {
+    padding-inline: 8px;
+  }
+}

@@ -1,10 +1,18 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import {
+  completedDocuments,
+  DocumentList,
+  DocumentListError,
+  visibleWorkspace,
+} from "./document-list";
 import { useDraftPersistence } from "./drafts/SessionDrafts";
-import { editorCommand, pickDocument } from "./editor/api";
+import { editorCommand } from "./editor/api";
 import type { AppSnapshot } from "./generated/AppSnapshot";
+import type { DocumentSummary } from "./generated/DocumentSummary";
 import type { EditorState } from "./generated/EditorState";
 import { errorMessage, workspaceSnapshot } from "./ipc";
 import { useAppClose } from "./useAppClose";
+import { workspaceActions } from "./workspace-actions";
 
 export function useWorkspace() {
   const { flush: flushDrafts } = useDraftPersistence();
@@ -15,37 +23,34 @@ export function useWorkspace() {
   const [closing, setClosing] = useState(false);
   const flushRef = useRef<(() => Promise<void>) | null>(null);
   const lock = useRef(false);
-  useInitialWorkspace(setSnapshot, setEditor, setError);
-  const navigate = useCallback(
-    async (target: string | boolean) => {
-      if (lock.current) return;
-      lock.current = true;
-      setBusy(true);
-      try {
-        await flushRef.current?.();
-        await flushDrafts();
-        const opened = await selectDocument(target);
-        if (opened) setEditor(opened);
-        setSnapshot(await workspaceSnapshot());
-        setError("");
-      } catch (reason) {
-        setError(errorMessage(reason));
-      } finally {
-        lock.current = false;
-        setBusy(false);
-      }
+  const [list] = useState(createDocumentList);
+  const [removed, setRemoved] = useState<DocumentSummary | null>(null);
+  useInitialWorkspace(setSnapshot, setEditor, setError, list);
+  const actions = workspaceActions({
+    lock,
+    list,
+    currentId: editor?.document.id,
+    flush: async () => {
+      await flushRef.current?.();
+      await flushDrafts();
     },
-    [flushDrafts],
-  );
+    setBusy,
+    setError,
+    setEditor,
+    setSnapshot,
+    setRemoved,
+  });
   useAppClose(flushRef, setError, lock, setClosing);
   return {
-    snapshot,
+    snapshot: snapshot && visibleWorkspace(snapshot, list.ids),
+    completed: snapshot ? completedDocuments(snapshot, list.ids) : [],
     editor,
     error,
-    busy: busy || closing,
+    busy: busy || closing || !snapshot,
     closing,
     flushRef,
-    navigate,
+    ...actions,
+    removed,
   };
 }
 
@@ -53,21 +58,29 @@ function useInitialWorkspace(
   setSnapshot: (value: AppSnapshot) => void,
   setEditor: (value: EditorState) => void,
   setError: (message: string) => void,
+  list: DocumentList,
 ) {
   useEffect(() => {
     let active = true;
     workspaceSnapshot()
       .then(async (value) => {
         if (!active) return;
-        setSnapshot(value);
-        const id = value.selectedDocumentId ?? value.documents[0]?.id;
+        try {
+          list.load();
+        } catch (reason) {
+          if (!(reason instanceof DocumentListError)) throw reason;
+          setError(reason.message);
+        }
+        const id = visibleWorkspace(value, list.ids).selectedDocumentId;
         if (id) {
           const opened = await editorCommand(
             { kind: "read", documentId: id },
             "state",
           );
-          if (active) setEditor(opened);
+          if (!active) return;
+          setEditor(opened);
         }
+        if (active) setSnapshot(value);
       })
       .catch((reason: unknown) => {
         if (active) setError(errorMessage(reason));
@@ -75,13 +88,12 @@ function useInitialWorkspace(
     return () => {
       active = false;
     };
-  }, [setSnapshot, setEditor, setError]);
+  }, [setSnapshot, setEditor, setError, list]);
 }
 
-async function selectDocument(target: string | boolean) {
-  const id =
-    typeof target === "string" ? target : (await pickDocument(target))?.id;
-  return id
-    ? editorCommand({ kind: "select_document", documentId: id }, "state")
-    : null;
+function createDocumentList() {
+  return new DocumentList({
+    getItem: (key) => window.localStorage.getItem(key),
+    setItem: (key, value) => window.localStorage.setItem(key, value),
+  });
 }

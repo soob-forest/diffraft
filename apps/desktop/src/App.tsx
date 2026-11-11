@@ -2,9 +2,15 @@ import { useEffect, useState } from "react";
 import { AppAbout } from "./AppAbout";
 import { ConnectionSettings } from "./connection/ConnectionSettings";
 import { GenerationStatus } from "./connection/GenerationStatus";
+import { DocumentSidebar } from "./DocumentSidebar";
 import { DraftStatus, SessionDrafts } from "./drafts/SessionDrafts";
 import { DocumentWorkspace } from "./editor/DocumentWorkspace";
-import { NavigationHosts, NavigationProvider } from "./editor/NavigationSlots";
+import { NavigationProvider } from "./editor/NavigationSlots";
+import { usePanelWidth } from "./panels/PanelResize";
+import {
+  useWorkspacePanels,
+  type WorkspacePanelControl,
+} from "./panels/useWorkspacePanels";
 import { useWorkspace } from "./workspace";
 
 export function App() {
@@ -22,35 +28,76 @@ function WorkspaceApp() {
   const [documentsOpen, setDocumentsOpen] = useDocumentList(
     workspace.editor?.document.id,
   );
+  const [documentsWidth, setDocumentsWidth] = usePanelWidth("documents");
+  const panels = useWorkspacePanels();
   return (
-    <div className="app-shell" data-documents-open={documentsOpen}>
+    <div
+      className="app-shell"
+      data-documents-open={documentsOpen}
+      style={
+        { "--documents-width": `${documentsWidth}px` } as React.CSSProperties
+      }
+    >
       <AppHeader
         workspace={workspace}
         documentsOpen={documentsOpen}
         setDocumentsOpen={setDocumentsOpen}
       />
-      <Sidebar workspace={workspace} />
-      <div className="workspace-body" inert={workspace.busy}>
-        {workspace.error && (
-          <div role="alert" className="error-banner">
-            {workspace.error}
-          </div>
-        )}
-        {workspace.editor ? (
-          <DocumentWorkspace
-            key={workspace.editor.document.id}
-            initial={workspace.editor}
-            flushRef={workspace.flushRef}
-            documents={{
-              open: documentsOpen,
-              toggle: () => setDocumentsOpen((value) => !value),
-            }}
-          />
-        ) : (
-          <EmptyWorkspace ready={Boolean(workspace.snapshot)} />
-        )}
-      </div>
+      <DocumentSidebar
+        workspace={workspace}
+        width={documentsWidth}
+        setWidth={setDocumentsWidth}
+        close={() => {
+          setDocumentsOpen(false);
+          requestAnimationFrame(() =>
+            document
+              .querySelector<HTMLButtonElement>(
+                '.app-header button[aria-controls="document-list"]',
+              )
+              ?.focus(),
+          );
+        }}
+      />
+      <WorkspaceContent
+        workspace={workspace}
+        panels={panels}
+        documents={{
+          open: documentsOpen,
+          toggle: () => setDocumentsOpen((value) => !value),
+        }}
+      />
       <WorkspaceFooter workspace={workspace} />
+    </div>
+  );
+}
+
+function WorkspaceContent({
+  workspace,
+  documents,
+  panels,
+}: {
+  workspace: ReturnType<typeof useWorkspace>;
+  documents: { open: boolean; toggle: () => void };
+  panels: WorkspacePanelControl;
+}) {
+  return (
+    <div className="workspace-body" inert={workspace.busy}>
+      {workspace.error && (
+        <div role="alert" className="error-banner">
+          {workspace.error}
+        </div>
+      )}
+      {workspace.editor ? (
+        <DocumentWorkspace
+          key={workspace.editor.document.id}
+          initial={workspace.editor}
+          flushRef={workspace.flushRef}
+          documents={documents}
+          panels={panels}
+        />
+      ) : (
+        <EmptyWorkspace ready={Boolean(workspace.snapshot)} />
+      )}
     </div>
   );
 }
@@ -69,17 +116,18 @@ function AppHeader({
       <span className="brand-icon">D</span>
       <AppAbout />
       <span>내 작업 공간</span>
-      {!workspace.editor && (
-        <button
-          type="button"
-          aria-expanded={documentsOpen}
-          aria-controls="document-list"
-          onClick={() => setDocumentsOpen((value) => !value)}
-        >
-          문서 목록
-        </button>
-      )}
+      <button
+        type="button"
+        aria-expanded={documentsOpen}
+        aria-controls="document-list"
+        onClick={() => setDocumentsOpen((value) => !value)}
+      >
+        문서 목록
+      </button>
       <GenerationStatus />
+      <div className="app-settings">
+        <ConnectionSettings icon />
+      </div>
     </header>
   );
 }
@@ -98,80 +146,6 @@ function EmptyWorkspace({ ready }: { ready: boolean }) {
           : "작업 공간을 준비하고 있습니다."}
       </p>
     </main>
-  );
-}
-
-function Sidebar({
-  workspace,
-}: {
-  workspace: ReturnType<typeof useWorkspace>;
-}) {
-  return (
-    <aside
-      id="document-list"
-      className="sidebar"
-      aria-label="문서 목록"
-      inert={workspace.closing}
-    >
-      <h2>문서</h2>
-      <DocumentActions workspace={workspace} />
-      <div className="sidebar-connection">
-        <ConnectionSettings />
-      </div>
-      <ul>
-        {workspace.snapshot?.documents.map((document) => (
-          <li key={document.id}>
-            <button
-              type="button"
-              disabled={workspace.busy}
-              aria-current={
-                document.id === workspace.editor?.document.id
-                  ? "page"
-                  : undefined
-              }
-              onClick={() => {
-                void workspace.navigate(document.id);
-              }}
-            >
-              {document.title}
-            </button>
-          </li>
-        ))}
-      </ul>
-      <details className="navigation-more">
-        <summary>문서 탐색</summary>
-        <NavigationHosts />
-      </details>
-    </aside>
-  );
-}
-
-function DocumentActions({
-  workspace,
-}: {
-  workspace: ReturnType<typeof useWorkspace>;
-}) {
-  return (
-    <div className="document-actions">
-      <button
-        type="button"
-        disabled={workspace.busy}
-        onClick={() => {
-          void workspace.navigate(false);
-        }}
-      >
-        문서 열기
-      </button>
-      <button
-        type="button"
-        disabled={workspace.busy}
-        onClick={() => {
-          void workspace.navigate(true);
-        }}
-      >
-        새 문서
-      </button>
-    </div>
   );
 }
 

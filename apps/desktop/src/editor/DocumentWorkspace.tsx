@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { ConflictDialog } from "../conflict/ConflictDialog";
 import type { EditorState } from "../generated/EditorState";
+import type { WorkspacePanelControl } from "../panels/useWorkspacePanels";
 import {
   type DocumentListControl,
   type DocumentMode,
@@ -21,10 +22,19 @@ type Props = {
   initial: EditorState;
   flushRef: FlushRef;
   documents: DocumentListControl;
+  panels: WorkspacePanelControl;
 };
-const SINGLE_PANEL_WIDTH = 720;
-export function DocumentWorkspace({ initial, flushRef, documents }: Props) {
-  return <WorkspaceLayout state={useWorkspace(initial, flushRef, documents)} />;
+export function DocumentWorkspace({
+  initial,
+  flushRef,
+  documents,
+  panels,
+}: Props) {
+  return (
+    <WorkspaceLayout
+      state={useWorkspace(initial, flushRef, documents, panels)}
+    />
+  );
 }
 export type WorkspaceState = ReturnType<typeof useWorkspace>;
 function WorkspaceLayout({ state }: { state: WorkspaceState }) {
@@ -35,6 +45,9 @@ function WorkspaceLayout({ state }: { state: WorkspaceState }) {
       className="document-workspace"
       data-tasks-open={tasksOpen}
       data-mode={mode}
+      style={
+        { "--request-width": `${state.panelWidth}px` } as React.CSSProperties
+      }
     >
       <DocumentToolbar
         model={model}
@@ -64,12 +77,12 @@ function useWorkspace(
   initial: EditorState,
   flushRef: FlushRef,
   documents: DocumentListControl,
+  panels: WorkspacePanelControl,
 ) {
   const model = useDocument(initial);
-  const [tasksOpen, setTasksOpen] = useState(widePanel);
+  const display = useWorkspaceDisplay(panels);
+  const { setMode, setTasksOpen, entry } = display;
   const taskFlush = useRef<(() => Promise<void>) | null>(null);
-  const [mode, setMode] = useState<DocumentMode>("source");
-  const entry = useReviewEntry(setMode, setTasksOpen);
   const conflict = useConflict(model);
   const [taskId, setTaskId] = useState(initial.selectedTaskId ?? "");
   const scope = useRequestScope(model.editorEpoch, initial.document.id, taskId);
@@ -91,15 +104,11 @@ function useWorkspace(
       sourceRequest,
     }),
     documents,
+    ...display,
     model,
-    tasksOpen,
-    setTasksOpen,
     scope,
     sourceRequest,
     taskFlush,
-    mode,
-    setMode,
-    entry,
     conflict,
     taskId,
     setTaskId: (value: string) => {
@@ -107,6 +116,20 @@ function useWorkspace(
       setTaskId(value);
     },
     goal: taskName(model, taskId),
+  };
+}
+
+function useWorkspaceDisplay(panels: WorkspacePanelControl) {
+  const [mode, setMode] = useState<DocumentMode>("source");
+  const entry = useReviewEntry(setMode, panels.setOpen);
+  return {
+    tasksOpen: panels.open,
+    setTasksOpen: panels.setOpen,
+    panelWidth: panels.width,
+    setPanelWidth: panels.setWidth,
+    mode,
+    setMode,
+    entry,
   };
 }
 
@@ -129,10 +152,6 @@ function useFlush(
       flushRef.current = null;
     };
   }, [flushRef, taskFlush, autosave, gate, firstConditions]);
-}
-
-function widePanel() {
-  return window.innerWidth > SINGLE_PANEL_WIDTH;
 }
 
 function useWorkspaceSource(

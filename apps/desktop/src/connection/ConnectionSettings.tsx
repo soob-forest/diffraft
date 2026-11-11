@@ -6,9 +6,11 @@ import "./connection.css";
 export function ConnectionSettings({
   label = "AI 연결 설정",
   onClose,
+  icon = false,
 }: {
   label?: string;
   onClose?: () => void;
+  icon?: boolean;
 } = {}) {
   const [open, setOpen] = useState(false);
   const trigger = useRef<HTMLButtonElement>(null);
@@ -29,12 +31,16 @@ export function ConnectionSettings({
       <button
         ref={trigger}
         type="button"
+        className={icon ? "settings-trigger" : undefined}
+        aria-label={label}
+        title={label}
         onClick={(event) => {
           event.currentTarget.focus();
           setOpen(true);
         }}
       >
-        {label}
+        {icon && <SettingsIcon />}
+        <span>{label}</span>
       </button>
       {open && createPortal(<ConnectionDialog close={close} />, document.body)}
     </>
@@ -65,5 +71,24 @@ function ConnectionDialog({ close }: { close: () => void }) {
     >
       <ProviderSettings close={close} onBusy={setBusy} />
     </dialog>
+  );
+}
+
+function SettingsIcon() {
+  return (
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="m9 3-.6 3a7 7 0 0 0-1.8 1L3.7 6 1.8 9.3 4 11.4a7 7 0 0 0 0 2L1.8 15.5l1.9 3.3 2.9-1a7 7 0 0 0 1.8 1l.6 3h4l.6-3a7 7 0 0 0 1.8-1l2.9 1 1.9-3.3-2.2-2.1a7 7 0 0 0 0-2l2.2-2.1L18.3 6l-2.9 1a7 7 0 0 0-1.8-1L13 3Z" />
+      <circle cx="11" cy="12.4" r="3" />
+    </svg>
   );
 }

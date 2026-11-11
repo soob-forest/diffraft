@@ -9,7 +9,7 @@ export function VersionHistory({ model }: { model: Model }) {
   const returnFocus = useRef<HTMLButtonElement>(null);
   return (
     <>
-      <details className="version-history">
+      <details className="version-history" onToggle={resetClosedHeight}>
         <summary>버전 기록 · {model.state.versions.length}개</summary>
         <ol>
           {model.state.versions.map((version) => (
@@ -42,4 +42,9 @@ export function VersionHistory({ model }: { model: Model }) {
       )}
     </>
   );
+}
+
+function resetClosedHeight(event: React.SyntheticEvent<HTMLDetailsElement>) {
+  if (!event.currentTarget.open)
+    event.currentTarget.style.removeProperty("height");
 }

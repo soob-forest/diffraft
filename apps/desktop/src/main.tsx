@@ -13,6 +13,7 @@ import "./review/comment-layout.css";
 import "./editor/responsive-layout.css";
 import "./editor/compact-layout.css";
 import "./comparison-surfaces.css";
+import "./panels/panels.css";
 
 if (import.meta.env.VITE_DOCREVIEW_E2E === "true") {
   await import("@wdio/tauri-plugin");
