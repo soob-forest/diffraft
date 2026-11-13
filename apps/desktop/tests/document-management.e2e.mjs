@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { Key } from "webdriverio";
+import { corruptPreferencesKeepDocumentsUsable } from "./document-preference-recovery.mjs";
 import { documentAction } from "./support/document-menu.mjs";
 import { editor, invoke, root } from "./support/review-fixture.mjs";
 import {
@@ -87,6 +88,45 @@ describe("문서 우클릭·완전 제거·문서 내 탐색", () => {
     ).waitForDisplayed();
     assert.equal(await $(".document-toolbar h1").getText(), "rewrite");
   });
+  it("다시 열기 저장 실패 시 화면과 저장된 선택을 유지하고 재시도한다", async () => {
+    const previous = await invoke("get_workspace_snapshot", {
+      request: { schemaVersion: 1 },
+    });
+    await browser.execute(() => {
+      window.restoreListStorage = Storage.prototype.setItem;
+      Storage.prototype.setItem = function (key, value) {
+        if (key === "docreview.document-list.v2")
+          throw new DOMException("full", "QuotaExceededError");
+        return window.restoreListStorage.call(this, key, value);
+      };
+    });
+    try {
+      await documentAction("document", "다시 열기");
+      await $(".workspace-body > .error-banner").waitForDisplayed();
+      const after = await invoke("get_workspace_snapshot", {
+        request: { schemaVersion: 1 },
+      });
+      assert.equal(after.selectedDocumentId, previous.selectedDocumentId);
+      assert.equal(await $(".document-toolbar h1").getText(), "rewrite");
+      assert.equal(
+        await $(
+          '.completed-documents button[aria-label="document 다시 열기"]',
+        ).isExisting(),
+        true,
+      );
+    } finally {
+      await browser.execute(() => {
+        Storage.prototype.setItem = window.restoreListStorage;
+        delete window.restoreListStorage;
+      });
+    }
+    await documentAction("document", "다시 열기");
+    await browser.waitUntil(
+      async () => (await $(".document-toolbar h1").getText()) === "document",
+    );
+    await documentAction("document", "완료로 이동");
+    await completed();
+  });
   it("완료 문서를 다시 열 수 있고 완전 제거 취소와 저장 실패 후 재시도를 지원한다", async () => {
     await documentAction("document", "다시 열기");
     await browser.waitUntil(
@@ -163,6 +203,10 @@ describe("문서 우클릭·완전 제거·문서 내 탐색", () => {
     await changes[2].click();
     assert.equal(await changes[2].getAttribute("aria-pressed"), "true");
   });
+  it(
+    "목록 설정이 손상돼도 문서를 생성·열고 상태 변경은 차단한다",
+    corruptPreferencesKeepDocumentsUsable,
+  );
 });
 
 async function contextMenu() {

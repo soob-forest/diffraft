@@ -2,40 +2,34 @@ import { createContext, type ReactNode, useContext, useState } from "react";
 import { createPortal } from "react-dom";
 
 type Slots = {
-  tasks: HTMLDivElement | null;
+  open: boolean;
+  setOpen: (value: boolean) => void;
   outline: HTMLDivElement | null;
-  setTasks: (element: HTMLDivElement | null) => void;
   setOutline: (element: HTMLDivElement | null) => void;
 };
 const NavigationContext = createContext<Slots | null>(null);
 
 export function NavigationProvider({ children }: { children: ReactNode }) {
-  const [tasks, setTasks] = useState<HTMLDivElement | null>(null);
+  const [open, setOpen] = useState(false);
   const [outline, setOutline] = useState<HTMLDivElement | null>(null);
   return (
-    <NavigationContext value={{ tasks, outline, setTasks, setOutline }}>
+    <NavigationContext value={{ outline, setOutline, open, setOpen }}>
       {children}
     </NavigationContext>
   );
 }
 
-export function NavigationHosts() {
+export function useNavigationVisibility() {
   const slots = useContext(NavigationContext);
-  return (
-    <>
-      <div ref={slots?.setTasks} />
-      <div ref={slots?.setOutline} />
-    </>
-  );
+  return { open: slots?.open ?? false, setOpen: slots?.setOpen };
 }
 
-export function NavigationSlot({
-  name,
-  children,
-}: {
-  name: "tasks" | "outline";
-  children: ReactNode;
-}) {
+export function NavigationHost() {
   const slots = useContext(NavigationContext);
-  return slots?.[name] ? createPortal(children, slots[name]) : null;
+  return <div ref={slots?.setOutline} />;
+}
+
+export function NavigationSlot({ children }: { children: ReactNode }) {
+  const slots = useContext(NavigationContext);
+  return slots?.outline ? createPortal(children, slots.outline) : null;
 }

@@ -1,6 +1,10 @@
 import assert from "node:assert/strict";
 import { mkdir } from "node:fs/promises";
 import { Key } from "webdriverio";
+import {
+  closedOutlineDoesNotParseDuringInput,
+  footnoteOutlineUsesOnlySourceHeadings,
+} from "./document-navigation-side-effects.mjs";
 import { editor } from "./support/review-fixture.mjs";
 import {
   openFixture,
@@ -8,6 +12,7 @@ import {
   resizeContent,
   travelSource,
 } from "./support/tobe-fixture.mjs";
+import "./document-navigation-recovery.mjs";
 
 const artifacts = ".artifacts/document-navigation";
 let fixture;
@@ -152,4 +157,12 @@ describe("문서 탐색 이동과 스크롤 회귀", () => {
     await browser.keys(Key.Escape);
     assert.equal(await $(".document-navigation").getAttribute("open"), null);
   });
+  it(
+    "각주 문서에서도 원문 위치가 있는 제목으로만 이동한다",
+    footnoteOutlineUsesOnlySourceHeadings,
+  );
+  it(
+    "목차를 닫으면 긴 문서 입력 중 파싱하지 않고 다시 열 때 최신 내용을 표시한다",
+    closedOutlineDoesNotParseDuringInput,
+  );
 });

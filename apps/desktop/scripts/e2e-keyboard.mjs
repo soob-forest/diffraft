@@ -6,6 +6,8 @@ export async function prepareKeyboard(scenarios, app) {
   if (
     scenarios.some(
       (phases) =>
+        phases.includes("document-navigation") ||
+        phases.includes("document-management") ||
         phases.includes("codex-keyboard") ||
         phases.includes("request-workflow") ||
         phases.includes("request-followup") ||

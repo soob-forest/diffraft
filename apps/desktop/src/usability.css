@@ -101,15 +101,6 @@ button {
 .sidebar ul {
   margin: 12px 0 0;
 }
-.sidebar-connection {
-  margin: 0 0 12px;
-  padding: 0;
-}
-.sidebar .task-picker {
-  display: block;
-  color: var(--muted);
-  font-size: 13px;
-}
 .task-picker select {
   margin-top: 8px;
   vertical-align: top;
@@ -123,26 +114,6 @@ button {
 }
 .navigation-more > summary {
   padding: 8px;
-}
-.sidebar .outline {
-  display: block;
-  width: auto;
-  padding: 0;
-  border: 0;
-  font-size: 14px;
-}
-.sidebar .outline strong {
-  margin: 0 0 8px;
-  font-size: 13px;
-}
-.sidebar h3 {
-  color: var(--muted);
-  font-size: 13px;
-  margin: 0 0 8px;
-}
-.sidebar [aria-label="변경 그룹"] {
-  display: grid;
-  gap: 4px;
 }
 .workspace-body {
   grid-column: 2;

@@ -7,22 +7,20 @@ import { GroupBar, GroupNavigation } from "./GroupBar";
 import { CommentSelection, ReviewPrimary } from "./ReviewTools";
 import { SelectionRequestEntry } from "./SelectionRequestEntry";
 import type { Panel } from "./useReviewPanel";
-export function ReviewComparison({
-  panel,
-  projection,
-  active,
-  headings,
-}: {
+
+type Props = {
   panel: Panel;
   projection: ReviewProjection;
   active: boolean;
   headings: Heading[];
-}) {
+};
+export function ReviewComparison(props: Props) {
+  const { panel, projection, active, headings } = props;
   const surface = useReviewSurface();
   return (
     <>
       {active && (
-        <NavigationSlot name="outline">
+        <NavigationSlot>
           <GroupNavigation panel={panel} projection={projection} />
         </NavigationSlot>
       )}

@@ -1,17 +1,24 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useLayoutEffect, useRef } from "react";
 import { menuPosition } from "../documents/menu-behavior";
-import { NavigationHosts } from "./NavigationSlots";
+import { NavigationHost, useNavigationVisibility } from "./NavigationSlots";
 
 export function DocumentNavigation() {
   const root = useRef<HTMLDetailsElement>(null);
+  const { open, setOpen } = useNavigationVisibility();
   useNavigationDismiss(root);
+  useLayoutEffect(() => {
+    setOpen?.(root.current?.open ?? false);
+  }, [setOpen]);
+  useLayoutEffect(() => {
+    if (open && root.current) positionNavigation(root.current);
+  }, [open]);
   return (
     <details
       ref={root}
       className="document-navigation navigation-more"
       onToggle={(event) => {
         if (event.target === event.currentTarget)
-          positionNavigation(event.currentTarget);
+          setOpen?.(event.currentTarget.open);
       }}
       onKeyDown={(event) => {
         if (event.key !== "Escape" || !event.currentTarget.open) return;
@@ -22,7 +29,7 @@ export function DocumentNavigation() {
     >
       <summary>문서 탐색</summary>
       <div className="navigation-popover">
-        <NavigationHosts />
+        <NavigationHost />
       </div>
     </details>
   );

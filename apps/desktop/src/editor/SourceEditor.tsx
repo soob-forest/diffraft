@@ -20,7 +20,7 @@ export interface SourceEditorProps {
   onChange: (raw: string) => void;
   onSelection: (selection: EditorSelection) => void;
   onComposition: (active: boolean) => void;
-  jump: { offset: number; serial: number } | null;
+  jump: { offset: number } | null;
   action?: SourceEditorAction;
 }
 

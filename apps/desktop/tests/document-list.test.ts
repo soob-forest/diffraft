@@ -150,3 +150,39 @@ it("normalizes overlapping v2 states with removed taking precedence", () => {
   expect(list.completedIds).toEqual([second]);
   expect(list.removedIds).toEqual([first]);
 });
+
+it("retries a failed initial read before changing preferences and preserves hidden IDs", () => {
+  const disk = storage();
+  const initial = { completedIds: [first], removedIds: [second] };
+  disk.setItem("docreview.document-list.v2", JSON.stringify(initial));
+  let blocked = true;
+  const list = new DocumentList({
+    ...disk,
+    getItem: (key) => {
+      if (blocked) throw new DOMException("blocked", "SecurityError");
+      return disk.getItem(key);
+    },
+  });
+  expect(() => list.load()).toThrow(/읽/);
+  const third = "00000000-0000-4000-8000-000000000003";
+  expect(() => list.complete(third)).toThrow(/읽/);
+  expect(disk.getItem("docreview.document-list.v2")).toBe(
+    JSON.stringify(initial),
+  );
+  blocked = false;
+  list.complete(third);
+  expect(list.completedIds).toEqual([first, third]);
+  expect(list.removedIds).toEqual([second]);
+});
+
+it.each(["complete", "forget", "restore"] as const)(
+  "does not overwrite invalid settings during %s",
+  (action) => {
+    const disk = storage();
+    disk.setItem("docreview.document-list.v2", "{");
+    const list = new DocumentList(disk);
+    expect(() => list.load()).toThrow(/형식/);
+    expect(() => list[action](first)).toThrow(/형식/);
+    expect(disk.getItem("docreview.document-list.v2")).toBe("{");
+  },
+);

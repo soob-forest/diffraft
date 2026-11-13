@@ -1,14 +1,14 @@
 import { lazy, Suspense, useDeferredValue, useState } from "react";
-import type { Heading } from "../generated/Heading";
 import { errorMessage } from "../ipc";
 import { openPreviewLink } from "./api";
-import { NavigationSlot } from "./NavigationSlots";
+import { DocumentOutline } from "./DocumentOutline";
+import { NavigationSlot, useNavigationVisibility } from "./NavigationSlots";
+import type { PreviewJump } from "./preview-navigation";
 import { type EditorSelection, SourceEditor } from "./SourceEditor";
 import type { SourceEditorAction } from "./source-editor-actions";
 import type { DocumentModel } from "./useDocument";
 
 const Preview = lazy(() => import("./Preview"));
-type Jump = { offset: number; serial: number };
 type Props = {
   model: DocumentModel;
   preview: boolean;
@@ -16,16 +16,12 @@ type Props = {
   onSelection: (value: EditorSelection) => void;
   action?: SourceEditorAction;
 };
-export function EditingArea({
-  model,
-  preview,
-  onSelection,
-  navigationVisible,
-  action,
-}: Props) {
-  const [jump, setJump] = useState<Jump | null>(null);
-  const [previewJump, setPreviewJump] = useState<Jump | null>(null);
+export function EditingArea(props: Props) {
+  const { model, preview, onSelection, navigationVisible, action } = props;
+  const [jump, setJump] = useState<PreviewJump | null>(null);
+  const [previewJump, setPreviewJump] = useState<PreviewJump | null>(null);
   const deferred = useDeferredValue(model.content);
+  const navigation = useNavigationVisibility();
   const open = (url: string) => {
     void openPreviewLink(url).catch((error: unknown) =>
       model.setError(errorMessage(error)),
@@ -33,10 +29,11 @@ export function EditingArea({
   };
   return (
     <div className="editing-area">
-      {navigationVisible && (
-        <NavigationSlot name="outline">
-          <Outline
-            headings={model.state.headings}
+      {navigationVisible && navigation.open && (
+        <NavigationSlot>
+          <DocumentOutline
+            content={deferred}
+            disabled={deferred !== model.content}
             onJump={preview ? setPreviewJump : setJump}
           />
         </NavigationSlot>
@@ -66,32 +63,6 @@ export function EditingArea({
   );
 }
 
-function Outline({
-  headings,
-  onJump,
-}: {
-  headings: Heading[];
-  onJump: (jump: Jump) => void;
-}) {
-  return (
-    <nav className="outline" aria-label="문서 목차">
-      <strong>목차</strong>
-      {headings.map((heading) => (
-        <button
-          type="button"
-          key={heading.from}
-          style={{ paddingLeft: `${(heading.level - 1) * 12 + 8}px` }}
-          onClick={() =>
-            onJump({ offset: heading.fromUtf16, serial: Date.now() })
-          }
-        >
-          {heading.title}
-        </button>
-      ))}
-    </nav>
-  );
-}
-
 function PreviewPane({
   content,
   onOpen,
@@ -100,7 +71,7 @@ function PreviewPane({
 }: {
   content: string;
   onOpen: (url: string) => void;
-  jump: Jump | null;
+  jump: PreviewJump | null;
   handled: () => void;
 }) {
   return (

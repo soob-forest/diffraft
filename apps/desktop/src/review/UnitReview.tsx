@@ -58,7 +58,7 @@ function UnitReviewContent({
         controller={controller}
       />
       {active && (
-        <NavigationSlot name="outline">
+        <NavigationSlot>
           <UnitReviewNavigation
             batch={projection.batch}
             navigation={navigation}

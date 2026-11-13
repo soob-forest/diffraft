@@ -53,14 +53,6 @@
   display: flex;
   overflow: hidden;
 }
-.outline {
-  width: 155px;
-  flex-shrink: 0;
-  padding: 16px 8px;
-  overflow: auto;
-  border-right: 1px solid #e7edf4;
-  font-size: 12px;
-}
 .outline strong {
   display: block;
   margin: 0 8px 12px;
@@ -230,9 +222,6 @@ textarea {
   display: inline-block;
 }
 @media (max-width: 1250px) {
-  .outline {
-    display: none;
-  }
   .document-workspace {
     grid-template-columns: minmax(300px, 1fr) 250px;
   }

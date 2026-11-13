@@ -12,6 +12,7 @@ export class DocumentListError extends Error {}
 export class DocumentList {
   completedIds: string[] = [];
   removedIds: string[] = [];
+  private loaded = false;
   constructor(private readonly storage: ListStorage) {}
 
   get hiddenIds() {
@@ -19,6 +20,7 @@ export class DocumentList {
   }
 
   load() {
+    this.loaded = false;
     const raw = this.read(STORAGE_KEY);
     if (raw !== null) {
       const value = parse(raw);
@@ -30,17 +32,23 @@ export class DocumentList {
       )
         throw invalidSettings();
       const removedIds = identifiers(value.removedIds);
-      this.completedIds = identifiers(value.completedIds).filter(
+      const completedIds = identifiers(value.completedIds).filter(
         (id) => !removedIds.includes(id),
       );
+      this.completedIds = completedIds;
       this.removedIds = removedIds;
+      this.loaded = true;
       return;
     }
     const legacy = this.read(LEGACY_KEY);
-    if (legacy !== null) this.completedIds = identifiers(parse(legacy));
+    const completedIds = legacy === null ? [] : identifiers(parse(legacy));
+    this.completedIds = completedIds;
+    this.removedIds = [];
+    this.loaded = true;
   }
 
   complete(id: string) {
+    this.ensureLoaded();
     if (this.removedIds.includes(id))
       throw new DocumentListError(
         "목록에서 제거된 문서는 먼저 다시 열어 주세요.",
@@ -51,6 +59,7 @@ export class DocumentList {
     });
   }
   forget(id: string) {
+    this.ensureLoaded();
     if (!this.completedIds.includes(id))
       throw new DocumentListError(
         "완료한 문서만 목록에서 완전히 제거할 수 있습니다.",
@@ -61,11 +70,15 @@ export class DocumentList {
     });
   }
   restore(id: string) {
+    this.ensureLoaded();
     if (!this.hiddenIds.includes(id)) return;
     this.save({
       completedIds: this.completedIds.filter((value) => value !== id),
       removedIds: this.removedIds.filter((value) => value !== id),
     });
+  }
+  ensureLoaded() {
+    if (!this.loaded) this.load();
   }
   private read(key: string) {
     try {

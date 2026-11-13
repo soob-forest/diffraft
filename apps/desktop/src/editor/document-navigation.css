@@ -37,6 +37,7 @@
   padding: 0;
   border: 0;
   font-size: 14px;
+  overflow: auto;
 }
 .document-navigation .outline strong {
   margin: 0 0 8px;

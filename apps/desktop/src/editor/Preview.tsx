@@ -41,6 +41,7 @@ export default function Preview({
   const { root, notice } = usePreviewNavigation({
     jump,
     handled: onJumpHandled,
+    content,
   });
   return (
     <article ref={root} className="markdown-preview" aria-label="문서 미리보기">

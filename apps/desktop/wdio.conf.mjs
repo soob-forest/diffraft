@@ -138,28 +138,30 @@ export const config = {
   capabilities: [{ browserName: "tauri", "tauri:options": { application } }],
 };
 
+const foregroundPhases = [
+  "document-navigation",
+  "document-management",
+  "request-followup",
+  "selection-popover",
+  "selection-popover-layout",
+  "selection-popover-restart",
+  "ux-reliability",
+  "ux-reliability-restart",
+  "request-workflow",
+  "request-workflow-restart",
+  "review",
+  "patch-groups",
+  "patch-groups-restart",
+  "rewrite-review",
+  "rewrite-review-restart",
+  "rewrite-review-keyboard",
+  "review-followup",
+  "ux-local",
+  "codex-keyboard",
+];
+
 async function ensureVisibleWindow() {
-  if (
-    [
-      "request-followup",
-      "selection-popover",
-      "selection-popover-layout",
-      "selection-popover-restart",
-      "ux-reliability",
-      "ux-reliability-restart",
-      "request-workflow",
-      "request-workflow-restart",
-      "review",
-      "patch-groups",
-      "patch-groups-restart",
-      "rewrite-review",
-      "rewrite-review-restart",
-      "rewrite-review-keyboard",
-      "review-followup",
-      "ux-local",
-      "codex-keyboard",
-    ].includes(phase)
-  ) {
+  if (foregroundPhases.includes(phase)) {
     await foregroundUnitDisplay(1);
   }
   await browser.waitUntil(
